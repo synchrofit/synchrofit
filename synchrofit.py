@@ -14,11 +14,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 class Colors:
-    Yellow = (255, 255, 0)
-    MediumPurple = (147, 112, 219)
     DogderBlue = (30, 144, 255)
-    MediumSpringGreen = (0, 250, 154)
-    Orange = (255, 165, 0)
 
 def _join(*values):
     return ";".join(str(v) for v in values)
@@ -28,9 +24,9 @@ def color_text(s, c, base=30):
     t = _join(base+8, 2, _join(*c))
     return template.format(t, s)
 
-def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks=31, break_range=[8,11], ninjects=21, inject_range=[2.01,2.99], nremnants=21, remnant_range=[0,1], niterations=3):
+def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range, niterations, workdir):
     """
-    (usage) Fits a radio spectrum.
+    (usage) Finds the optimal fit for a radio spectrum modelled by either the JP, KP or CI model.
     
     parameters
     ----------
@@ -43,12 +39,15 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks=31, br
     fit_type : str
         The type of model to fit (JP, KP, KGJP, CI)
     nbreaks : int
+        Number of break frequencies used in adaptive grid
     break_range : list
         bounds for the log(break frequency) range
     ninjects : int
+        Number of injection indices used in adaptive grid
     inject_range : list
         bounds for the injection index range
     nremnants : int
+        Number of  used in adaptive grid
     remnant_range : list
         bounds for the remnant ratio range
     niterations : int
@@ -59,7 +58,10 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks=31, br
         fitted flux density for given frequency list
     normalisation : float
         normalisation factor for correct scaling
-    """  
+    """
+    # frequency, luminosity, dluminosity, fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range
+    colorstring = color_text("Modelling parameters accepted: \n inject_range = {} \n ninjects = {} \n nbreaks = {} \n break_range = {} \n nremnants = {} \n remnant_range = {}".format(inject_range, ninjects, nbreaks, break_range, nremnants, remnant_range), Colors.DogderBlue)
+    logger.info(colorstring)
     # check inputs are of correct data types
     if not isinstance(frequency, (list, np.ndarray)) or not isinstance(luminosity, (list, np.ndarray)) or not isinstance(dluminosity, (list, np.ndarray)) or not len(luminosity) == len(frequency) or not len(dluminosity) == len(frequency):
         raise Exception('Frequency, luminosity and uncertainty arrays must be lists or numpy arrays of the same length.')
@@ -78,6 +80,8 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks=31, br
 
     if fit_type == 'JP' or fit_type == 'KP':
         nremnants = 1
+        colorstring = color_text("Override nremnants=1 for {} model".format(fit_type), Colors.DogderBlue)
+        logger.info(colorstring)
     
     # convert luminosities and uncertainties to log-scale
     log_luminosity = np.log10(luminosity + 1e-307)
@@ -89,7 +93,7 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks=31, br
             dlog_luminosity[freqPointer] = 1e-307
     
     # read-in integral of BesselK_5/3 datafile
-    df_bessel = pd.read_csv('{}/besselK53.txt'.format(options.path), header=None)
+    df_bessel = pd.read_csv('{}/besselK53.txt'.format(workdir), header=None)
     bessel_x, bessel_F = df_bessel[0].values, df_bessel[1].values
     
     # calculate dof for chi-squared functions
@@ -206,7 +210,7 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks=31, br
 @jit(nopython=True) # Set "nopython" mode for best performance, equivalent to @njit
 def spectral_models(frequency, luminosity, fit_type, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F):
     """
-    (usage) Fits a radio spectrum and uses the modelled injection index and break frequency to return a list of modelled flux densities. An uncertainty envelope on the model is calculated following an MC approach. 
+    (usage) Numerical forms for the JP, KP and CI models.  
     
     parameters
     ----------
@@ -342,7 +346,7 @@ def spectral_models(frequency, luminosity, fit_type, break_frequency, injection_
     # return outputs
     return luminosity_predict, normalisation
 
-def evaluate_model(frequency, luminosity, dluminosity, fit_type, nremnants, nfreqplots, mcLength, sigma_level):
+def evaluate_model(frequency, luminosity, dluminosity, options):
     """
     (usage) Uses the optimized parameters to return a 1darray of model flux densities for a given frequency list. An uncertainty envelope on the model is calculated following an MC approach. 
     
@@ -379,16 +383,16 @@ def evaluate_model(frequency, luminosity, dluminosity, fit_type, nremnants, nfre
         Luminosityfit + dLuminosityfit
     
     """
-    
+    fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range, nfreqplots, mcLength, sigma_level, niterations, workdir = options.fit_type, options.nbreaks, options.break_range, options.ninjects, options.inject_range, options.nremnants, options.remnant_range, options.nfreqplots, options.mcLength, options.sigma_level, options.niterations, options.workdir
     # fit the spectrum for the optimal estimates of the injection index and break frequency
-    break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation = spectral_fitter(frequency, luminosity, dluminosity, fit_type, nremnants=nremnants)
+    break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation = spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range, niterations, workdir)
     # determine the model for a list of plotting frequencies
     plotting_frequency=np.geomspace(5e+7,5e+10,num=nfreqplots)
     Luminosityfit, norm = spectral_models(plotting_frequency, np.zeros(len(plotting_frequency)), fit_type, break_predict, inject_predict, remnant_predict, normalisation, df[0].values, df[1].values)
-    colorstring = color_text("freq_model = {}".format(plotting_frequency), Colors.DogderBlue)
-    logger.info(colorstring)
-    colorstring = color_text("flux_model = {}".format(Luminosityfit), Colors.DogderBlue)
-    logger.info(colorstring)
+    # colorstring = color_text("freq_model = {}".format(plotting_frequency), Colors.DogderBlue)
+    # logger.info(colorstring)
+    # colorstring = color_text("flux_model = {}".format(Luminosityfit), Colors.DogderBlue)
+    # logger.info(colorstring)
     # simulate a list of injection indices and break frequencies using their gaussian errors 
     break_predict_vec = np.random.normal(break_predict, dbreak_predict, mcLength)
     inject_predict_vec = np.random.normal(inject_predict, dinject_predict, mcLength)
@@ -407,44 +411,58 @@ def evaluate_model(frequency, luminosity, dluminosity, fit_type, nremnants, nfre
         dLuminosityfit[plotfreqPointer] = np.std(luminosityArray.T[plotfreqPointer])
         Luminosityfit_lower[plotfreqPointer] = Luminosityfit[plotfreqPointer] - sigma_level*np.std(luminosityArray.T[plotfreqPointer])
         Luminosityfit_upper[plotfreqPointer] = Luminosityfit[plotfreqPointer] + sigma_level*np.std(luminosityArray.T[plotfreqPointer])
-    colorstring = color_text("err_flux_model = {}".format(dLuminosityfit), Colors.DogderBlue)
-    logger.info(colorstring)
+    # colorstring = color_text("err_flux_model = {}".format(dLuminosityfit), Colors.DogderBlue)
+    # logger.info(colorstring)
     
     return(plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prefix_chars='-')
     group1 = parser.add_argument_group('Configuration Options')
-    group1.add_argument('--path', dest='path', type=str, help='Path to folder containing data files. ')
-    group1.add_argument("--data", dest='data', help='Name of .dat file containing measured spectra.')
-    group1.add_argument("--freq", dest='freq', help='Measured frequencies.')
-    group1.add_argument("--flux", dest='flux', help='Measured flux densities')
-    group1.add_argument("--err_flux", dest='err_flux', help='Measured flux density uncertainties')
+    group1.add_argument('--workdir', dest='workdir', type=str, help='Path to working directory containing data files. ')
+    group1.add_argument("--data", dest='data', type=str, help='Name of .dat file containing measured spectra.')
+    group1.add_argument("--freq", dest='freq', type=float, nargs='+', default=None, help='Measured frequencies.')
+    group1.add_argument("--flux", dest='flux', type=float, nargs='+', default=None, help='Measured flux densities')
+    group1.add_argument("--err_flux", dest='err_flux', type=float, nargs='+', default=None, help='Measured flux density uncertainties')
+    
     group2 = parser.add_argument_group('Fitting Options')
-    group2.add_argument("--fit_type", dest='fit_type', help='Model to fit: JP, KP, CI')
-    group2.add_argument("--nfreqplots", dest='nfreqplots', type=int, default=100, help='Number of plotting frequencies.')
-    group2.add_argument("--mcLength", dest='mcLength', type=int, default=1000, help='Number of MC iterations.')
-    group2.add_argument("--sigma_level", dest='sigma_level', type=int, default=2, help='Width of uncertainty envelope in sigma')
+    group2.add_argument("--fit_type", dest='fit_type', type=str, default=None, help='Model to fit: JP, KP, CI')
+    group2.add_argument("--nbreaks", dest='nbreaks', type=int, default=31, help='Number of break frequencies for adaptive grid')
+    group2.add_argument("--ninjects", dest='ninjects', type=int, default=21, help='Number of injection indices for adaptive grid')
+    group2.add_argument("--nremnants", dest='nremnants', type=int, default=21, help='')
+    group2.add_argument("--niterations", dest='niterations', type=int, default=3, help='')
+    group2.add_argument("--break_range", dest='break_range', type=float, nargs='+', default=[8, 11], help='Allowed range for log10(break frequency)')
+    group2.add_argument("--inject_range", dest='inject_range', type=float, nargs='+', default=[2.01, 2.99], help='Allowed range for energy injection index "s"')
+    group2.add_argument("--remnant_range", dest='remnant_range', type=float, nargs='+', default=[0, 1], help='Allowed range for remnant fraction')
+
+    group3 = parser.add_argument_group('Output Model Options')
+    group3.add_argument("--nfreqplots", dest='nfreqplots', type=int, default=100, help='Number of plotting frequencies.')
+    group3.add_argument("--mcLength", dest='mcLength', type=int, default=1000, help='Number of MC iterations.')
+    group3.add_argument("--sigma_level", dest='sigma_level', type=int, default=2, help='Width of uncertainty envelope in sigma')
+
+    group4 = parser.add_argument_group('Extra options')
+    group4.add_argument('--plot', dest='plot', action='store_true',default=False, help='Plot data and optimized model fit.')
+    group4.add_argument('--write_model', dest='write_model', action='store_true', default=False, help='Write model and fitting outputs to file. Requires --workdir to be specfied.')
+    
     options = parser.parse_args()
 
-    df = pd.read_csv('{}/besselK53.txt'.format(options.path), header=None)
-    df_data = pd.read_csv('{}/{}'.format(options.path, options.data))
+    df = pd.read_csv('{}/besselK53.txt'.format(options.workdir), header=None)
+    df_data = pd.read_csv('{}/{}'.format(options.workdir, options.data))
 
     frequency = df_data.iloc[:,1].values
     luminosity = df_data.iloc[:,2].values
     dluminosity = df_data.iloc[:,3].values
     
-    nremnants = 1
-    plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper = evaluate_model(frequency, luminosity, dluminosity, options.fit_type, nremnants, options.nfreqplots, options.mcLength, options.sigma_level)
+    plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper = evaluate_model(frequency, luminosity, dluminosity, options)
 
     fig, axs = plt.subplots(1, 1, sharex=True, sharey=True, figsize=(10, 10))
     fig.subplots_adjust(hspace=0)
 
-    axs.scatter(frequency, luminosity, marker='.', c='black', label='data')
+    axs.scatter(frequency, luminosity, marker='.', c='black', label='data', zorder=1)
     axs.errorbar(frequency,luminosity,xerr=0,yerr=dluminosity,color='black',capsize=1,linestyle='None',hold=True,fmt='none',alpha=0.9)
 
-    axs.plot(plotting_frequency, Luminosityfit, c='C0', label='{} model'.format(options.fit_type))
-    axs.fill_between(plotting_frequency, Luminosityfit_lower.T, Luminosityfit_upper.T, color='purple', alpha=0.2, label='model $\\pm2\\sigma$')
+    axs.plot(plotting_frequency, Luminosityfit, c='C0', label='{} model'.format(options.fit_type), zorder=2)
+    axs.fill_between(plotting_frequency, Luminosityfit_lower.T, Luminosityfit_upper.T, color='purple', alpha=0.2, label='{} model $\\pm{}\\sigma$'.format(options.fit_type, options.sigma_level), zorder=3)
 
     axs.set_xscale('log')
     axs.set_yscale('log')
