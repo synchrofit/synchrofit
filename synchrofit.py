@@ -346,7 +346,7 @@ def spectral_models(frequency, luminosity, fit_type, break_frequency, injection_
     # return outputs
     return luminosity_predict, normalisation
 
-def evaluate_model(frequency, luminosity, dluminosity, options):
+def evaluate_model(frequency, luminosity, dluminosity, fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range, nfreqplots, mcLength, sigma_level, niterations, workdir):
     """
     (usage) Uses the optimized parameters to return a 1darray of model flux densities for a given frequency list. An uncertainty envelope on the model is calculated following an MC approach. 
     
@@ -383,7 +383,8 @@ def evaluate_model(frequency, luminosity, dluminosity, options):
         Luminosityfit + dLuminosityfit
     
     """
-    fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range, nfreqplots, mcLength, sigma_level, niterations, workdir = options.fit_type, options.nbreaks, options.break_range, options.ninjects, options.inject_range, options.nremnants, options.remnant_range, options.nfreqplots, options.mcLength, options.sigma_level, options.niterations, options.workdir
+    # fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range, nfreqplots, mcLength, sigma_level, niterations, workdir = options.fit_type, options.nbreaks, options.break_range, options.ninjects, options.inject_range, options.nremnants, options.remnant_range, options.nfreqplots, options.mcLength, options.sigma_level, options.niterations, options.workdir
+    df = pd.read_csv('{}/besselK53.txt'.format(options.workdir), header=None)
     # fit the spectrum for the optimal estimates of the injection index and break frequency
     break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation = spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range, niterations, workdir)
     # determine the model for a list of plotting frequencies
@@ -417,6 +418,25 @@ def evaluate_model(frequency, luminosity, dluminosity, options):
     
     return(plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper)
 
+def make_plot(plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper, workdir):
+    fig = plt.figure(figsize=(10,10))
+    ax = fig.add_axes([0.09,0.09,0.88,0.88])
+
+    ax.scatter(frequency, luminosity, marker='.', c='black', label='data', zorder=1)
+    ax.errorbar(frequency,luminosity,xerr=0,yerr=dluminosity,color='black',capsize=1,linestyle='None',hold=True,fmt='none',alpha=0.9)
+
+    ax.plot(plotting_frequency, Luminosityfit, c='C0', label='{} model'.format(options.fit_type), zorder=2)
+    ax.fill_between(plotting_frequency, Luminosityfit_lower.T, Luminosityfit_upper.T, color='purple', alpha=0.2, label='{} model $\\pm{}\\sigma$'.format(options.fit_type, options.sigma_level), zorder=3)
+
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_xlim([1e8,1e10])
+    ax.set_ylim([0.2*np.min(luminosity),5*np.max(luminosity)])
+    ax.set_xlabel('Frequency / GHz')
+    ax.set_ylabel('Integrated flux density / Jy')
+    plt.legend(loc='upper right')
+    plt.savefig('{}/modelled_spectrum.png'.format(workdir),dpi=400)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prefix_chars='-')
     group1 = parser.add_argument_group('Configuration Options')
@@ -447,29 +467,12 @@ if __name__ == "__main__":
     
     options = parser.parse_args()
 
-    df = pd.read_csv('{}/besselK53.txt'.format(options.workdir), header=None)
     df_data = pd.read_csv('{}/{}'.format(options.workdir, options.data))
-
     frequency = df_data.iloc[:,1].values
     luminosity = df_data.iloc[:,2].values
     dluminosity = df_data.iloc[:,3].values
     
-    plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper = evaluate_model(frequency, luminosity, dluminosity, options)
+    plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper = evaluate_model(frequency, luminosity, dluminosity, options.fit_type, options.nbreaks, options.break_range, options.ninjects, options.inject_range, options.nremnants, options.remnant_range, options.nfreqplots, options.mcLength, options.sigma_level, options.niterations, options.workdir)
 
-    fig, axs = plt.subplots(1, 1, sharex=True, sharey=True, figsize=(10, 10))
-    fig.subplots_adjust(hspace=0)
-
-    axs.scatter(frequency, luminosity, marker='.', c='black', label='data', zorder=1)
-    axs.errorbar(frequency,luminosity,xerr=0,yerr=dluminosity,color='black',capsize=1,linestyle='None',hold=True,fmt='none',alpha=0.9)
-
-    axs.plot(plotting_frequency, Luminosityfit, c='C0', label='{} model'.format(options.fit_type), zorder=2)
-    axs.fill_between(plotting_frequency, Luminosityfit_lower.T, Luminosityfit_upper.T, color='purple', alpha=0.2, label='{} model $\\pm{}\\sigma$'.format(options.fit_type, options.sigma_level), zorder=3)
-
-    axs.set_xscale('log')
-    axs.set_yscale('log')
-    axs.set_xlim([1e8,1e10])
-    axs.set_ylim([0.2*np.min(luminosity),5*np.max(luminosity)])
-    axs.set_xlabel('Frequency / GHz')
-    axs.set_ylabel('Integrated flux density / Jy')
-    plt.legend(loc='upper right')
-    plt.savefig('/home/sputnik/Downloads/modelerr.png',dpi=400)
+    if options.plot:
+        make_plot(plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper, options.workdir)
