@@ -1,6 +1,6 @@
 # synchrofit
 Code for modelling a radio spectrum using the JP, KP or CI models. 
 
-# Basic theory
+## Basic theory
 
-# Example workflow
+## Example workflow
