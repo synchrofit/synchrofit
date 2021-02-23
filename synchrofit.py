@@ -396,11 +396,12 @@ def evaluate_model(frequency, luminosity, dluminosity, options):
     # simulate a list of injection indices and break frequencies using their gaussian errors 
     break_predict_vec = np.random.normal(break_predict, dbreak_predict, mcLength)
     inject_predict_vec = np.random.normal(inject_predict, dinject_predict, mcLength)
+    remnant_predict_vec = np.random.normal(remnant_predict, dremnant_predict, mcLength)
     
     # MC simulate an array of model luminosities
     luminosityArray = np.zeros([mcLength,len(plotting_frequency)])
     for mcPointer in range(0,mcLength):
-        fitmc, normmc = spectral_models(plotting_frequency, np.zeros(len(plotting_frequency)), fit_type, break_predict_vec[mcPointer], inject_predict_vec[mcPointer], remnant_predict, normalisation, df[0].values, df[1].values)
+        fitmc, normmc = spectral_models(plotting_frequency, np.zeros(len(plotting_frequency)), fit_type, break_predict_vec[mcPointer], inject_predict_vec[mcPointer], remnant_predict_vec[mcPointer], normalisation, df[0].values, df[1].values)
         luminosityArray[mcPointer] = (np.asarray(fitmc))
     
     dLuminosityfit=np.zeros([len(plotting_frequency)])
