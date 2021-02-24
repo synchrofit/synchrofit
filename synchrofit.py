@@ -491,6 +491,35 @@ def make_plot(frequency, luminosity, dluminosity, plotting_frequency, Luminosity
     plt.legend(loc='upper right', fontsize=20)
     plt.savefig('{}/{}_fit.png'.format(workdir, fit_type),dpi=400)
 
+def convert_to_native(data, unit):
+    """
+    (usage) Converts input frequency and flux density into Hz and Jy, respectively. 
+    
+    parameters
+    ----------
+    data : 1darray
+        Input frequency or flux density data
+    unit : str
+        The units corresponding to the data
+
+    returns
+    -------
+    data : 1darray
+        Input data in native units
+    """
+    if unit == 'Hz':
+        return(data)
+    if unit == 'MHz':
+        return(1e+6*data)
+    if unit == 'GHz':
+        return(1e+9*data)
+    if unit == 'Jy':
+        return(data)
+    if unit == 'mJy':
+        return(1e-3*data)
+    if unit == 'uJy':
+        return(1e-6*data)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prefix_chars='-')
     group1 = parser.add_argument_group('Configuration Options')
@@ -499,6 +528,8 @@ if __name__ == "__main__":
     group1.add_argument("--freq", dest='freq', type=float, nargs='+', default=None, help='Measured frequencies.')
     group1.add_argument("--flux", dest='flux', type=float, nargs='+', default=None, help='Measured flux densities')
     group1.add_argument("--err_flux", dest='err_flux', type=float, nargs='+', default=None, help='Measured flux density uncertainties')
+    group1.add_argument("--freq_unit", dest='freq_unit', type=str, default='Hz', help='Frequency units (default = Hz)')
+    group1.add_argument("--flux_unit", dest='flux_unit', type=str, default='Jy', help='Flux density units (default = Jy)')
     
     group2 = parser.add_argument_group('Fitting Options')
     group2.add_argument("--fit_type", dest='fit_type', type=str, default=None, help='Model to fit: JP, KP, CI')
@@ -521,16 +552,22 @@ if __name__ == "__main__":
     
     options = parser.parse_args()
 
-    # read input data from file or from command line
+    # Read in input data and convert to native units. 
     if options.data:
         df_data = pd.read_csv('{}/{}'.format(options.workdir, options.data))
-        frequency = df_data.iloc[:,1].values
-        luminosity = df_data.iloc[:,2].values
-        dluminosity = df_data.iloc[:,3].values
+        frequency = convert_to_native(df_data.iloc[:,1].values, options.freq_unit)
+        luminosity = convert_to_native(df_data.iloc[:,2].values, options.flux_unit)
+        dluminosity = convert_to_native(df_data.iloc[:,3].values, options.flux_unit)
     elif options.freq:
-        frequency = np.asarray(options.freq)
-        luminosity = np.asarray(options.flux)
-        dluminosity = np.asarray(options.err_flux)
+        frequency = convert_to_native(np.asarray(options.freq), options.freq_unit)
+        luminosity = convert_to_native(np.asarray(options.flux), options.flux_unit)
+        dluminosity = convert_to_native(np.asarray(options.err_flux), options.flux_unit)
+    colorstring = color_text("Succesfully read in input data", Colors.DogderBlue)
+    print("INFO (main): {}".format(colorstring))
+    espace='            '
+    colorstring = color_text('{} Frequency (Hz) = {} \n {} flux_density (Jy) = {} \n {} err_flux_density (Jy) = {}'.format(espace, frequency, espace, luminosity, espace, dluminosity), Colors.Green)
+    print(colorstring)
+
     plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper = evaluate_model(frequency, luminosity, dluminosity, options.fit_type, options.nbreaks, options.break_range, options.ninjects, options.inject_range, options.nremnants, options.remnant_range, options.nfreqplots, options.mcLength, options.sigma_level, options.niterations, options.workdir, options.write_model)
 
     if options.plot:
