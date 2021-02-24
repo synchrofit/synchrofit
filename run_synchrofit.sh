@@ -25,12 +25,14 @@ fi
 # set execution options here
 workdir="/home/sputnik/Documents/software/synchrofit/"
 datafile="test_spectra.dat"
-freq_unit='MHz'
+freq_unit='Hz'
 flux_unit='Jy'
-fit_type='JP'
+fit_type='CI'
 nfreqplots=100
 mcLength=100
-sigma_level=2
+sigma_level=1
+bfield=1.08
+z=0.2133
 
 if [[ "$option" == "file" ]]
 then
@@ -44,7 +46,10 @@ then
         --mcLength $mcLength \
         --sigma_level $sigma_level \
         --plot \
-        --write_model
+        --write_model \
+        --age \
+        --bfield $bfield \
+        --z $z
 else
     python3 synchrofit.py \
         --workdir $workdir \
@@ -58,5 +63,8 @@ else
         --mcLength $mcLength \
         --sigma_level $sigma_level \
         --plot \
-        --write_model
+        --write_model \
+        --age \
+        --bfield $bfield \
+        --z $z
 fi

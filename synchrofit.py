@@ -193,7 +193,7 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks, break
         if (nremnants > 2):
             for remnantPointer in range(0, max(1, nremnants)):
                 sum_probability = sum_probability + probability[max_break,max_inject,remnantPointer]
-                dremnant_predict = dinject_predict + probability[max_break,max_inject,remnantPointer]*(remnant_ratio[remnantPointer] - remnant_predict)**2
+                dremnant_predict = dremnant_predict + probability[max_break,max_inject,remnantPointer]*(remnant_ratio[remnantPointer] - remnant_predict)**2
             dremnant_predict = np.sqrt(dremnant_predict/sum_probability)
         
         # update adaptive regions
@@ -407,7 +407,7 @@ def evaluate_model(frequency, luminosity, dluminosity, fit_type, nbreaks, break_
     # fit the spectrum for the optimal estimates of the injection index and break frequency
     break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation = spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range, niterations, workdir, write_model)
     # determine the model for a list of plotting frequencies
-    plotting_frequency=np.geomspace(5e+7,5e+10,num=nfreqplots)
+    plotting_frequency=np.geomspace(10**(math.floor(np.min(np.log10(frequency)))),10**(math.ceil(np.max(np.log10(frequency)))), num=nfreqplots)
     Luminosityfit, norm = spectral_models(plotting_frequency, np.zeros(len(plotting_frequency)), fit_type, break_predict, inject_predict, remnant_predict, normalisation, df[0].values, df[1].values)
     # simulate a list of injection indices and break frequencies using their gaussian errors 
     break_predict_vec = np.random.normal(break_predict, dbreak_predict, mcLength)
@@ -441,7 +441,7 @@ def evaluate_model(frequency, luminosity, dluminosity, fit_type, nbreaks, break_
             file.write("{}, {}, {}, {}, {} \n".format(plotting_frequency[i], Luminosityfit[i], dLuminosityfit[i], Luminosityfit_lower[i], Luminosityfit_upper[i]))
         file.close()
 
-    return(plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper)
+    return(break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper)
 
 def make_plot(frequency, luminosity, dluminosity, plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper, workdir, fit_type, sigma_level=None):
     """
@@ -491,6 +491,51 @@ def make_plot(frequency, luminosity, dluminosity, plotting_frequency, Luminosity
     plt.legend(loc='upper right', fontsize=20)
     plt.savefig('{}/{}_fit.png'.format(workdir, fit_type),dpi=400)
 
+def derive_spectra_age(fit_type, vb, T, B, z):
+    """
+    (usage) Derives the total, active and inactive spectral age using the break frequency, quiescent fraction, magnetic field strength and redshift.
+    
+    parameters
+    ----------
+    fit_type : str
+        The fitted model (JP, KP or CI)
+    vb : float
+        The break frequency
+    T : float
+        The quiescent fraction (this is remnant_predict from spectral_fitter() )
+    B : float
+        The magnetic field strength in units of nT
+    z : float
+        The cosmological redshift.
+
+    returns
+    -------
+    tau : float
+        The spectral age of the radio emision
+    t_on : float
+        Duration of active phase
+    t_off : float
+        Duration of remnant phase
+    """
+    # define constants (SI units)
+    c = 299792458       # light speed
+    me = 9.10938356e-31 # electron mass
+    mu0 = 4*np.pi*1e-7  # magnetic permeability of free space
+    e = 1.60217662e-19  # charge on electron
+    if fit_type in ['CI', 'JP']:
+        v = ((243*np.pi*(me**5)*(c**2))/(4*(mu0**2)*(e**7)))**(0.5)
+    elif fit_type == 'KP':
+        v = (1/2.25)*(((243*np.pi*(me**5)*(c**2))/(4*(mu0**2)*(e**7)))**(0.5))
+    Bic = 0.318*((1+z)**2)*1e-9
+    B = B*1e-9
+    tau = ((v*(B**(0.5)))/((B**2)+(Bic**2)))*((vb*(1+z))**(-0.5)) # seconds
+    tau = tau/(3.154e+13) # Myr
+    espace='                          '
+    colorstring = color_text("Spectral ages estimated for {} model:".format(fit_type), Colors.DogderBlue)
+    logger.info(colorstring)
+    colorstring = color_text("{} Total spectra age = {} Myr".format(espace, tau), Colors.Green)
+    print(colorstring)
+
 def convert_to_native(data, unit):
     """
     (usage) Converts input frequency and flux density into Hz and Jy, respectively. 
@@ -537,7 +582,7 @@ if __name__ == "__main__":
     group2.add_argument("--ninjects", dest='ninjects', type=int, default=21, help='Number of injection indices for adaptive grid')
     group2.add_argument("--nremnants", dest='nremnants', type=int, default=21, help='')
     group2.add_argument("--niterations", dest='niterations', type=int, default=3, help='')
-    group2.add_argument("--break_range", dest='break_range', type=float, nargs='+', default=[8, 11], help='Allowed range for log10(break frequency)')
+    group2.add_argument("--break_range", dest='break_range', type=float, nargs='+', default=[8, 11], help='Allowed range for log10(break frequency) in Hz')
     group2.add_argument("--inject_range", dest='inject_range', type=float, nargs='+', default=[2.01, 2.99], help='Allowed range for energy injection index "s"')
     group2.add_argument("--remnant_range", dest='remnant_range', type=float, nargs='+', default=[0, 1], help='Allowed range for remnant fraction')
 
@@ -546,10 +591,14 @@ if __name__ == "__main__":
     group3.add_argument("--mcLength", dest='mcLength', type=int, default=1000, help='Number of MC iterations.')
     group3.add_argument("--sigma_level", dest='sigma_level', type=int, default=2, help='Width of uncertainty envelope in sigma')
 
-    group4 = parser.add_argument_group('Extra options')
+    group4 = parser.add_argument_group('Extra fitting options')
     group4.add_argument('--plot', dest='plot', action='store_true',default=False, help='Plot data and optimized model fit.')
     group4.add_argument('--write_model', dest='write_model', action='store_true', default=False, help='Write model and fitting outputs to file. Requires --workdir to be specfied.')
-    
+
+    group5 = parser.add_argument_group('Spectral age options')
+    group5.add_argument('--age', dest='age', action='store_true', default=False, help='Determine spectral age from fit and B-field assumption. (Default = False). Requires --bfield')
+    group5.add_argument('--bfield', dest='bfield', type=float, help='Magnetic field strength.')
+    group5.add_argument('--z', dest='z', type=float, help='Cosmological redshift of source. ')
     options = parser.parse_args()
 
     # Read in input data and convert to native units. 
@@ -568,7 +617,10 @@ if __name__ == "__main__":
     colorstring = color_text('{} Frequency (Hz) = {} \n {} flux_density (Jy) = {} \n {} err_flux_density (Jy) = {}'.format(espace, frequency, espace, luminosity, espace, dluminosity), Colors.Green)
     print(colorstring)
 
-    plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper = evaluate_model(frequency, luminosity, dluminosity, options.fit_type, options.nbreaks, options.break_range, options.ninjects, options.inject_range, options.nremnants, options.remnant_range, options.nfreqplots, options.mcLength, options.sigma_level, options.niterations, options.workdir, options.write_model)
+    break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper = evaluate_model(frequency, luminosity, dluminosity, options.fit_type, options.nbreaks, options.break_range, options.ninjects, options.inject_range, options.nremnants, options.remnant_range, options.nfreqplots, options.mcLength, options.sigma_level, options.niterations, options.workdir, options.write_model)
 
     if options.plot:
         make_plot(frequency, luminosity, dluminosity, plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper, options.workdir, options.fit_type, options.sigma_level)
+    
+    if options.age:
+        derive_spectra_age(options.fit_type, break_predict, remnant_predict, options.bfield, options.z)
