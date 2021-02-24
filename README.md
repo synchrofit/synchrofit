@@ -1,5 +1,8 @@
 # synchrofit
-The goal of this code is to model a radio spectrum using the numerical forms of the Jaffe-Perola (JP) model, Kardashev-Pacholczyk (KP) model, or the on/off forms of the Continuous-injection (CI) model. Expressions for the JP, KP and CI-on models are adapted from Turner, et al (2017b) https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract, and the expression for the CI-off model is adapted from Turner, et al (2018) https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract. 
+The goal of this code is to model a radio spectrum using the numerical forms of the Jaffe-Perola (JP) model, Kardashev-Pacholczyk (KP) model, or the on/off forms of the Continuous-injection (CI) model. Expressions for the JP, KP and CI-on models are adapted from: 
+- Turner, et al (2017b) https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract 
+and the expression for the CI-off model is adapted from:
+- Turner, et al (2018) https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract
 
 ## Credits
 Please credit Ross J. Turner and Benjamin Quici if you use this code, or incorporate it into your own workflow. Please acknowledge the use of this code by citing ___ and providing a link to this repository. 
