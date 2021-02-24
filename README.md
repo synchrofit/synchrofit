@@ -20,7 +20,7 @@ A typical workflow might look like:
        - An output model spectrum evaluated over a list of frequencies
    - (optional) Derive the total spectral age (as well as active and inactive ages in the case of the CI-off model). This requires the following:
        - The cosmological redshift of the radio source
-       - The magnetic field strength. For a radio galaxy, you may want to consider dynamically estimating this using RAiSE. 
+       - The magnetic field strength. For a radio galaxy, you may want to consider dynamically estimating this using RAiSE
 
 ## Configuring run_synchrofit.sh
 Variables parsed to `synchrofit.py` can be configured in `run_synchrofit.sh`. For a description of these use ```synchrofit.py --h```. We note that `synchrofit.py` already contains default values for the plausible range of injection indices, break frequencies, quiescent fractions, as well as values that control the adaptive model fitting. 
