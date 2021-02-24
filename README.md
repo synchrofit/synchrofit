@@ -26,7 +26,13 @@ A typical workflow might look like:
        - The magnetic field strength. For a radio galaxy, you may want to consider dynamically estimating this using RAiSE
 
 ## Configuring run_synchrofit.sh
-Variables parsed to `synchrofit.py` can be configured in `run_synchrofit.sh`. For a description of these use ```synchrofit.py --h```. We note that `synchrofit.py` already contains default values for the plausible range of injection indices, break frequencies, quiescent fractions, as well as values that control the adaptive model fitting. 
+Variables parsed to `synchrofit.py` can be configured in `run_synchrofit.sh`. For a description of these use ```synchrofit.py --h```. We note that `synchrofit.py` already contains default values for the plausible range of injection indices, break frequencies, quiescent fractions, as well as values that control the adaptive model fitting. At minimum the following parameters need to be specified:
+```
+python3 synchrofit.py \
+    --workdir $workdir \
+    --data "test_spectra.dat" \
+    --fit_type "CI" \
+```
 
 ## Execution
 To begin fitting, simply execute the following command from terminal: ```./run_synchrofit.sh -o $option```
