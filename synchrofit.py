@@ -211,7 +211,7 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks, break
     # return set of best-fit parameters with uncertainties
     colorstring = color_text("Optimal parameters estimated for {} model:".format(fit_type), Colors.DogderBlue)
     logger.info(colorstring)
-    colorstring = color_text(" {} s = {} +\- {} \n {} break_freq = {} +\- {} \n {} remnant_predict = {} +\- {} ".format(espace, inject_predict, dinject_predict, espace, break_predict, dbreak_predict, espace, remnant_predict, dremnant_predict), Colors.Green)
+    colorstring = color_text(" {} s = {} +\- {} \n {} break_freq = {} +\- {} \n {} remnant_predict = {} +\- {} ".format(espace, inject_predict, dinject_predict, espace, break_predict, 10**dbreak_predict, espace, remnant_predict, dremnant_predict), Colors.Green)
     print(colorstring)
 
     # write fitting outputs to file
@@ -222,10 +222,10 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks, break
     
         file = open(filename, "w")
         file.write("break_freq, unc_break_freq, inj_index, unc_inj_index, remnant_predict, unc_remnant_predict, normalisation \n")
-        file.write("{}, {}, {}, {}, {}, {}, {} \n".format(break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation))
+        file.write("{}, {}, {}, {}, {}, {}, {} \n".format(break_predict, 10**dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation))
         file.close()
 
-    return(break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation)
+    return(break_predict, 10**dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation)
 
 @jit(nopython=True) # Set "nopython" mode for best performance, equivalent to @njit
 def spectral_models(frequency, luminosity, fit_type, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F):
@@ -491,7 +491,7 @@ def make_plot(frequency, luminosity, dluminosity, plotting_frequency, Luminosity
     plt.legend(loc='upper right', fontsize=20)
     plt.savefig('{}/{}_fit.png'.format(workdir, fit_type),dpi=400)
 
-def derive_spectra_age(fit_type, vb, T, B, z):
+def derive_spectra_age(fit_type, vb, T, B, z, dyn_age=None):
     """
     (usage) Derives the total, active and inactive spectral age using the break frequency, quiescent fraction, magnetic field strength and redshift.
     
@@ -500,13 +500,13 @@ def derive_spectra_age(fit_type, vb, T, B, z):
     fit_type : str
         The fitted model (JP, KP or CI)
     vb : float
-        The break frequency
+        The break frequency (Hz)
     T : float
-        The quiescent fraction (this is remnant_predict from spectral_fitter() )
+        The quiescent fraction, this is remnant_predict from spectral_fitter (dimensionless)
     B : float
-        The magnetic field strength in units of nT
+        The magnetic field strength (nT)
     z : float
-        The cosmological redshift.
+        The cosmological redshift. (dimensionless)
 
     returns
     -------
@@ -522,18 +522,28 @@ def derive_spectra_age(fit_type, vb, T, B, z):
     me = 9.10938356e-31 # electron mass
     mu0 = 4*np.pi*1e-7  # magnetic permeability of free space
     e = 1.60217662e-19  # charge on electron
+    
     if fit_type in ['CI', 'JP']:
         v = ((243*np.pi*(me**5)*(c**2))/(4*(mu0**2)*(e**7)))**(0.5)
     elif fit_type == 'KP':
         v = (1/2.25)*(((243*np.pi*(me**5)*(c**2))/(4*(mu0**2)*(e**7)))**(0.5))
+    
     Bic = 0.318*((1+z)**2)*1e-9
     B = B*1e-9
     tau = ((v*(B**(0.5)))/((B**2)+(Bic**2)))*((vb*(1+z))**(-0.5)) # seconds
     tau = tau/(3.154e+13) # Myr
-    espace='                          '
+    
+    # override spectral age with the dynamical age
+    if dyn_age is not None:
+        tau = dyn_age
+    
+    t_on = tau*(1-T)
+    t_off = tau - t_on
+
+    espace='                         '
     colorstring = color_text("Spectral ages estimated for {} model:".format(fit_type), Colors.DogderBlue)
     logger.info(colorstring)
-    colorstring = color_text("{} Total spectra age = {} Myr".format(espace, tau), Colors.Green)
+    colorstring = color_text(" {} tau = {} Myr \n {} t_on = {} Myr \n {} t_off = {} Myr".format(espace, tau, espace, t_on, espace, t_off), Colors.Green)
     print(colorstring)
 
 def convert_to_native(data, unit):

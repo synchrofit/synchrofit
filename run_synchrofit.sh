@@ -31,7 +31,7 @@ fit_type='CI'
 nfreqplots=100
 mcLength=100
 sigma_level=1
-bfield=1.08
+bfield=0.174
 z=0.2133
 
 if [[ "$option" == "file" ]]
