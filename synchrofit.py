@@ -521,11 +521,16 @@ if __name__ == "__main__":
     
     options = parser.parse_args()
 
-    df_data = pd.read_csv('{}/{}'.format(options.workdir, options.data))
-    frequency = df_data.iloc[:,1].values
-    luminosity = df_data.iloc[:,2].values
-    dluminosity = df_data.iloc[:,3].values
-    
+    # read input data from file or from command line
+    if options.data:
+        df_data = pd.read_csv('{}/{}'.format(options.workdir, options.data))
+        frequency = df_data.iloc[:,1].values
+        luminosity = df_data.iloc[:,2].values
+        dluminosity = df_data.iloc[:,3].values
+    elif options.freq:
+        frequency = np.asarray(options.freq)
+        luminosity = np.asarray(options.flux)
+        dluminosity = np.asarray(options.err_flux)
     plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper = evaluate_model(frequency, luminosity, dluminosity, options.fit_type, options.nbreaks, options.break_range, options.ninjects, options.inject_range, options.nremnants, options.remnant_range, options.nfreqplots, options.mcLength, options.sigma_level, options.niterations, options.workdir, options.write_model)
 
     if options.plot:
