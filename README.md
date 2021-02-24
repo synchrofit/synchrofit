@@ -50,4 +50,4 @@ python3 synchrofit.py \
 Most variables will already have default values set in `synchrofit.py`, and can be changed following the examples above. For a description of each variable use ```synchrofit.py --h```.
 
 ## Execution
-To begin fitting, simply execute the following command from terminal: ```./run_synchrofit.sh```
+`synchrofit.py` can either be executed directly from terminal, or by running `./run_synchrofit.sh`. The latter option allows one to store multiple configuration presets. 
