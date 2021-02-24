@@ -25,14 +25,29 @@ A typical workflow might look like:
        - The cosmological redshift of the radio source
        - The magnetic field strength. For a radio galaxy, you may want to consider dynamically estimating this using RAiSE
 
-## Configuring run_synchrofit.sh
-Variables parsed to `synchrofit.py` can be configured in `run_synchrofit.sh`. For a description of these use ```synchrofit.py --h```. We note that `synchrofit.py` already contains default values for the plausible range of injection indices, break frequencies, quiescent fractions, as well as values that control the adaptive model fitting. At minimum the following parameters need to be specified:
+## Configuring synchrofit.py
+At minimum, `synchrofit.py` requires the working directory, input spectrum and the type of model to fit. In the example below, the spectral data is sourced from $workdir/test_spectra.dat and is fit by the JP model.
 ```
 python3 synchrofit.py \
     --workdir $workdir \
     --data "test_spectra.dat" \
-    --fit_type "CI" \
+    --fit_type "JP" \
+```
+Alterntively, the spectrum can be supplied manually as follows:
+```
+python3 synchrofit.py \
+    --workdir $workdir \
+    --freq f1 f2 ... fn \
+    --flux s1 s2 ... sn \
+    --err_flux es1 es2 ... esn \
+    --fit_type "JP" \
 ```
 
+- `--plot` will plot the input spectrum and the best model fit and write to ${workdir}/${fit_type}_fit.png. 
+- `--write_model` will write the estimated parameters and output model to ${workdir}/estimated_params_${fit_type}.dat and ${workdir}/modelspectrum_${fit_type}.dat, respectively. 
+- `--age` will determine the spectral ages if a magnetic field strength and redshift is supplied.
+
+Most variables will already have default values set in `synchrofit.py`, and can be changed following the examples above. For a description of each variable use ```synchrofit.py --h```.
+
 ## Execution
-To begin fitting, simply execute the following command from terminal: ```./run_synchrofit.sh -o $option```
+To begin fitting, simply execute the following command from terminal: ```./run_synchrofit.sh```
