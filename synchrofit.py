@@ -1,13 +1,13 @@
 #! /usr/bin/python3
 
-from numba import jit
+import argparse
+import math
+import logging
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
-import pandas as pd
+from numba import jit
 from scipy.stats import chi2
-import logging
-import argparse
+from matplotlib import pyplot as plt
 
 logging.basicConfig(format="%(levelname)s (%(funcName)s): %(message)s")
 logger = logging.getLogger(__name__)
@@ -15,6 +15,7 @@ logger.setLevel(logging.DEBUG)
 
 class Colors:
     DogderBlue = (30, 144, 255)
+    Green = (0,200,0)
 
 def _join(*values):
     return ";".join(str(v) for v in values)
@@ -24,7 +25,7 @@ def color_text(s, c, base=30):
     t = _join(base+8, 2, _join(*c))
     return template.format(t, s)
 
-def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range, niterations, workdir):
+def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range, niterations, workdir, write_model):
     """
     (usage) Finds the optimal fit for a radio spectrum modelled by either the JP, KP or CI model.
     
@@ -59,9 +60,6 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks, break
     normalisation : float
         normalisation factor for correct scaling
     """
-    # frequency, luminosity, dluminosity, fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range
-    colorstring = color_text("Modelling parameters accepted: \n inject_range = {} \n ninjects = {} \n nbreaks = {} \n break_range = {} \n nremnants = {} \n remnant_range = {}".format(inject_range, ninjects, nbreaks, break_range, nremnants, remnant_range), Colors.DogderBlue)
-    logger.info(colorstring)
     # check inputs are of correct data types
     if not isinstance(frequency, (list, np.ndarray)) or not isinstance(luminosity, (list, np.ndarray)) or not isinstance(dluminosity, (list, np.ndarray)) or not len(luminosity) == len(frequency) or not len(dluminosity) == len(frequency):
         raise Exception('Frequency, luminosity and uncertainty arrays must be lists or numpy arrays of the same length.')
@@ -78,10 +76,18 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks, break
     if not isinstance(break_range, (list, np.ndarray)) or not len(break_range) == 2 or not isinstance(inject_range, (list, np.ndarray)) or not len(inject_range) == 2 or not isinstance(remnant_range, (list, np.ndarray)) or not len(remnant_range) == 2:
         raise Exception('Break frequency, injection indea and remnant ratio arrays must be two element lists or numpy arrays.')
 
+    # set nremnants=1 if JP or KP
     if fit_type == 'JP' or fit_type == 'KP':
         nremnants = 1
-        colorstring = color_text("Override nremnants=1 for {} model".format(fit_type), Colors.DogderBlue)
+        colorstring = color_text("Overriding nremnants=1 for {} model".format(fit_type), Colors.DogderBlue)
         logger.info(colorstring)
+    
+    #print accepted parameters to terminal
+    espace='                      '
+    colorstring = color_text("Modelling parameters accepted:", Colors.DogderBlue)
+    logger.info(colorstring)
+    colorstring=color_text(" {} inject_range = {} \n {} ninjects = {} \n {} nbreaks = {} \n {} break_range = {} \n {} nremnants = {} \n {} remnant_range = {}".format(espace,inject_range, espace, ninjects, espace, nbreaks, espace, break_range, espace, nremnants, espace, remnant_range), Colors.Green)
+    print(colorstring)
     
     # convert luminosities and uncertainties to log-scale
     log_luminosity = np.log10(luminosity + 1e-307)
@@ -203,9 +209,23 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks, break
                     remnant_ratio[remnantPointer] = remnant_predict + (remnantPointer - (nremnants - 1)/2)*(remnant_range[1] - remnant_range[0])/(nremnants - 1)/((nremnants - 1)/2)**(0.5*(remnantPointer + 1))
 
     # return set of best-fit parameters with uncertainties
-    colorstring = color_text("Optimal parameters estimated for {} model. s = {} +\- {}, break_freq = {} +\- {}".format(fit_type, inject_predict, dinject_predict, break_predict, dbreak_predict), Colors.DogderBlue)
+    colorstring = color_text("Optimal parameters estimated for {} model:".format(fit_type), Colors.DogderBlue)
     logger.info(colorstring)
-    return break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation
+    colorstring = color_text(" {} s = {} +\- {} \n {} break_freq = {} +\- {} \n {} remnant_predict = {} +\- {} ".format(espace, inject_predict, dinject_predict, espace, break_predict, dbreak_predict, espace, remnant_predict, dremnant_predict), Colors.Green)
+    print(colorstring)
+
+    # write fitting outputs to file
+    if write_model:
+        filename = "{}/estimated_params_{}.dat".format(workdir, fit_type)
+        colorstring = color_text("Writing fitting outputs to: {}".format(filename), Colors.DogderBlue)
+        logger.info(colorstring)
+    
+        file = open(filename, "w")
+        file.write("break_freq, unc_break_freq, inj_index, unc_inj_index, remnant_predict, unc_remnant_predict, normalisation \n")
+        file.write("{}, {}, {}, {}, {}, {}, {} \n".format(break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation))
+        file.close()
+
+    return(break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation)
 
 @jit(nopython=True) # Set "nopython" mode for best performance, equivalent to @njit
 def spectral_models(frequency, luminosity, fit_type, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F):
@@ -346,7 +366,7 @@ def spectral_models(frequency, luminosity, fit_type, break_frequency, injection_
     # return outputs
     return luminosity_predict, normalisation
 
-def evaluate_model(frequency, luminosity, dluminosity, fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range, nfreqplots, mcLength, sigma_level, niterations, workdir):
+def evaluate_model(frequency, luminosity, dluminosity, fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range, nfreqplots, mcLength, sigma_level, niterations, workdir, write_model):
     """
     (usage) Uses the optimized parameters to return a 1darray of model flux densities for a given frequency list. An uncertainty envelope on the model is calculated following an MC approach. 
     
@@ -383,17 +403,12 @@ def evaluate_model(frequency, luminosity, dluminosity, fit_type, nbreaks, break_
         Luminosityfit + dLuminosityfit
     
     """
-    # fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range, nfreqplots, mcLength, sigma_level, niterations, workdir = options.fit_type, options.nbreaks, options.break_range, options.ninjects, options.inject_range, options.nremnants, options.remnant_range, options.nfreqplots, options.mcLength, options.sigma_level, options.niterations, options.workdir
     df = pd.read_csv('{}/besselK53.txt'.format(options.workdir), header=None)
     # fit the spectrum for the optimal estimates of the injection index and break frequency
-    break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation = spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range, niterations, workdir)
+    break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation = spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range, niterations, workdir, write_model)
     # determine the model for a list of plotting frequencies
     plotting_frequency=np.geomspace(5e+7,5e+10,num=nfreqplots)
     Luminosityfit, norm = spectral_models(plotting_frequency, np.zeros(len(plotting_frequency)), fit_type, break_predict, inject_predict, remnant_predict, normalisation, df[0].values, df[1].values)
-    # colorstring = color_text("freq_model = {}".format(plotting_frequency), Colors.DogderBlue)
-    # logger.info(colorstring)
-    # colorstring = color_text("flux_model = {}".format(Luminosityfit), Colors.DogderBlue)
-    # logger.info(colorstring)
     # simulate a list of injection indices and break frequencies using their gaussian errors 
     break_predict_vec = np.random.normal(break_predict, dbreak_predict, mcLength)
     inject_predict_vec = np.random.normal(inject_predict, dinject_predict, mcLength)
@@ -413,29 +428,68 @@ def evaluate_model(frequency, luminosity, dluminosity, fit_type, nbreaks, break_
         dLuminosityfit[plotfreqPointer] = np.std(luminosityArray.T[plotfreqPointer])
         Luminosityfit_lower[plotfreqPointer] = Luminosityfit[plotfreqPointer] - sigma_level*np.std(luminosityArray.T[plotfreqPointer])
         Luminosityfit_upper[plotfreqPointer] = Luminosityfit[plotfreqPointer] + sigma_level*np.std(luminosityArray.T[plotfreqPointer])
-    # colorstring = color_text("err_flux_model = {}".format(dLuminosityfit), Colors.DogderBlue)
-    # logger.info(colorstring)
     
+    # write fitting outputs to file
+    if write_model:
+        filename = "{}/modelspectrum_{}.dat".format(workdir, fit_type)
+        colorstring = color_text("Writing fitting outputs to: {}".format(filename), Colors.DogderBlue)
+        logger.info(colorstring)
+    
+        file = open(filename, "w")
+        file.write("Frequency, {0} Model, unc {0} Model, {0} Model +- {1} sigma, {0} Model +- {1} sigma \n".format(fit_type, sigma_level))
+        for i in range(0,len(plotting_frequency)):
+            file.write("{}, {}, {}, {}, {} \n".format(plotting_frequency[i], Luminosityfit[i], dLuminosityfit[i], Luminosityfit_lower[i], Luminosityfit_upper[i]))
+        file.close()
+
     return(plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper)
 
-def make_plot(plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper, workdir):
-    fig = plt.figure(figsize=(10,10))
-    ax = fig.add_axes([0.09,0.09,0.88,0.88])
-
-    ax.scatter(frequency, luminosity, marker='.', c='black', label='data', zorder=1)
-    ax.errorbar(frequency,luminosity,xerr=0,yerr=dluminosity,color='black',capsize=1,linestyle='None',hold=True,fmt='none',alpha=0.9)
-
-    ax.plot(plotting_frequency, Luminosityfit, c='C0', label='{} model'.format(options.fit_type), zorder=2)
-    ax.fill_between(plotting_frequency, Luminosityfit_lower.T, Luminosityfit_upper.T, color='purple', alpha=0.2, label='{} model $\\pm{}\\sigma$'.format(options.fit_type, options.sigma_level), zorder=3)
-
+def make_plot(frequency, luminosity, dluminosity, plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper, workdir, fit_type, sigma_level=None):
+    """
+    (usage) Plots the data and optimised model fit and writes to file. 
+    
+    parameters
+    ----------
+    frequency : 1darray
+        The input frequency list (observed data)
+    luminosity : 1darray
+        The input flux density list (observed data)
+    dluminosity : 1darray
+        The uncertainty on the input flux density list (observed data)
+    plotting_frequency : 1darray
+        List of frequencies at which the model is evaluated
+    Luminosityfit : 1darray
+        Best-fit model evaluated for plotting_frequency
+    dLuminosityfit : 1darray
+        Uncertainty on Luminosityfit
+    Luminosityfit_lower : 1darray
+        Lower bound on Luminosityfit
+    Luminosityfit_upper : 1darray
+        Upper bound on Luminosityfit
+    workdir : str
+        Directory to write plot to
+    fit_type : str
+        Print model type on figure
+    sigma_level : int
+        Print width of uncertainty envelope on figure
+    """
+    fig = plt.figure(figsize=(12,12))
+    ax = fig.add_axes([0.1,0.1,0.86,0.86])
     ax.set_xscale('log')
     ax.set_yscale('log')
-    ax.set_xlim([1e8,1e10])
+    ax.set_xlabel('Frequency / Hz', fontsize=20)
+    ax.set_ylabel('Integrated flux density / Jy', fontsize=20)
+    ax.set_xlim([10**(math.floor(np.min(np.log10(frequency)))),10**(math.ceil(np.max(np.log10(frequency))))])
     ax.set_ylim([0.2*np.min(luminosity),5*np.max(luminosity)])
-    ax.set_xlabel('Frequency / GHz')
-    ax.set_ylabel('Integrated flux density / Jy')
-    plt.legend(loc='upper right')
-    plt.savefig('{}/modelled_spectrum.png'.format(workdir),dpi=400)
+    ax.tick_params(axis='both', labelsize=20, which='both', direction='in', length=5, width=2)
+
+    # plot data + model
+    ax.plot(plotting_frequency, Luminosityfit, c='C0', label='{} Model'.format(fit_type), zorder=2)
+    ax.fill_between(plotting_frequency, Luminosityfit_lower.T, Luminosityfit_upper.T, color='purple', alpha=0.2, label='{} Model $\\pm{}\\sigma$'.format(fit_type, sigma_level), zorder=3)
+    ax.scatter(frequency, luminosity, marker='.', c='black', label='Data', zorder=1)
+    ax.errorbar(frequency,luminosity,xerr=0,yerr=dluminosity,color='black',capsize=1,linestyle='None',hold=True,fmt='none',alpha=0.9)
+
+    plt.legend(loc='upper right', fontsize=20)
+    plt.savefig('{}/{}_fit.png'.format(workdir, fit_type),dpi=400)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prefix_chars='-')
@@ -472,7 +526,7 @@ if __name__ == "__main__":
     luminosity = df_data.iloc[:,2].values
     dluminosity = df_data.iloc[:,3].values
     
-    plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper = evaluate_model(frequency, luminosity, dluminosity, options.fit_type, options.nbreaks, options.break_range, options.ninjects, options.inject_range, options.nremnants, options.remnant_range, options.nfreqplots, options.mcLength, options.sigma_level, options.niterations, options.workdir)
+    plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper = evaluate_model(frequency, luminosity, dluminosity, options.fit_type, options.nbreaks, options.break_range, options.ninjects, options.inject_range, options.nremnants, options.remnant_range, options.nfreqplots, options.mcLength, options.sigma_level, options.niterations, options.workdir, options.write_model)
 
     if options.plot:
-        make_plot(plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper, options.workdir)
+        make_plot(frequency, luminosity, dluminosity, plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper, options.workdir, options.fit_type, options.sigma_level)
