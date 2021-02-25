@@ -27,9 +27,12 @@ Please read through the README.md for a description of the package as well as wo
 
 ## Usage
 ### How do I run synchrofit ?
-```synchrofit``` is easily ran by executing the following from a terminal: `synchrofit --data ${data.dat} --fit_type ${fit_type}`. In this example, `${data.dat}` is a `.dat` file containing the input spectrum (see [test_data.dat](https://github.com/synchrofit/synchrofit/test) for example of required format), and `${fit_type}` describes the model to be fit (e.g. KP, JP or CI). 
+```synchrofit``` is easily ran by executing the following from a terminal: 
+`synchrofit --data ${data.dat} --fit_type ${fit_type}`. 
+In this example, `${data.dat}` is a `.dat` file containing the input spectrum (see [test_data.dat](https://github.com/synchrofit/synchrofit/test) for example of required format), and `${fit_type}` describes the model to be fit (e.g. KP, JP or CI). 
 
-Alternatively, one can manually supply a spectrum by executing the following `synchrofit --freq f1 f2 fn --flux s1 s2 sn --err_flux es1 es2 esn --fit_type ${fit_type}`. 
+Alternatively, one can manually supply a spectrum by executing the following 
+`synchrofit --freq f1 f2 fn --flux s1 s2 sn --err_flux es1 es2 esn --fit_type ${fit_type}`. 
 
 ### Default and custom configurations
 ```synchrofit``` is setup with a default preset for all parameters related to the model fitting. The current default values seem to provide a good balance between the coarseness of the adaptive grid and the processing speeds. Any of these values can, however, be adjusted by the user based on their requirements. A complete list of arguments accepted by ```synchrofit``` and their descriptions is listed below. 
