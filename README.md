@@ -5,11 +5,9 @@
 - <sup>**2**</sup> https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract
 
 ## Credits
-=====
 Please credit Ross J. Turner and Benjamin Quici if you use this code, or incorporate it into your own workflow. Please acknowledge the use of this code by citing ___ and by providing a link to this repository. 
 
 ## Installation
-=====
 ```synchrofit``` is built and tested on python 3.8.5.
 
 You can install via pip using
@@ -18,7 +16,6 @@ You can install via pip using
 Or you can clone the repository and use `python3 setup.py install` or `pip install .`
 
 ## Help
-=====
 Please read through the README.md for a description of the package as well as workflow and usage examples. If you have found a bug or inconsistency in the code please [submit a ticket](https://github.com/synchrofit/synchrofit/issues). 
 
 ## Scripts
