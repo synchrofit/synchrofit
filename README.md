@@ -26,41 +26,46 @@ Please read through the README.md for a description of the package as well as wo
 - `spectral_plotter` provides an optional feature to plot the input data and fitted model for a visual comparison.
 
 ## Usage
-### Example workflow
+### How do I run synchrofit ?
+```synchrofit``` is easily ran by executing the following from a terminal: `synchrofit --data ${data.dat} --fit_type ${fit_type}`. In this example, `${data.dat}` is a `.dat` file containing the input spectrum (see [test_data.dat](https://github.com/synchrofit/synchrofit/test) for example of required format), and `${fit_type}` describes the model to be fit (e.g. KP, JP or CI). 
 
-A typical workflow might look like:
-   - Supply a list of frequencies, flux densities and flux density uncertainties that describe the spectrum
-   - Select either the JP, KP or CI model and fit the spectrum. This will return the following:
-       - Optimal fit of the injection index and break frequency, including uncertainties on each
-       - The fractional time spent in a remnant phase, if the CI-off model is fit
-       - An output model spectrum evaluated over a list of frequencies
-   - (optional) Derive the total spectral age (as well as active and inactive ages in the case of the CI-off model). This requires the following:
-       - The cosmological redshift of the radio source
-       - The magnetic field strength. For a radio galaxy, you may want to consider dynamically estimating this using RAiSE
+Alternatively, one can manually supply a spectrum by executing the following `synchrofit --freq f1 f2 fn --flux s1 s2 sn --err_flux es1 es2 esn --fit_type ${fit_type}`. 
 
-### Configuring synchrofit.py
-At minimum, `synchrofit.py` requires the working directory, input spectrum and the type of model to fit. In the example below, the spectral data is sourced from $work_dir/test_spectra.dat and is fit by the JP model.
-```
-python3 synchrofit.py \
-    --work_dir $work_dir \
-    --data "test_spectra.dat" \
-    --fit_type "JP" \
-```
-Alterntively, the spectrum can be supplied manually as follows:
-```
-python3 synchrofit.py \
-    --work_dir $work_dir \
-    --freq f1 f2 ... fn \
-    --flux s1 s2 ... sn \
-    --err_flux es1 es2 ... esn \
-    --fit_type "JP" \
-```
+### Default and custom configurations
+```synchrofit``` is setup with a default preset for all parameters related to the model fitting. The current default values seem to provide a good balance between the coarseness of the adaptive grid and the processing speeds. Any of these values can, however, be adjusted by the user based on their requirements. A complete list of arguments accepted by ```synchrofit``` and their descriptions is listed below. 
+- `--work_dir` the directory to which fitting outputs and plots are written to. If None, defaults to current working directory. Default = None.
+- `--data` name of the data file containing the input spectrum (requires .dat format). Default = None.
+- `--freq` list of input frequencies (if `--data` is not specified). Default = None. 
+- `--flux` list of input flux densities (if `--data` is not specified). Default = None. 
+- `--err_flux` list of input flux density errors (if `--data` is not specified). Default = None. 
+- `--freq_unit` input frequency units. Default = Hz.
+- `--flux_unit` input flux density units. Default = Jy.
+- `--fit_type` Model to fit, e.g. KP, JP or CI. No default. 
+- `--n_breaks` Number of increments with which to sample the break frequency range. Default = 31.
+- `--n_injects` Number of increments with which to sample the injection index range. Default = 31.
+- `--n_remnants` Number of increments with which to sample the remnant ratio range. Default = 31.
+- `--n_iterations` 
+- `--break_range` Accepted range for the log(break frequency). Default = [8, 11]. 
+- `--inject_range` Accepted range for the energy injection index. Default = [2.01, 2.99]. 
+- `--remnant_range` Accepted range for the remnant ratio. Default = [0, 1]. 
+- `--n_model_freqs` Number of frequencies to evaluate the model at. Default = 100.
+- `--mc_length` Number of Monte-Carlo iterations used to estimate the model uncertainty. Default = 500. 
+- `--err_model_width` Width of the uncertainty envelope on the model, in units of sigma. Default = 2. 
+- `--plot` If True, produce a plot of the observed spectrum and fitted model. Default = False. 
+- `--write_model` If True, write the fitting outputs to file. Default = False.
+- `--age` If True, determine the spectral age of the source (requires `--bfield` and `--z`). Default = False.
+- `--bfield` Magnetic field strength in units of nT. No default. 
+- `--z` Cosmological redshift of the source. No default. 
 
-- `--plot` will plot the input spectrum and the best model fit and write to ${work_dir}/${fit_type}_fit.png. 
-- `--write_model` will write the estimated parameters and output model to ${work_dir}/estimated_params_${fit_type}.dat and ${work_dir}/modelspectrum_${fit_type}.dat, respectively. 
-- `--age` will determine the spectral ages if a magnetic field strength and redshift is supplied.
+### What to do in practice
+Now that we know how to run ```synchrofit```, below are some suggestions for how you might want to implement this for your radio source. 
 
-Most variables will already have default values set in `synchrofit.py`, and can be changed following the examples above. For a description of each variable use ```synchrofit.py --h```.
+**Case 1: I have an integrated radio spectrum**
+
+**Case 2: I have a spatially-resolved radio spectrum**
+
+**Case 3: Is my radio source active or remnant ?**
+Still in development. 
 
 ### Execution
-`synchrofit.py` can either be executed directly from terminal, or by running `./run_synchrofit.sh`. The latter option allows one to store multiple configuration presets. 
+`synchrofit.py` can either be executed directly from terminal, or by running `./run_synchrofit.sh`. The latter option allows one to store multiple configuration presets.
