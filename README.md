@@ -22,7 +22,7 @@ TODO: Provide concise descriptions of the KP, JP and CI models? Mainly so that t
 - `spectral_models` contains the KP, JP and CI models used in the fitting. 
 - `spectral_fitter` takes an input radio spectrum and applies an adaptive grid model fitting with Bayesian inference in order to estimate the injection index, break frequency and quiescent fraction. By generating a probability distribution over a grid of input parameters, the optimal values for each parameter are estimated by taking the peak of the probability distribution. 
 - `spectral_data` constructs a model spectrum using the parameters estimated by `spectral_fitter`. 
-- `spectral_ages` provides an optional feature to determine the spectral ages using the break frequency and quiescent fraction estimated by `spectral_fitter`. This requires both a magnetic field strength and cosmological redshift to be supplied. Ages are derived using equation 4 of [Turner, et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract). 
+- `spectral_ages` provides an optional feature to determine the spectral ages using the break frequency and quiescent fraction estimated by `spectral_fitter`. This requires both a magnetic field strength and cosmological redshift to be supplied. Ages are derived using [Equation 4 of Turner, et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract). 
 - `spectral_plotter` provides an optional feature to plot the input data and fitted model for a visual comparison.
 
 ## Usage
