@@ -60,6 +60,10 @@ Alternatively, one can manually supply a spectrum by executing the following
 - `--bfield` Magnetic field strength in units of nT. No default. 
 - `--z` Cosmological redshift of the source. No default. 
 
+
+
+Consider loading any custom configuration into `run_synchrofit.sh`, which will allow you to store these presets locally. To execute this custom setup, simply run `./run_synchrofit.sh` from the terminal.
+
 ### What to do in practice
 Now that we know how to run ```synchrofit```, below are some suggestions for how you might want to implement this for your radio source. 
 
@@ -70,5 +74,4 @@ Now that we know how to run ```synchrofit```, below are some suggestions for how
 **Case 3: Is my radio source active or remnant ?**
 Still in development. 
 
-### Execution
-`synchrofit.py` can either be executed directly from terminal, or by running `./run_synchrofit.sh`. The latter option allows one to store multiple configuration presets.
+**Case 4: What if my radio source is ultra-steepa at all frequencies ?**
