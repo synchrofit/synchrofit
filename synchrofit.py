@@ -1,4 +1,7 @@
-#! /usr/bin/python3
+#!/usr/bin/env python
+
+__author__ = "Benjamin Quici, Ross J. Turner"
+__date__ = "25/02/2021"
 
 import argparse
 import math
@@ -16,6 +19,7 @@ logger.setLevel(logging.DEBUG)
 class Colors:
     DogderBlue = (30, 144, 255)
     Green = (0,200,0)
+    Orange = (255, 165, 0)
 
 def _join(*values):
     return ";".join(str(v) for v in values)
@@ -25,7 +29,23 @@ def color_text(s, c, base=30):
     t = _join(base+8, 2, _join(*c))
     return template.format(t, s)
 
-def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks=31, break_range=[8,11], ninjects=31, inject_range=[2.01,2.99], nremnants=31, remnant_range=[0,1], niterations=3, workdir=None, write_model=None):
+def besselK53():
+    """
+    (usage) Returns the modified Bessel function of order 5/3, evaluated over x = [1e-05, 60.25].
+    Note, x represents a dimensionless function of frequency, e.g. equation (3) of Turner 2017b. 
+    
+    returns
+    -------
+    bessel_x : 1darray
+        Values of x
+    bessel_F : 1darray
+        The value of the Bessel function evaluated at bessel_x
+    """
+    bessel_x = [1e-05, 1.122018e-05, 1.258925e-05, 1.412538e-05, 1.584893e-05, 1.778279e-05, 1.995262e-05, 2.238721e-05, 2.511886e-05, 2.818383e-05, 3.162278e-05, 3.548134e-05, 3.981072e-05, 4.466836e-05, 5.011872e-05, 5.623413e-05, 6.309573e-05, 7.079458e-05, 7.943282e-05, 8.912509e-05, 0.0001, 0.0001122018, 0.0001258925, 0.0001412538, 0.0001584893, 0.0001778279, 0.0001995262, 0.0002238721, 0.0002511886, 0.0002818383, 0.0003162278, 0.0003548134, 0.0003981072, 0.0004466836, 0.0005011872, 0.0005623413, 0.0006309573, 0.0007079458, 0.0007943282, 0.0008912509, 0.001, 0.001122018, 0.001258925, 0.001412538, 0.001584893, 0.001778279, 0.001995262, 0.002238721, 0.002511886, 0.002818383, 0.003162278, 0.003548134, 0.003981072, 0.004466836, 0.005011872, 0.005623413, 0.006309573, 0.007079458, 0.007943282, 0.008912509, 0.01, 0.01047129, 0.01096478, 0.01148154, 0.01202264, 0.01258925, 0.01318257, 0.01380384, 0.0144544, 0.01513561, 0.01584893, 0.01659587, 0.01737801, 0.01819701, 0.01905461, 0.01995262, 0.02089296, 0.02187762, 0.02290868, 0.02398833, 0.02511886, 0.02630268, 0.02754229, 0.02884032, 0.03019952, 0.03162278, 0.03311311, 0.03467369, 0.03630781, 0.03801894, 0.03981072, 0.04168694, 0.04365158, 0.04570882, 0.04786301, 0.05011872, 0.05248075, 0.05495409, 0.05754399, 0.06025596, 0.06309573, 0.06606934, 0.0691831, 0.0724436, 0.07585776, 0.07943282, 0.08317638, 0.08709636, 0.09120108, 0.09549926, 0.1, 0.1047129, 0.1096478, 0.1148154, 0.1202264, 0.1258925, 0.1318257, 0.1380384, 0.144544, 0.1513561, 0.1584893, 0.1659587, 0.1737801, 0.1819701, 0.1905461, 0.1995262, 0.2089296, 0.2187762, 0.2290868, 0.2398833, 0.2511886, 0.2630268, 0.2754229, 0.2884032, 0.3019952, 0.3162278, 0.3311311, 0.3467369, 0.3630781, 0.3801894, 0.3981072, 0.4168694, 0.4365158, 0.4570882, 0.4786301, 0.5011872, 0.5248075, 0.5495409, 0.5754399, 0.6025596, 0.6309573, 0.6606934, 0.691831, 0.724436, 0.7585776, 0.7943282, 0.8317638, 0.8709636, 0.9120108, 0.9549926, 1.0, 1.047129, 1.096478, 1.148154, 1.202264, 1.258925, 1.318257, 1.380384, 1.44544, 1.513561, 1.584893, 1.659587, 1.737801, 1.819701, 1.905461, 1.995262, 2.089296, 2.187762, 2.290868, 2.398833, 2.511886, 2.630268, 2.754229, 2.884032, 3.019952, 3.162278, 3.311311, 3.467369, 3.630781, 3.801894, 3.981072, 4.168694, 4.365158, 4.570882, 4.786301, 5.011872, 5.248075, 5.495409, 5.754399, 6.025596, 6.309573, 6.606934, 6.91831, 7.24436, 7.585776, 7.943282, 8.317638, 8.709636, 9.120108, 9.549926, 10.0, 10.47129, 10.96478, 11.48154, 12.02264, 12.58925, 13.18257, 13.80384, 14.4544, 15.13561, 15.84893, 16.59587, 17.37801, 18.19701, 19.05461, 19.95262, 20.89296, 21.87762, 22.90868, 23.98833, 25.11886, 26.30268, 27.54229, 28.84032, 30.19952, 31.62278, 33.11311, 34.67369, 36.30781, 38.01894, 39.81072, 41.68694, 43.65158, 45.70882, 47.86301, 50.11872, 52.48075, 54.95409, 57.54399, 60.25596]
+    bessel_F = [0.04629204, 0.04810159, 0.04998175, 0.05193526, 0.05396496, 0.05607381, 0.05826488, 0.06054133, 0.06290648, 0.06536375, 0.06791669, 0.070569, 0.07332448, 0.07618712, 0.07916102, 0.08225045, 0.08545982, 0.08879372, 0.09225689, 0.09585424, 0.09959088, 0.1034721, 0.1075033, 0.1116901, 0.1160385, 0.1205543, 0.1252439, 0.1301138, 0.1351705, 0.1404209, 0.1458721, 0.1515314, 0.1574063, 0.1635045, 0.1698341, 0.176403, 0.1832197, 0.1902929, 0.1976311, 0.2052435, 0.2131391, 0.2213272, 0.2298174, 0.2386191, 0.247742, 0.257196, 0.2669908, 0.2771361, 0.2876418, 0.2985174, 0.3097725, 0.3214162, 0.3334574, 0.3459047, 0.3587661, 0.3720487, 0.3857592, 0.3999031, 0.4144848, 0.4295075, 0.4449725, 0.4512824, 0.4576629, 0.4641139, 0.4706351, 0.4772263, 0.483887, 0.4906169, 0.4974154, 0.5042819, 0.5112157, 0.5182161, 0.5252821, 0.5324129, 0.5396072, 0.546864, 0.554182, 0.5615596, 0.5689953, 0.5764874, 0.5840341, 0.5916334, 0.599283, 0.6069808, 0.614724, 0.6225102, 0.6303363, 0.6381993, 0.6460958, 0.6540225, 0.6619754, 0.6699506, 0.6779438, 0.6859505, 0.6939659, 0.7019849, 0.7100021, 0.7180117, 0.7260077, 0.7339838, 0.7419331, 0.7498485, 0.7577226, 0.7655474, 0.7733146, 0.7810154, 0.7886406, 0.7961807, 0.8036253, 0.810964, 0.8181855, 0.8252783, 0.8322301, 0.8390283, 0.8456595, 0.8521099, 0.8583651, 0.8644101, 0.8702292, 0.8758063, 0.8811245, 0.8861664, 0.8909142, 0.895349, 0.8994518, 0.9032027, 0.9065815, 0.9095673, 0.9121388, 0.914274, 0.9159508, 0.9171463, 0.9178378, 0.9180018, 0.9176149, 0.9166536, 0.9150942, 0.9129131, 0.910087, 0.906593, 0.9024084, 0.8975113, 0.8918805, 0.8854959, 0.8783384, 0.8703902, 0.8616355, 0.8520599, 0.8416513, 0.8303998, 0.8182985, 0.8053429, 0.7915322, 0.7768687, 0.7613587, 0.7450125, 0.7278449, 0.7098753, 0.6911279, 0.6716322, 0.6514228, 0.6305401, 0.6090297, 0.5869434, 0.5643382, 0.541277, 0.5178279, 0.4940644, 0.4700649, 0.445912, 0.4216926, 0.3974965, 0.3734163, 0.3495463, 0.3259814, 0.3028163, 0.2801445, 0.2580567, 0.23664, 0.2159765, 0.1961424, 0.1772062, 0.1592282, 0.1422594, 0.1263403, 0.1115008, 0.0977593, 0.08512255, 0.07358577, 0.06313278, 0.05373656, 0.04536004, 0.03795704, 0.03147351, 0.02584889, 0.02101761, 0.01691069, 0.01345729, 0.01058629, 0.008227734, 0.006314173, 0.004781787, 0.003571302, 0.002628682, 0.001905562, 0.00135946, 0.0009537575, 0.0006574939, 0.0004450058, 0.0002954477, 0.0001922383, 0.0001224694, 7.63148e-05, 4.646519e-05, 2.761261e-05, 1.599737e-05, 9.024603e-06, 4.951062e-06, 2.638069e-06, 1.3633e-06, 6.823153e-07, 3.302248e-07, 1.543035e-07, 6.94964e-08, 3.011714e-08, 1.253542e-08, 5.001613e-09, 1.909237e-09, 6.957938e-10, 2.41558e-10, 7.970527e-11, 2.493648e-11, 7.37861e-12, 2.059504e-12, 5.407576e-13, 1.331809e-13, 3.067388e-14, 6.585815e-15, 1.31379e-15, 2.426677e-16, 4.1351460000000005e-17, 6.476066e-18, 9.284197e-19, 1.2133319999999999e-19, 1.439201e-20, 1.542358e-21, 1.48625e-22, 1.281342e-23, 9.831652e-25, 6.677119999999999e-26]
+    return(np.array(bessel_x), np.array(bessel_F))
+
+def spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, break_range=[8,11], n_injects=31, inject_range=[2.01,2.99], n_remnants=31, remnant_range=[0,1], n_iterations=3, work_dir=None, write_model=None):
     """
     (usage) Finds the optimal fit for a radio spectrum modelled by either the JP, KP or CI model.
     
@@ -38,65 +58,69 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks=31, br
     dluminosity : 1darray
         The uncertainty on the input flux density list
     fit_type : str
-        The type of model to fit (JP, KP, KGJP, CI)
-    nbreaks : int
+        The type of model to fit (JP, KP, CI)
+    n_breaks : int
         Number of break frequencies used in adaptive grid
     break_range : list
-        bounds for the log(break frequency) range
-    ninjects : int
+        Bounds for the log(break frequency) range
+    n_injects : int
         Number of injection indices used in adaptive grid
     inject_range : list
         bounds for the injection index range
-    nremnants : int
-        Number of  used in adaptive grid
+    n_remnants : int
+        Number of remnant ratios used in adaptive grid
     remnant_range : list
-        bounds for the remnant ratio range
-    niterations : int
-        
+        Bounds for the remnant ratio range
+    n_iterations : int
+        Number of iterations
+    work_dir : str
+        Directory to which outputs are written (if None, outputs are written to execution directory)
+    write_model : bool
+        If True, writes outputs to folder
+
     returns
     -------
-    luminosity_predict : 1darray
-        fitted flux density for given frequency list
-    normalisation : float
-        normalisation factor for correct scaling
+    params : tuple
+        Contains the fitted model (fit_type) and the free parameters constrained by the fitting (and their uncertainties)
     """
     # check inputs are of correct data types
     if not isinstance(frequency, (list, np.ndarray)) or not isinstance(luminosity, (list, np.ndarray)) or not isinstance(dluminosity, (list, np.ndarray)) or not len(luminosity) == len(frequency) or not len(dluminosity) == len(frequency):
         raise Exception('Frequency, luminosity and uncertainty arrays must be lists or numpy arrays of the same length.')
     if not isinstance(fit_type, str) or not (fit_type == 'CI' or fit_type == 'JP' or fit_type == 'KP'):
         raise Exception('Spectral fit must be either \'CI\', \'JP\' or \'KP\' model.')
-    if not isinstance(nbreaks, (int, float)) or not isinstance(ninjects, (int, float)) or not isinstance(nremnants, (int, float)):
+    if not isinstance(n_breaks, (int, float)) or not isinstance(n_injects, (int, float)) or not isinstance(n_remnants, (int, float)):
         raise Exception('Number of break frequencies, injection indices and remnant ratios must be integers.')
-    if isinstance(nbreaks, float):
-        nbreaks = int(nbreaks)
-    if isinstance(ninjects, float):
-        ninjects = int(ninjects)
-    if isinstance(nremnants, float):
-        nremnants = int(nremnants)
+    if isinstance(n_breaks, float):
+        n_breaks = int(n_breaks)
+    if isinstance(n_injects, float):
+        n_injects = int(n_injects)
+    if isinstance(n_remnants, float):
+        n_remnants = int(n_remnants)
     if not (isinstance(break_range, (float, int)) or isinstance(break_range, (list, np.ndarray)) and len(break_range) == 2):
         raise Exception('Break frequency must be a float, or a two element list or numpy array.')
     if isinstance(break_range, (float, int)):
         break_range = [break_range, break_range]
+        n_breaks = 1
     if not (isinstance(inject_range, (float, int)) or isinstance(inject_range, (list, np.ndarray)) and len(inject_range) == 2):
         raise Exception('Injection index must be a float, or a two element list or numpy array.')
     if isinstance(inject_range, (float, int)):
         inject_range = [inject_range, inject_range]
+        n_injects = 1
     if not (isinstance(remnant_range, (float, int)) or isinstance(remnant_range, (list, np.ndarray)) and len(remnant_range) == 2):
         raise Exception('Remnant ratio must be a float, or a two element list or numpy array.')
     if isinstance(remnant_range, (float, int)):
         remnant_range = [remnant_range, remnant_range]
+        n_remnants = 1
 
-    # set nremnants=1 if JP or KP
     if fit_type == 'JP' or fit_type == 'KP':
-        nremnants = 1
-        colorstring = color_text("Overriding nremnants=1 for {} model".format(fit_type), Colors.DogderBlue)
-        logger.info(colorstring)
+        n_remnants = 1
+        remnant_range = [0, 0]
     
-    #print accepted parameters to terminal
+    # print accepted parameters to terminal
     espace='                      '
-    colorstring = color_text("Modelling parameters accepted:", Colors.DogderBlue)
+    colorstring = color_text("Fitting options accepted:", Colors.DogderBlue)
     logger.info(colorstring)
-    colorstring=color_text(" {} inject_range = {} \n {} ninjects = {} \n {} nbreaks = {} \n {} break_range = {} \n {} nremnants = {} \n {} remnant_range = {}".format(espace,inject_range, espace, ninjects, espace, nbreaks, espace, break_range, espace, nremnants, espace, remnant_range), Colors.Green)
+    colorstring=color_text(" {} fit_type = {} \n {} inject_range = {} \n {} n_injects = {} \n {} n_breaks = {} \n {} break_range = {} \n {} n_remnants = {} \n {} remnant_range = {}".format(espace, fit_type,espace,inject_range, espace, n_injects, espace, n_breaks, espace, break_range, espace, n_remnants, espace, remnant_range), Colors.Green)
     print(colorstring)
     
     # convert luminosities and uncertainties to log-scale
@@ -108,50 +132,45 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks=31, br
         else:
             dlog_luminosity[freqPointer] = 1e-307
     
-    # read-in integral of BesselK_5/3 datafile
-    if workdir == None:
-        df_bessel = pd.read_csv('besselK53.txt', header=None)
-    else:
-        df_bessel = pd.read_csv('{}/besselK53.txt'.format(workdir), header=None)
-    bessel_x, bessel_F = df_bessel[0].values, df_bessel[1].values
+    bessel_x, bessel_F = besselK53()
     
     # calculate dof for chi-squared functions
     dof = -3
-    if (nbreaks <= 2):
+    if (n_breaks <= 2):
         dof = dof + 1 # number of parameters being fitted
-    if (ninjects <= 2):
+    if (n_injects <= 2):
         dof = dof + 1 # number of parameters being fitted
-    if (nremnants <= 2):
+    if (n_remnants <= 2):
         dof = dof + 1 # number of parameters being fitted
     for freqPointer in range(0, len(frequency)):
         if (dlog_luminosity[freqPointer] > 0):
             dof = dof + 1
     
     # set adaptive regions
-    if (nbreaks >= 2):
-        break_frequency = np.linspace(break_range[0], break_range[1], nbreaks, endpoint=True)
+    if (n_breaks >= 2):
+        break_frequency = np.linspace(break_range[0], break_range[1], n_breaks, endpoint=True)
     else:
         break_frequency = np.zeros(1)
         break_frequency[0] = (break_range[0] + break_range[1])/2.
-    if (ninjects >= 2):
-        injection_index = np.linspace(inject_range[0], inject_range[1], ninjects, endpoint=True)
+    if (n_injects >= 2):
+        injection_index = np.linspace(inject_range[0], inject_range[1], n_injects, endpoint=True)
     else:
         injection_index = np.zeros(1)
         injection_index[0] = (inject_range[0] + inject_range[1])/2
-    if (nremnants >= 2):
-        remnant_ratio = np.linspace(remnant_range[0], remnant_range[1], nremnants, endpoint=True)
+    if (n_remnants >= 2):
+        remnant_ratio = np.linspace(remnant_range[0], remnant_range[1], n_remnants, endpoint=True)
     else:
         remnant_ratio = np.zeros(1)
         remnant_ratio[0] = (remnant_range[0] + remnant_range[1])/2
         
     # instantiate array to store probabilities from chi-squared statistics
-    probability = np.zeros((max(1, nbreaks), max(1, ninjects), max(1, nremnants)))
-    normalisation_array = np.zeros((max(1, nbreaks), max(1, ninjects), max(1, nremnants)))
+    probability = np.zeros((max(1, n_breaks), max(1, n_injects), max(1, n_remnants)))
+    normalisation_array = np.zeros((max(1, n_breaks), max(1, n_injects), max(1, n_remnants)))
     # find chi-squared statistic for each set of parameters, and iterate through with adaptive mesh
-    for iterationPointer in range(0, max(1, niterations)):
-        for breakPointer in range(0, max(1, nbreaks)):
-            for injectPointer in range(0, max(1, ninjects)):
-                for remnantPointer in range(0, max(1, nremnants)):
+    for iterationPointer in range(0, max(1, n_iterations)):
+        for breakPointer in range(0, max(1, n_breaks)):
+            for injectPointer in range(0, max(1, n_injects)):
+                for remnantPointer in range(0, max(1, n_remnants)):
                     
                     # find spectral fit for current set of parameters
                     normalisation = 0 # specify that fit needs to be scaled
@@ -165,9 +184,9 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks=31, br
         # find peak of joint probability distribution
         max_probability = 0.
         max_break, max_inject, max_remnant = 0, 0, 0
-        for breakPointer in range(0, max(1, nbreaks)):
-            for injectPointer in range(0, max(1, ninjects)):
-                for remnantPointer in range(0, max(1, nremnants)):
+        for breakPointer in range(0, max(1, n_breaks)):
+            for injectPointer in range(0, max(1, n_injects)):
+                for remnantPointer in range(0, max(1, n_remnants)):
                     if (probability[breakPointer,injectPointer,remnantPointer] > max_probability):
                         max_probability = probability[breakPointer,injectPointer,remnantPointer]
                         normalisation = normalisation_array[breakPointer,injectPointer,remnantPointer]
@@ -182,58 +201,66 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks=31, br
         # calculate standard deviation from marginal distributions
         sum_probability = 0
         dbreak_predict = 0
-        if (nbreaks > 2):
-            for breakPointer in range(0, max(1, nbreaks)):
+        if (n_breaks > 2):
+            for breakPointer in range(0, max(1, n_breaks)):
                 sum_probability = sum_probability + probability[breakPointer,max_inject,max_remnant]
                 dbreak_predict = dbreak_predict + probability[breakPointer,max_inject,max_remnant]*(break_frequency[breakPointer] - break_predict)**2
             dbreak_predict = np.sqrt(dbreak_predict/sum_probability)
 
         sum_probability = 0
         dinject_predict = 0
-        if (ninjects > 2):
-            for injectPointer in range(0, max(1, ninjects)):
+        if (n_injects > 2):
+            for injectPointer in range(0, max(1, n_injects)):
                 sum_probability = sum_probability + probability[max_break,injectPointer,max_remnant]
                 dinject_predict = dinject_predict + probability[max_break,injectPointer,max_remnant]*(injection_index[injectPointer] - inject_predict)**2
             dinject_predict = np.sqrt(dinject_predict/sum_probability)
 
         sum_probability = 0
         dremnant_predict = 0
-        if (nremnants > 2):
-            for remnantPointer in range(0, max(1, nremnants)):
+        if (n_remnants > 2):
+            for remnantPointer in range(0, max(1, n_remnants)):
                 sum_probability = sum_probability + probability[max_break,max_inject,remnantPointer]
                 dremnant_predict = dremnant_predict + probability[max_break,max_inject,remnantPointer]*(remnant_ratio[remnantPointer] - remnant_predict)**2
             dremnant_predict = np.sqrt(dremnant_predict/sum_probability)
         
         # update adaptive regions
-        if (iterationPointer < niterations - 1):
-            if (nbreaks > 2):
-                dbreak_frequency = (break_frequency[-1] - break_frequency[0])/np.sqrt(nbreaks)
-                break_frequency = np.linspace(max(break_range[0], break_predict - dbreak_frequency), min(break_range[1], break_predict + dbreak_frequency), nbreaks, endpoint=True)
-            if (ninjects > 2):
-                dinjection_index = (injection_index[-1] - injection_index[0])/np.sqrt(ninjects)
-                injection_index = np.linspace(max(inject_range[0], inject_predict - dinjection_index), min(inject_range[1], inject_predict + dinjection_index), ninjects, endpoint=True)
-            if (nremnants > 2):
-                dremnant_ratio = (remnant_ratio[-1] - remnant_ratio[0])/np.sqrt(nremnants)
-                remnant_ratio = np.linspace(max(remnant_range[0], remnant_predict - dremnant_ratio), min(remnant_range[1], remnant_predict + dremnant_ratio), nremnants, endpoint=True)
+        if (iterationPointer < n_iterations - 1):
+            if (n_breaks > 2):
+                dbreak_frequency = (break_frequency[-1] - break_frequency[0])/np.sqrt(n_breaks)
+                break_frequency = np.linspace(max(break_range[0], break_predict - dbreak_frequency), min(break_range[1], break_predict + dbreak_frequency), n_breaks, endpoint=True)
+            if (n_injects > 2):
+                dinjection_index = (injection_index[-1] - injection_index[0])/np.sqrt(n_injects)
+                injection_index = np.linspace(max(inject_range[0], inject_predict - dinjection_index), min(inject_range[1], inject_predict + dinjection_index), n_injects, endpoint=True)
+            if (n_remnants > 2):
+                dremnant_ratio = (remnant_ratio[-1] - remnant_ratio[0])/np.sqrt(n_remnants)
+                remnant_ratio = np.linspace(max(remnant_range[0], remnant_predict - dremnant_ratio), min(remnant_range[1], remnant_predict + dremnant_ratio), n_remnants, endpoint=True)
 
     # return set of best-fit parameters with uncertainties
-    colorstring = color_text("Optimal parameters estimated for {} model:".format(fit_type), Colors.DogderBlue)
+    colorstring = color_text("Free parameters optimised for {} model:".format(fit_type), Colors.DogderBlue)
     logger.info(colorstring)
-    colorstring = color_text(" {} s = {} +\- {} \n {} break_freq = {} +\- {} \n {} remnant_predict = {} +\- {} ".format(espace, inject_predict, dinject_predict, espace, break_predict, dbreak_predict, espace, remnant_predict, dremnant_predict), Colors.Green)
+    colorstring = color_text(" {} s = {} +\- {} \n {} log_break_freq = {} +\- {} \n {} remnant_fraction = {} +\- {} ".format(espace, inject_predict, dinject_predict, espace, break_predict, dbreak_predict, espace, remnant_predict, dremnant_predict), Colors.Green)
     print(colorstring)
 
     # write fitting outputs to file
     if not write_model == None and write_model == True:
-        filename = "{}/estimated_params_{}.dat".format(workdir, fit_type)
-        colorstring = color_text("Writing fitting outputs to: {}".format(filename), Colors.DogderBlue)
+        if fit_type is not None:
+            filename = "{}_model_params.dat".format(fit_type)
+        else:
+            filename = "model_params.dat"
+        if work_dir is not None:
+            savename = "{}/{}".format(work_dir, filename)
+        else:
+            savename = filename
+        colorstring = color_text("Writing fitting outputs to: {}".format(savename), Colors.DogderBlue)
         logger.info(colorstring)
     
-        file = open(filename, "w")
-        file.write("break_freq, unc_break_freq, inj_index, unc_inj_index, remnant_predict, unc_remnant_predict, normalisation \n")
+        file = open(savename, "w")
+        file.write("log_break_freq, unc_log_break_freq, inj_index, unc_inj_index, remnant_fraction, unc_remnant_fraction, normalisation \n")
         file.write("{}, {}, {}, {}, {}, {}, {} \n".format(break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation))
         file.close()
-
-    return(break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation)
+    
+    params = fit_type, break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation
+    return(params)
 
 @jit(nopython=True) # Set "nopython" mode for best performance, equivalent to @njit
 def spectral_models(frequency, luminosity, fit_type, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F):
@@ -250,13 +277,13 @@ def spectral_models(frequency, luminosity, fit_type, break_frequency, injection_
         The uncertainty on the input flux density list
     fit_type : str
         The type of model to fit (JP, KP, KGJP, CI)
-    sigma_level : int
+    err_model_width : int
         range of the model uncertainty envelope in sigma
-    nremnants : int
+    n_remnants : int
         The remnant ratio range
-    nfreqplots : int
+    n_model_freqs : int
         The number of plotting frequencies
-    mcLength : int
+    mc_length : int
         Number of MC iterations
         
     returns
@@ -374,84 +401,83 @@ def spectral_models(frequency, luminosity, fit_type, break_frequency, injection_
     # return outputs
     return luminosity_predict, normalisation
 
-def evaluate_model(frequency, luminosity, dluminosity, fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range, nfreqplots, mcLength, sigma_level, niterations, workdir, write_model):
+def spectral_data(params, n_model_freqs=100, mc_length=500, err_model_width=2, work_dir=None, write_model=None):
     """
     (usage) Uses the optimized parameters to return a 1darray of model flux densities for a given frequency list. An uncertainty envelope on the model is calculated following an MC approach. 
     
     parameters
     ----------
-    frequency : 1darray
-        The input frequency list
-    luminosity : 1darray
-        The input flux density list
-    dluminosity : 1darray
-        The uncertainty on the input flux density list
-    fit_type : str
-        The type of model to fit (JP, KP, KGJP, CI)
-    sigma_level : int
-        range of the model uncertainty envelope in sigma
-    nremnants : int
-        The remnant ratio range
-    nfreqplots : int
-        The number of plotting frequencies
-    mcLength : int
-        Number of MC iterations
+    params : tuple
+        Contains the fit_type, break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation
+    n_model_freqs : int
+        The number of frequencies at which to evaluate the model
+    mc_length : int
+        Number of MC iterations used for uncertainty estimation
+    err_model_width : int
+        Width of the uncertainty level corresponding to the model
         
     returns
     -------
-    plotting_frequency : 1darray
-        list of frequencies at which to evaluate the model
-    Luminosityfit : 1darray
-        Peak probable fit of the model
-    dLuminosityfit : 1darray
-        1-sigma uncertainty on Luminosityfit
-    Luminosityfit_lower : 1darray
-        Luminosityfit - dLuminosityfit
-    Luminosityfit_upper : 1darray
-        Luminosityfit + dLuminosityfit
-    
+    frequency_model : 1darray
+        List of frequencies at which to evaluate the model
+    luminosity_model : 1darray
+        Peak probable model fit
+    err_luminosity_model : 1darray
+        1-sigma uncertainty on luminosity_model
+    luminosity_model_min : 1darray
+        Lower bound on the model
+    luminosity_model_max : 1darray
+        Upper bound on the model
     """
-    df = pd.read_csv('{}/besselK53.txt'.format(options.workdir), header=None)
-    # fit the spectrum for the optimal estimates of the injection index and break frequency
-    break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation = spectral_fitter(frequency, luminosity, dluminosity, fit_type, nbreaks, break_range, ninjects, inject_range, nremnants, remnant_range, niterations, workdir, write_model)
-    # determine the model for a list of plotting frequencies
-    plotting_frequency=np.geomspace(10**(math.floor(np.min(np.log10(frequency)))),10**(math.ceil(np.max(np.log10(frequency)))), num=nfreqplots)
-    Luminosityfit, norm = spectral_models(plotting_frequency, np.zeros(len(plotting_frequency)), fit_type, break_predict, inject_predict, remnant_predict, normalisation, df[0].values, df[1].values)
+    fit_type, break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation = params
+    frequency_model = np.geomspace(10**(math.floor(np.min(np.log10(frequency)))),10**(math.ceil(np.max(np.log10(frequency)))), num=n_model_freqs)
+    bessel_x, bessel_F = besselK53()
+    luminosity_model = spectral_models(frequency_model, np.zeros(len(frequency_model)), fit_type, 10**break_predict, inject_predict, remnant_predict, normalisation, bessel_x, bessel_F)[0]
+    
     # simulate a list of injection indices and break frequencies using their gaussian errors 
-    break_predict_vec = np.random.normal(break_predict, dbreak_predict, mcLength)
-    inject_predict_vec = np.random.normal(inject_predict, dinject_predict, mcLength)
-    remnant_predict_vec = np.random.normal(remnant_predict, dremnant_predict, mcLength)
+    break_predict_vec = np.random.normal(break_predict, dbreak_predict, mc_length)
+    inject_predict_vec = np.random.normal(inject_predict, dinject_predict, mc_length)
+    remnant_predict_vec = np.random.normal(remnant_predict, dremnant_predict, mc_length)
     
     # MC simulate an array of model luminosities
-    luminosityArray = np.zeros([mcLength,len(plotting_frequency)])
-    for mcPointer in range(0,mcLength):
-        fitmc, normmc = spectral_models(plotting_frequency, np.zeros(len(plotting_frequency)), fit_type, break_predict_vec[mcPointer], inject_predict_vec[mcPointer], remnant_predict_vec[mcPointer], normalisation, df[0].values, df[1].values)
+    luminosityArray = np.zeros([mc_length,len(frequency_model)])
+    for mcPointer in range(0,mc_length):
+        fitmc, normmc = spectral_models(frequency_model, np.zeros(len(frequency_model)), fit_type, 10**break_predict_vec[mcPointer], inject_predict_vec[mcPointer], remnant_predict_vec[mcPointer], normalisation, besselK53()[0], besselK53()[1])
         luminosityArray[mcPointer] = (np.asarray(fitmc))
     
-    dLuminosityfit=np.zeros([len(plotting_frequency)])
-    Luminosityfit_lower=np.zeros([len(plotting_frequency)])
-    Luminosityfit_upper=np.zeros([len(plotting_frequency)])
+    err_luminosity_model=np.zeros([len(frequency_model)])
+    luminosity_model_min=np.zeros([len(frequency_model)])
+    luminosity_model_max=np.zeros([len(frequency_model)])
     # at each plotting frequency use the std dev to determine the uncertainty on the model luminosity
-    for plotfreqPointer in range(0,len(plotting_frequency)):
-        dLuminosityfit[plotfreqPointer] = np.std(luminosityArray.T[plotfreqPointer])
-        Luminosityfit_lower[plotfreqPointer] = Luminosityfit[plotfreqPointer] - sigma_level*np.std(luminosityArray.T[plotfreqPointer])
-        Luminosityfit_upper[plotfreqPointer] = Luminosityfit[plotfreqPointer] + sigma_level*np.std(luminosityArray.T[plotfreqPointer])
+    colorstring = color_text("Estimating model errors from {} MC iterations".format(mc_length), Colors.DogderBlue)
+    logger.info(colorstring)
+    for plotfreqPointer in range(0,len(frequency_model)):
+        err_luminosity_model[plotfreqPointer] = np.std(luminosityArray.T[plotfreqPointer])
+        luminosity_model_min[plotfreqPointer] = luminosity_model[plotfreqPointer] - 0.5*err_model_width*np.std(luminosityArray.T[plotfreqPointer])
+        luminosity_model_max[plotfreqPointer] = luminosity_model[plotfreqPointer] + 0.5*err_model_width*np.std(luminosityArray.T[plotfreqPointer])
     
     # write fitting outputs to file
-    if write_model:
-        filename = "{}/modelspectrum_{}.dat".format(workdir, fit_type)
-        colorstring = color_text("Writing fitting outputs to: {}".format(filename), Colors.DogderBlue)
+    if write_model is not None and write_model == True:
+        if fit_type is not None:
+            filename = '{}_model_spectrum.dat'.format(fit_type)
+        else:
+            filename = 'model_spectrum.dat'
+        if work_dir is not None:
+            savename = '{}/{}'.format(work_dir, filename)
+        else:
+            savename = filename
+        colorstring = color_text("Writing model spectrum to: {}".format(savename), Colors.DogderBlue)
         logger.info(colorstring)
     
-        file = open(filename, "w")
-        file.write("Frequency, {0} Model, unc {0} Model, {0} Model +- {1} sigma, {0} Model +- {1} sigma \n".format(fit_type, sigma_level))
-        for i in range(0,len(plotting_frequency)):
-            file.write("{}, {}, {}, {}, {} \n".format(plotting_frequency[i], Luminosityfit[i], dLuminosityfit[i], Luminosityfit_lower[i], Luminosityfit_upper[i]))
+        file = open(savename, "w")
+        file.write("Frequency, {0} Model, unc {0} Model, {0} Model +- {1} sigma, {0} Model +- {1} sigma \n".format(fit_type, err_model_width))
+        for i in range(0,len(frequency_model)):
+            file.write("{}, {}, {}, {}, {} \n".format(frequency_model[i], luminosity_model[i], err_luminosity_model[i], luminosity_model_min[i], luminosity_model_max[i]))
         file.close()
 
-    return(break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper)
+    return(frequency_model, luminosity_model, err_luminosity_model, luminosity_model_min, luminosity_model_max)
 
-def make_plot(frequency, luminosity, dluminosity, plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper, workdir, fit_type, sigma_level=None):
+def spectral_plotter(frequency, luminosity, dluminosity, frequency_model, luminosity_model, err_luminosity_model, luminosity_model_min, luminosity_model_max, work_dir=None, fit_type=None, err_model_width=None):
     """
     (usage) Plots the data and optimised model fit and writes to file. 
     
@@ -463,21 +489,21 @@ def make_plot(frequency, luminosity, dluminosity, plotting_frequency, Luminosity
         The input flux density list (observed data)
     dluminosity : 1darray
         The uncertainty on the input flux density list (observed data)
-    plotting_frequency : 1darray
+    frequency_model : 1darray
         List of frequencies at which the model is evaluated
-    Luminosityfit : 1darray
-        Best-fit model evaluated for plotting_frequency
-    dLuminosityfit : 1darray
-        Uncertainty on Luminosityfit
-    Luminosityfit_lower : 1darray
-        Lower bound on Luminosityfit
-    Luminosityfit_upper : 1darray
-        Upper bound on Luminosityfit
-    workdir : str
+    luminosity_model : 1darray
+        Best-fit model evaluated for frequency_model
+    err_luminosity_model : 1darray
+        Uncertainty on luminosity_model
+    luminosity_model_min : 1darray
+        Lower bound on luminosity_model
+    luminosity_model_max : 1darray
+        Upper bound on luminosity_model
+    work_dir : str
         Directory to write plot to
     fit_type : str
         Print model type on figure
-    sigma_level : int
+    err_model_width : int
         Print width of uncertainty envelope on figure
     """
     fig = plt.figure(figsize=(12,12))
@@ -490,27 +516,36 @@ def make_plot(frequency, luminosity, dluminosity, plotting_frequency, Luminosity
     ax.set_ylim([0.2*np.min(luminosity),5*np.max(luminosity)])
     ax.tick_params(axis='both', labelsize=20, which='both', direction='in', length=5, width=2)
 
-    # plot data + model
-    ax.plot(plotting_frequency, Luminosityfit, c='C0', label='{} Model'.format(fit_type), zorder=2)
-    ax.fill_between(plotting_frequency, Luminosityfit_lower.T, Luminosityfit_upper.T, color='purple', alpha=0.2, label='{} Model $\\pm{}\\sigma$'.format(fit_type, sigma_level), zorder=3)
+    if fit_type is not None:
+        ax.plot(frequency_model, luminosity_model, c='C0', label='{} Model'.format(fit_type), zorder=2)
+    else:
+        ax.plot(frequency_model, luminosity_model, c='C0', label='Model', zorder=2)
+    ax.fill_between(frequency_model, luminosity_model_min.T, luminosity_model_max.T, color='purple', alpha=0.15)
     ax.scatter(frequency, luminosity, marker='.', c='black', label='Data', zorder=1)
-    ax.errorbar(frequency,luminosity,xerr=0,yerr=dluminosity,color='black',capsize=1,linestyle='None',hold=True,fmt='none',alpha=0.9)
-
+    ax.errorbar(frequency, luminosity, xerr=0, yerr=dluminosity, color='black', capsize=1, linestyle='None',hold=True, fmt='none',alpha=0.9)
     plt.legend(loc='upper right', fontsize=20)
-    plt.savefig('{}/{}_fit.png'.format(workdir, fit_type),dpi=400)
 
-def derive_spectra_age(fit_type, vb, T, B, z, dyn_age=None):
+    extension='.pdf'
+    if fit_type is not None:
+        plotname='{}_model_fit{}'.format(fit_type,extension)
+    else:
+        plotname='model_fit{}'.format(extension)
+    if work_dir is not None:
+        savename='{}/{}'.format(work_dir,plotname)
+    else:
+        savename=plotname
+    colorstring = color_text("Writing figure to: {}".format(savename), Colors.DogderBlue)
+    logger.info(colorstring)
+    plt.savefig(savename,dpi=200)
+
+def spectral_ages(params, B, z):
     """
     (usage) Derives the total, active and inactive spectral age using the break frequency, quiescent fraction, magnetic field strength and redshift.
     
     parameters
     ----------
-    fit_type : str
-        The fitted model (JP, KP or CI)
-    vb : float
-        The break frequency (Hz)
-    T : float
-        The quiescent fraction, this is remnant_predict from spectral_fitter (dimensionless)
+    params: tuple
+        Contains the fitted model (fit_type), break frequency (vb), and quiescent fraction (T), each constrained by spectral_fitter.
     B : float
         The magnetic field strength (nT)
     z : float
@@ -525,36 +560,45 @@ def derive_spectra_age(fit_type, vb, T, B, z, dyn_age=None):
     t_off : float
         Duration of remnant phase
     """
+    fit_type, vb, T = params # unpack values
+    espace='                    '
+    colorstring = color_text("Spectral ages are calculated assuming the following parameters:", Colors.DogderBlue)
+    logger.info(colorstring)
+    colorstring = color_text(" {} Model = {} \n {} Break frequency = {} Hz \n {} Quiescent fraction = {} \n {} Magnetic field strength = {} nT \n {} Redshift = {}".format(espace, fit_type, espace, vb, espace, T, espace, B, espace, z), Colors.Green)
+    print(colorstring)
+
     # define constants (SI units)
     c = 299792458       # light speed
     me = 9.10938356e-31 # electron mass
     mu0 = 4*np.pi*1e-7  # magnetic permeability of free space
     e = 1.60217662e-19  # charge on electron
     
+    Bic = 0.318*((1+z)**2)*1e-9
+    B = B*1e-9
+    
+    # get the right constant
     if fit_type in ['CI', 'JP']:
         v = ((243*np.pi*(me**5)*(c**2))/(4*(mu0**2)*(e**7)))**(0.5)
     elif fit_type == 'KP':
         v = (1/2.25)*(((243*np.pi*(me**5)*(c**2))/(4*(mu0**2)*(e**7)))**(0.5))
     
-    Bic = 0.318*((1+z)**2)*1e-9
-    B = B*1e-9
     tau = ((v*(B**(0.5)))/((B**2)+(Bic**2)))*((vb*(1+z))**(-0.5)) # seconds
     tau = tau/(3.154e+13) # Myr
-    
-    # override spectral age with the dynamical age
-    if dyn_age is not None:
-        tau = dyn_age
-    
     t_on = tau*(1-T)
     t_off = tau - t_on
 
-    espace='                         '
-    colorstring = color_text("Spectral ages estimated for {} model:".format(fit_type), Colors.DogderBlue)
-    logger.info(colorstring)
-    colorstring = color_text(" {} tau = {} Myr \n {} t_on = {} Myr \n {} t_off = {} Myr".format(espace, tau, espace, t_on, espace, t_off), Colors.Green)
-    print(colorstring)
+    if fit_type == 'CI':
+        colorstring = color_text("Spectral ages estimated for {} model:".format(fit_type), Colors.DogderBlue)
+        logger.info(colorstring)
+        colorstring = color_text(" {} Total age = {} Myr \n {} Active duration = {} Myr \n {} Remnant duration = {} Myr".format(espace, tau, espace, t_on, espace, t_off), Colors.Green)
+        print(colorstring)
+    elif fit_type in ['JP', 'KP']:
+        colorstring = color_text("Spectral age estimated for {} model:".format(fit_type), Colors.DogderBlue)
+        logger.info(colorstring)
+        colorstring = color_text(" {} Total age = {} Myr".format(espace, tau), Colors.Green)
+        print(colorstring)
 
-def convert_to_native(data, unit):
+def spectral_units(data, unit):
     """
     (usage) Converts input frequency and flux density into Hz and Jy, respectively. 
     
@@ -571,22 +615,34 @@ def convert_to_native(data, unit):
         Input data in native units
     """
     if unit == 'Hz':
+        colorstring = color_text("Input frequency registered as {}. No scaling required.".format(unit), Colors.DogderBlue)
+        logger.info(colorstring)
         return(data)
     if unit == 'MHz':
+        colorstring = color_text("Input frequency registered as {}. Scaling by 10^6.".format(unit), Colors.DogderBlue)
+        logger.info(colorstring)
         return(1e+6*data)
     if unit == 'GHz':
+        colorstring = color_text("Input frequency registered as {}. Scaling by 10^9.".format(unit), Colors.DogderBlue)
+        logger.info(colorstring)
         return(1e+9*data)
     if unit == 'Jy':
+        colorstring = color_text("Input flux density registered as {}. No scaling required.".format(unit), Colors.DogderBlue)
+        logger.info(colorstring)
         return(data)
     if unit == 'mJy':
+        colorstring = color_text("Input flux density registered as {}. Scaling by 10^(-3).".format(unit), Colors.DogderBlue)
+        logger.info(colorstring)
         return(1e-3*data)
     if unit == 'uJy':
+        colorstring = color_text("Input flux density registered as {}. Scaling by 10^(-6).".format(unit), Colors.DogderBlue)
+        logger.info(colorstring)
         return(1e-6*data)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prefix_chars='-')
     group1 = parser.add_argument_group('Configuration Options')
-    group1.add_argument('--workdir', dest='workdir', type=str, help='Path to working directory containing data files. ')
+    group1.add_argument('--work_dir', dest='work_dir', type=str, default=None, help='Path to working directory containing data files. ')
     group1.add_argument("--data", dest='data', type=str, help='Name of .dat file containing measured spectra.')
     group1.add_argument("--freq", dest='freq', type=float, nargs='+', default=None, help='Measured frequencies.')
     group1.add_argument("--flux", dest='flux', type=float, nargs='+', default=None, help='Measured flux densities')
@@ -596,22 +652,22 @@ if __name__ == "__main__":
     
     group2 = parser.add_argument_group('Fitting Options')
     group2.add_argument("--fit_type", dest='fit_type', type=str, default=None, help='Model to fit: JP, KP, CI')
-    group2.add_argument("--nbreaks", dest='nbreaks', type=int, default=31, help='Number of break frequencies for adaptive grid')
-    group2.add_argument("--ninjects", dest='ninjects', type=int, default=21, help='Number of injection indices for adaptive grid')
-    group2.add_argument("--nremnants", dest='nremnants', type=int, default=21, help='')
-    group2.add_argument("--niterations", dest='niterations', type=int, default=3, help='')
-    group2.add_argument("--break_range", dest='break_range', type=float, nargs='+', default=[8, 11], help='Allowed range for log10(break frequency) in Hz')
-    group2.add_argument("--inject_range", dest='inject_range', type=float, nargs='+', default=[2.01, 2.99], help='Allowed range for energy injection index "s"')
-    group2.add_argument("--remnant_range", dest='remnant_range', type=float, nargs='+', default=[0, 1], help='Allowed range for remnant fraction')
+    group2.add_argument("--n_breaks", dest='n_breaks', type=int, help='Number of break frequencies for adaptive grid')
+    group2.add_argument("--n_injects", dest='n_injects', type=int, help='Number of injection indices for adaptive grid')
+    group2.add_argument("--n_remnants", dest='n_remnants', type=int, help='')
+    group2.add_argument("--n_iterations", dest='n_iterations', type=int, help='')
+    group2.add_argument("--break_range", dest='break_range', type=float, nargs='+', help='Allowed range for log10(break frequency) in Hz')
+    group2.add_argument("--inject_range", dest='inject_range', type=float, nargs='+', help='Allowed range for energy injection index "s"')
+    group2.add_argument("--remnant_range", dest='remnant_range', type=float, nargs='+', help='Allowed range for remnant fraction')
 
     group3 = parser.add_argument_group('Output Model Options')
-    group3.add_argument("--nfreqplots", dest='nfreqplots', type=int, default=100, help='Number of plotting frequencies.')
-    group3.add_argument("--mcLength", dest='mcLength', type=int, default=1000, help='Number of MC iterations.')
-    group3.add_argument("--sigma_level", dest='sigma_level', type=int, default=2, help='Width of uncertainty envelope in sigma')
+    group3.add_argument("--n_model_freqs", dest='n_model_freqs', type=int, help='Number of plotting frequencies.')
+    group3.add_argument("--mc_length", dest='mc_length', type=int, help='Number of MC iterations.')
+    group3.add_argument("--err_model_width", dest='err_model_width', type=int, help='Width of uncertainty envelope in sigma')
 
     group4 = parser.add_argument_group('Extra fitting options')
     group4.add_argument('--plot', dest='plot', action='store_true',default=False, help='Plot data and optimized model fit.')
-    group4.add_argument('--write_model', dest='write_model', action='store_true', default=False, help='Write model and fitting outputs to file. Requires --workdir to be specfied.')
+    group4.add_argument('--write_model', dest='write_model', action='store_true', default=False, help='Write model and fitting outputs to file. Requires --work_dir to be specfied.')
 
     group5 = parser.add_argument_group('Spectral age options')
     group5.add_argument('--age', dest='age', action='store_true', default=False, help='Determine spectral age from fit and B-field assumption. (Default = False). Requires --bfield')
@@ -619,26 +675,38 @@ if __name__ == "__main__":
     group5.add_argument('--z', dest='z', type=float, help='Cosmological redshift of source. ')
     options = parser.parse_args()
 
-    # Read in input data and convert to native units. 
+    colorstring = color_text("Reading in data", Colors.Orange)
+    print("INFO __main__ {}".format(colorstring))
     if options.data:
-        df_data = pd.read_csv('{}/{}'.format(options.workdir, options.data))
-        frequency = convert_to_native(df_data.iloc[:,1].values, options.freq_unit)
-        luminosity = convert_to_native(df_data.iloc[:,2].values, options.flux_unit)
-        dluminosity = convert_to_native(df_data.iloc[:,3].values, options.flux_unit)
+        if options.work_dir is not None:
+            filename = '{}/{}'.format(options.work_dir, options.data)
+        else:
+            filename = '{}'.format(options.data)
+        df_data = pd.read_csv(filename)
+        frequency = spectral_units(df_data.iloc[:,1].values, options.freq_unit)
+        luminosity = spectral_units(df_data.iloc[:,2].values, options.flux_unit)
+        dluminosity = spectral_units(df_data.iloc[:,3].values, options.flux_unit)
     elif options.freq:
-        frequency = convert_to_native(np.asarray(options.freq), options.freq_unit)
-        luminosity = convert_to_native(np.asarray(options.flux), options.flux_unit)
-        dluminosity = convert_to_native(np.asarray(options.err_flux), options.flux_unit)
-    colorstring = color_text("Succesfully read in input data", Colors.DogderBlue)
-    print("INFO (main): {}".format(colorstring))
+        frequency = spectral_units(np.asarray(options.freq), options.freq_unit)
+        luminosity = spectral_units(np.asarray(options.flux), options.flux_unit)
+        dluminosity = spectral_units(np.asarray(options.err_flux), options.flux_unit)
+    
     espace='            '
-    colorstring = color_text('{} Frequency (Hz) = {} \n {} flux_density (Jy) = {} \n {} err_flux_density (Jy) = {}'.format(espace, frequency, espace, luminosity, espace, dluminosity), Colors.Green)
-    print(colorstring)
-
-    break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper = evaluate_model(frequency, luminosity, dluminosity, options.fit_type, options.nbreaks, options.break_range, options.ninjects, options.inject_range, options.nremnants, options.remnant_range, options.nfreqplots, options.mcLength, options.sigma_level, options.niterations, options.workdir, options.write_model)
-
+    colorstring = color_text("Estimating free parameters.", Colors.Orange)
+    print("INFO __main__ {}".format(colorstring))
+    params = spectral_fitter(frequency, luminosity, dluminosity, options.fit_type, work_dir=options.work_dir, write_model=options.write_model)
+    
+    colorstring = color_text("Evaluating model and estimating model uncertainties.", Colors.Orange)
+    print("INFO __main__ {}".format(colorstring))
+    frequency_model, luminosity_model, err_luminosity_model, luminosity_model_min, luminosity_model_max = spectral_data(params, work_dir=options.work_dir, write_model=options.write_model)
+    
     if options.plot:
-        make_plot(frequency, luminosity, dluminosity, plotting_frequency, Luminosityfit, dLuminosityfit, Luminosityfit_lower, Luminosityfit_upper, options.workdir, options.fit_type, options.sigma_level)
+        colorstring = color_text("Writing model fit to figure", Colors.Orange)
+        print("INFO __main__ {}".format(colorstring))
+        spectral_plotter(frequency, luminosity, dluminosity, frequency_model, luminosity_model, err_luminosity_model, luminosity_model_min, luminosity_model_max, options.work_dir, options.fit_type, options.err_model_width)
     
     if options.age:
-        derive_spectra_age(options.fit_type, break_predict, remnant_predict, options.bfield, options.z)
+        colorstring = color_text("Estimating spectral ages", Colors.Orange)
+        print("INFO __main__ {}".format(colorstring))
+        params = (params[0], 10**params[1], params[5])
+        spectral_ages(params, options.bfield, options.z)
