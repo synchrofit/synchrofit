@@ -1,13 +1,25 @@
 # synchrofit
-(readme in progress)
-The goal of this code is to model a radio spectrum using the numerical forms of the Jaffe-Perola (JP) model, Kardashev-Pacholczyk (KP) model, or the on/off forms of the Continuous-injection (CI) model. Expressions for the JP, KP and CI-on models are adapted from Turner, et al (2017b), and the expression for the CI-off model is adapted from Turner, et al (2018):
-- Turner, et al (2017b) https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract
-- Turner, et al (2018) https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract
+=====
+```synchrofit``` (**synchro**tron **fit**) provides a user-friendly Python package that will model the synchrotron spectrum arising from a radio galaxy. Three models are offered: the Kardashev-Pacholczyk (KP) model (ref), the Jaffe-Perola (JP) model (ref) and the Continuous-Injection (CI) on/off model (CI-off also known as the KGJP model). The expressions for the KP, JP and CI-on models are adapted from Turner, et al (2017b)<sup>**1**</sup>, and the expression for the CI-off model is adapted from Turner, et al (2018)<sup>**2**</sup>:
+- <sup>**1**</sup> https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract
+- <sup>**2**</sup> https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract
 
 ## Credits
-Please credit Ross J. Turner and Benjamin Quici if you use this code, or incorporate it into your own workflow. Please acknowledge the use of this code by citing ___ and providing a link to this repository. 
+=====
+Please credit Ross J. Turner and Benjamin Quici if you use this code, or incorporate it into your own workflow. Please acknowledge the use of this code by citing ___ and by providing a link to this repository. 
 
-## Structure
+## Installation
+=====
+```synchrofit``` is built and tested on python 3.8.5.
+
+You can install via pip using
+`pip install synchrofit`
+
+Or you can clone the repository and use `python3 setup.py install` or `pip install .`
+
+## Help
+=====
+Please read through the README.md for a description of the package as well as workflow and usage examples. If you have found a bug or inconsistency in the code please [submit a ticket](https://github.com/synchrofit/synchrofit/issues). 
 
 ## Scripts
 - `synchrofit.py` Main code that performs the fitting. 
@@ -26,25 +38,25 @@ A typical workflow might look like:
        - The magnetic field strength. For a radio galaxy, you may want to consider dynamically estimating this using RAiSE
 
 ## Configuring synchrofit.py
-At minimum, `synchrofit.py` requires the working directory, input spectrum and the type of model to fit. In the example below, the spectral data is sourced from $workdir/test_spectra.dat and is fit by the JP model.
+At minimum, `synchrofit.py` requires the working directory, input spectrum and the type of model to fit. In the example below, the spectral data is sourced from $work_dir/test_spectra.dat and is fit by the JP model.
 ```
 python3 synchrofit.py \
-    --workdir $workdir \
+    --work_dir $work_dir \
     --data "test_spectra.dat" \
     --fit_type "JP" \
 ```
 Alterntively, the spectrum can be supplied manually as follows:
 ```
 python3 synchrofit.py \
-    --workdir $workdir \
+    --work_dir $work_dir \
     --freq f1 f2 ... fn \
     --flux s1 s2 ... sn \
     --err_flux es1 es2 ... esn \
     --fit_type "JP" \
 ```
 
-- `--plot` will plot the input spectrum and the best model fit and write to ${workdir}/${fit_type}_fit.png. 
-- `--write_model` will write the estimated parameters and output model to ${workdir}/estimated_params_${fit_type}.dat and ${workdir}/modelspectrum_${fit_type}.dat, respectively. 
+- `--plot` will plot the input spectrum and the best model fit and write to ${work_dir}/${fit_type}_fit.png. 
+- `--write_model` will write the estimated parameters and output model to ${work_dir}/estimated_params_${fit_type}.dat and ${work_dir}/modelspectrum_${fit_type}.dat, respectively. 
 - `--age` will determine the spectral ages if a magnetic field strength and redshift is supplied.
 
 Most variables will already have default values set in `synchrofit.py`, and can be changed following the examples above. For a description of each variable use ```synchrofit.py --h```.
