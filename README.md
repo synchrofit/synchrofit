@@ -1,5 +1,4 @@
 # synchrofit
-=====
 ```synchrofit``` (**synchro**tron **fit**) provides a user-friendly Python package that will model the synchrotron spectrum arising from a radio galaxy. Three models are offered: the Kardashev-Pacholczyk (KP) model (ref), the Jaffe-Perola (JP) model (ref) and the Continuous-Injection (CI) on/off model (CI-off also known as the KGJP model). The expressions for the KP, JP and CI-on models are adapted from Turner, et al (2017b)<sup>**[1]**</sup>, and the expression for the CI-off model is adapted from Turner, et al (2018)<sup>**[2]**</sup>:
 - <sup>**[1]**</sup> https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract
 - <sup>**[2]**</sup> https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract
@@ -26,7 +25,8 @@ Please read through the README.md for a description of the package as well as wo
 - `spectral_ages` provides an optional feature to determine the spectral ages using the break frequency and quiescent fraction estimated by `spectral_fitter`. This requires both a magnetic field strength and cosmological redshift to be supplied. Ages are derived using equation 4 of Turner, et al (2018)<sup>**[2]**</sup>. 
 - `spectral_plotter` provides an optional feature to plot the input data and fitted model for a visual comparison.
 
-## Example workflow
+## Usage
+### Example workflow
 
 A typical workflow might look like:
    - Supply a list of frequencies, flux densities and flux density uncertainties that describe the spectrum
@@ -38,7 +38,7 @@ A typical workflow might look like:
        - The cosmological redshift of the radio source
        - The magnetic field strength. For a radio galaxy, you may want to consider dynamically estimating this using RAiSE
 
-## Configuring synchrofit.py
+### Configuring synchrofit.py
 At minimum, `synchrofit.py` requires the working directory, input spectrum and the type of model to fit. In the example below, the spectral data is sourced from $work_dir/test_spectra.dat and is fit by the JP model.
 ```
 python3 synchrofit.py \
@@ -62,5 +62,5 @@ python3 synchrofit.py \
 
 Most variables will already have default values set in `synchrofit.py`, and can be changed following the examples above. For a description of each variable use ```synchrofit.py --h```.
 
-## Execution
+### Execution
 `synchrofit.py` can either be executed directly from terminal, or by running `./run_synchrofit.sh`. The latter option allows one to store multiple configuration presets. 
