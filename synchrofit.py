@@ -45,7 +45,7 @@ def besselK53():
     bessel_F = [0.04629204, 0.04810159, 0.04998175, 0.05193526, 0.05396496, 0.05607381, 0.05826488, 0.06054133, 0.06290648, 0.06536375, 0.06791669, 0.070569, 0.07332448, 0.07618712, 0.07916102, 0.08225045, 0.08545982, 0.08879372, 0.09225689, 0.09585424, 0.09959088, 0.1034721, 0.1075033, 0.1116901, 0.1160385, 0.1205543, 0.1252439, 0.1301138, 0.1351705, 0.1404209, 0.1458721, 0.1515314, 0.1574063, 0.1635045, 0.1698341, 0.176403, 0.1832197, 0.1902929, 0.1976311, 0.2052435, 0.2131391, 0.2213272, 0.2298174, 0.2386191, 0.247742, 0.257196, 0.2669908, 0.2771361, 0.2876418, 0.2985174, 0.3097725, 0.3214162, 0.3334574, 0.3459047, 0.3587661, 0.3720487, 0.3857592, 0.3999031, 0.4144848, 0.4295075, 0.4449725, 0.4512824, 0.4576629, 0.4641139, 0.4706351, 0.4772263, 0.483887, 0.4906169, 0.4974154, 0.5042819, 0.5112157, 0.5182161, 0.5252821, 0.5324129, 0.5396072, 0.546864, 0.554182, 0.5615596, 0.5689953, 0.5764874, 0.5840341, 0.5916334, 0.599283, 0.6069808, 0.614724, 0.6225102, 0.6303363, 0.6381993, 0.6460958, 0.6540225, 0.6619754, 0.6699506, 0.6779438, 0.6859505, 0.6939659, 0.7019849, 0.7100021, 0.7180117, 0.7260077, 0.7339838, 0.7419331, 0.7498485, 0.7577226, 0.7655474, 0.7733146, 0.7810154, 0.7886406, 0.7961807, 0.8036253, 0.810964, 0.8181855, 0.8252783, 0.8322301, 0.8390283, 0.8456595, 0.8521099, 0.8583651, 0.8644101, 0.8702292, 0.8758063, 0.8811245, 0.8861664, 0.8909142, 0.895349, 0.8994518, 0.9032027, 0.9065815, 0.9095673, 0.9121388, 0.914274, 0.9159508, 0.9171463, 0.9178378, 0.9180018, 0.9176149, 0.9166536, 0.9150942, 0.9129131, 0.910087, 0.906593, 0.9024084, 0.8975113, 0.8918805, 0.8854959, 0.8783384, 0.8703902, 0.8616355, 0.8520599, 0.8416513, 0.8303998, 0.8182985, 0.8053429, 0.7915322, 0.7768687, 0.7613587, 0.7450125, 0.7278449, 0.7098753, 0.6911279, 0.6716322, 0.6514228, 0.6305401, 0.6090297, 0.5869434, 0.5643382, 0.541277, 0.5178279, 0.4940644, 0.4700649, 0.445912, 0.4216926, 0.3974965, 0.3734163, 0.3495463, 0.3259814, 0.3028163, 0.2801445, 0.2580567, 0.23664, 0.2159765, 0.1961424, 0.1772062, 0.1592282, 0.1422594, 0.1263403, 0.1115008, 0.0977593, 0.08512255, 0.07358577, 0.06313278, 0.05373656, 0.04536004, 0.03795704, 0.03147351, 0.02584889, 0.02101761, 0.01691069, 0.01345729, 0.01058629, 0.008227734, 0.006314173, 0.004781787, 0.003571302, 0.002628682, 0.001905562, 0.00135946, 0.0009537575, 0.0006574939, 0.0004450058, 0.0002954477, 0.0001922383, 0.0001224694, 7.63148e-05, 4.646519e-05, 2.761261e-05, 1.599737e-05, 9.024603e-06, 4.951062e-06, 2.638069e-06, 1.3633e-06, 6.823153e-07, 3.302248e-07, 1.543035e-07, 6.94964e-08, 3.011714e-08, 1.253542e-08, 5.001613e-09, 1.909237e-09, 6.957938e-10, 2.41558e-10, 7.970527e-11, 2.493648e-11, 7.37861e-12, 2.059504e-12, 5.407576e-13, 1.331809e-13, 3.067388e-14, 6.585815e-15, 1.31379e-15, 2.426677e-16, 4.1351460000000005e-17, 6.476066e-18, 9.284197e-19, 1.2133319999999999e-19, 1.439201e-20, 1.542358e-21, 1.48625e-22, 1.281342e-23, 9.831652e-25, 6.677119999999999e-26]
     return(np.array(bessel_x), np.array(bessel_F))
 
-def spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, break_range=[8,11], n_injects=31, inject_range=[2.01,2.99], n_remnants=31, remnant_range=[0,1], n_iterations=3, work_dir=None, write_model=None):
+def spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, break_range=[8,11], n_injects=31, inject_range=[2.01,2.99], n_remnants=31, remnant_range=[0,1], n_iterations=3, options=None):
     """
     (usage) Finds the optimal fit for a radio spectrum modelled by either the JP, KP or CI model.
     
@@ -73,16 +73,32 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, b
         Bounds for the remnant ratio range
     n_iterations : int
         Number of iterations
-    work_dir : str
-        Directory to which outputs are written (if None, outputs are written to execution directory)
-    write_model : bool
-        If True, writes outputs to folder
+    options : Namespace()
+        Custom options parsed through argparse. This is only relevant if synchrofit is executed from main.
 
     returns
     -------
     params : tuple
         Contains the fitted model (fit_type) and the free parameters constrained by the fitting (and their uncertainties)
     """
+    # read in custom configuration options from argparse
+    if options is not None:
+        n_breaks = options.n_breaks
+        break_range = options.break_range
+        n_injects = options.n_injects
+        inject_range = options.inject_range
+        n_remnants = options.n_remnants
+        remnant_range = options.remnant_range
+        n_iterations = options.n_iterations
+        work_dir = options.work_dir
+        write_model = options.write_model
+        # since type(options.remnant_range)=list, I need to convert the list of length=1 into a float
+        if len(break_range) == 1:
+            break_range = break_range[0]
+        if len(inject_range) == 1:
+            inject_range = inject_range[0]
+        if len(remnant_range) == 1:
+            remnant_range = remnant_range[0]
     # check inputs are of correct data types
     if not isinstance(frequency, (list, np.ndarray)) or not isinstance(luminosity, (list, np.ndarray)) or not isinstance(dluminosity, (list, np.ndarray)) or not len(luminosity) == len(frequency) or not len(dluminosity) == len(frequency):
         raise Exception('Frequency, luminosity and uncertainty arrays must be lists or numpy arrays of the same length.')
@@ -106,16 +122,16 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, b
     if isinstance(inject_range, (float, int)):
         inject_range = [inject_range, inject_range]
         n_injects = 1
-    if not (isinstance(remnant_range, (float, int)) or isinstance(remnant_range, (list, np.ndarray)) and len(remnant_range) == 2):
-        raise Exception('Remnant ratio must be a float, or a two element list or numpy array.')
     if isinstance(remnant_range, (float, int)):
         remnant_range = [remnant_range, remnant_range]
         n_remnants = 1
+    if not (isinstance(remnant_range, (float, int)) or isinstance(remnant_range, (list, np.ndarray)) and len(remnant_range) == 2):
+        raise Exception('Remnant ratio must be a float, or a two element list or numpy array.')
 
     if fit_type == 'JP' or fit_type == 'KP':
         n_remnants = 1
         remnant_range = [0, 0]
-    
+
     # print accepted parameters to terminal
     espace='                      '
     colorstring = color_text("Fitting options accepted:", Colors.DogderBlue)
@@ -554,11 +570,11 @@ def spectral_ages(params, B, z):
     returns
     -------
     tau : float
-        The spectral age of the radio emision
+        The spectral age of the radio emission in Myr
     t_on : float
-        Duration of active phase
+        Duration of active phase in Myr
     t_off : float
-        Duration of remnant phase
+        Duration of remnant phase in Myr
     """
     fit_type, vb, T = params # unpack values
     espace='                    '
@@ -597,6 +613,8 @@ def spectral_ages(params, B, z):
         logger.info(colorstring)
         colorstring = color_text(" {} Total age = {} Myr".format(espace, tau), Colors.Green)
         print(colorstring)
+    
+    return(tau, t_on, t_off)
 
 def spectral_units(data, unit):
     """
@@ -642,37 +660,37 @@ def spectral_units(data, unit):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prefix_chars='-')
     group1 = parser.add_argument_group('Configuration Options')
-    group1.add_argument('--work_dir', dest='work_dir', type=str, default=None, help='Path to working directory containing data files. ')
-    group1.add_argument("--data", dest='data', type=str, help='Name of .dat file containing measured spectra.')
-    group1.add_argument("--freq", dest='freq', type=float, nargs='+', default=None, help='Measured frequencies.')
-    group1.add_argument("--flux", dest='flux', type=float, nargs='+', default=None, help='Measured flux densities')
-    group1.add_argument("--err_flux", dest='err_flux', type=float, nargs='+', default=None, help='Measured flux density uncertainties')
-    group1.add_argument("--freq_unit", dest='freq_unit', type=str, default='Hz', help='Frequency units (default = Hz)')
-    group1.add_argument("--flux_unit", dest='flux_unit', type=str, default='Jy', help='Flux density units (default = Jy)')
+    group1.add_argument("--data", dest='data', type=str, help='(No default) Name of the data file containing the input spectrum (requires .dat extension)')
+    group1.add_argument('--work_dir', dest='work_dir', type=str, default=None, help='(Default = None) Directory to which fitting outputs and plots are written to. If None, defaults to current working directory.')
+    group1.add_argument("--freq", dest='freq', type=float, nargs='+', default=None, help='(Default = None) List of input frequencies (if --data is not specified).')
+    group1.add_argument("--flux", dest='flux', type=float, nargs='+', default=None, help='(Default = None) List of input flux densities (if --data is not specified)')
+    group1.add_argument("--err_flux", dest='err_flux', type=float, nargs='+', default=None, help='(Default = None) List of input flux density errors (if --data is not specified)')
+    group1.add_argument("--freq_unit", dest='freq_unit', type=str, default='Hz', help='(Default = None) Input frequency units')
+    group1.add_argument("--flux_unit", dest='flux_unit', type=str, default='Jy', help='(Default = None) Input flux density units')
     
     group2 = parser.add_argument_group('Fitting Options')
-    group2.add_argument("--fit_type", dest='fit_type', type=str, default=None, help='Model to fit: JP, KP, CI')
-    group2.add_argument("--n_breaks", dest='n_breaks', type=int, help='Number of break frequencies for adaptive grid')
-    group2.add_argument("--n_injects", dest='n_injects', type=int, help='Number of injection indices for adaptive grid')
-    group2.add_argument("--n_remnants", dest='n_remnants', type=int, help='')
-    group2.add_argument("--n_iterations", dest='n_iterations', type=int, help='')
-    group2.add_argument("--break_range", dest='break_range', type=float, nargs='+', help='Allowed range for log10(break frequency) in Hz')
-    group2.add_argument("--inject_range", dest='inject_range', type=float, nargs='+', help='Allowed range for energy injection index "s"')
-    group2.add_argument("--remnant_range", dest='remnant_range', type=float, nargs='+', help='Allowed range for remnant fraction')
+    group2.add_argument("--fit_type", dest='fit_type', type=str, default=None, help='(No default) Model to fit: JP, KP, CI')
+    group2.add_argument("--n_breaks", dest='n_breaks', type=int, default=31, help='(Default = 31) Number of increments with which to sample the break frequency range')
+    group2.add_argument("--n_injects", dest='n_injects', type=int, default=31, help='(Default = 31) Number of increments with which to sample the injection index range')
+    group2.add_argument("--n_remnants", dest='n_remnants', type=int, default=31, help='(Default = 31) Number of increments with which to sample the remnant ratio range')
+    group2.add_argument("--n_iterations", dest='n_iterations', type=int, default=3, help='(Default = 3) Number of iterations.')
+    group2.add_argument("--break_range", dest='break_range', type=float, nargs='+', default=[8, 11], help='(Default = [8, 11]) Accepted range for the log(break frequency) in Hz')
+    group2.add_argument("--inject_range", dest='inject_range', type=float, nargs='+', default=[2.01, 2.99], help='(Default = [2.01, 2.99]) Accepted range for the energy injection index')
+    group2.add_argument("--remnant_range", dest='remnant_range', type=float, nargs='+', default=[0, 1], help='(Default = [0, 1]) Accepted range for the remnant ratio')
 
     group3 = parser.add_argument_group('Output Model Options')
-    group3.add_argument("--n_model_freqs", dest='n_model_freqs', type=int, help='Number of plotting frequencies.')
-    group3.add_argument("--mc_length", dest='mc_length', type=int, help='Number of MC iterations.')
-    group3.add_argument("--err_model_width", dest='err_model_width', type=int, help='Width of uncertainty envelope in sigma')
+    group3.add_argument("--n_model_freqs", dest='n_model_freqs', type=int, default=100, help='(Default = 100) Number of frequencies to evaluate the model at')
+    group3.add_argument("--mc_length", dest='mc_length', type=int, default=500, help='(Default = 500) Number of Monte-Carlo iterations used to estimate the model uncertainty')
+    group3.add_argument("--err_model_width", dest='err_model_width', type=int, default=2, help='(Default = 2) Width of the uncertainty envelope on the model, in units of sigma')
 
     group4 = parser.add_argument_group('Extra fitting options')
-    group4.add_argument('--plot', dest='plot', action='store_true',default=False, help='Plot data and optimized model fit.')
-    group4.add_argument('--write_model', dest='write_model', action='store_true', default=False, help='Write model and fitting outputs to file. Requires --work_dir to be specfied.')
+    group4.add_argument('--plot', dest='plot', action='store_true',default=False, help='(Default = False) If True, produce a plot of the observed spectrum and fitted model')
+    group4.add_argument('--write_model', dest='write_model', action='store_true', default=False, help='(Default = False) If True, write the fitting outputs to file')
 
     group5 = parser.add_argument_group('Spectral age options')
-    group5.add_argument('--age', dest='age', action='store_true', default=False, help='Determine spectral age from fit and B-field assumption. (Default = False). Requires --bfield')
-    group5.add_argument('--bfield', dest='bfield', type=float, help='Magnetic field strength.')
-    group5.add_argument('--z', dest='z', type=float, help='Cosmological redshift of source. ')
+    group5.add_argument('--age', dest='age', action='store_true', default=False, help='(Default = False) If True, determine the spectral age of the source (requires --bfield and --z)')
+    group5.add_argument('--bfield', dest='bfield', type=float, default=None, help='(No default) Magnetic field strength in units of nT')
+    group5.add_argument('--z', dest='z', type=float, default=None, help='(No default) Cosmological redshift of the source')
     options = parser.parse_args()
 
     colorstring = color_text("Reading in data", Colors.Orange)
@@ -694,7 +712,7 @@ if __name__ == "__main__":
     espace='            '
     colorstring = color_text("Estimating free parameters.", Colors.Orange)
     print("INFO __main__ {}".format(colorstring))
-    params = spectral_fitter(frequency, luminosity, dluminosity, options.fit_type, work_dir=options.work_dir, write_model=options.write_model)
+    params = spectral_fitter(frequency, luminosity, dluminosity, options.fit_type, options=options)
     
     colorstring = color_text("Evaluating model and estimating model uncertainties.", Colors.Orange)
     print("INFO __main__ {}".format(colorstring))
