@@ -1,8 +1,8 @@
 # synchrofit
 =====
-```synchrofit``` (**synchro**tron **fit**) provides a user-friendly Python package that will model the synchrotron spectrum arising from a radio galaxy. Three models are offered: the Kardashev-Pacholczyk (KP) model (ref), the Jaffe-Perola (JP) model (ref) and the Continuous-Injection (CI) on/off model (CI-off also known as the KGJP model). The expressions for the KP, JP and CI-on models are adapted from Turner, et al (2017b)<sup>**1**</sup>, and the expression for the CI-off model is adapted from Turner, et al (2018)<sup>**2**</sup>:
-- <sup>**1**</sup> https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract
-- <sup>**2**</sup> https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract
+```synchrofit``` (**synchro**tron **fit**) provides a user-friendly Python package that will model the synchrotron spectrum arising from a radio galaxy. Three models are offered: the Kardashev-Pacholczyk (KP) model (ref), the Jaffe-Perola (JP) model (ref) and the Continuous-Injection (CI) on/off model (CI-off also known as the KGJP model). The expressions for the KP, JP and CI-on models are adapted from Turner, et al (2017b)<sup>**[1]**</sup>, and the expression for the CI-off model is adapted from Turner, et al (2018)<sup>**[2]**</sup>:
+- <sup>**[1]**</sup> https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract
+- <sup>**[2]**</sup> https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract
 
 ## Credits
 Please credit Ross J. Turner and Benjamin Quici if you use this code, or incorporate it into your own workflow. Please acknowledge the use of this code by citing ___ and by providing a link to this repository. 
@@ -18,9 +18,13 @@ Or you can clone the repository and use `python3 setup.py install` or `pip insta
 ## Help
 Please read through the README.md for a description of the package as well as workflow and usage examples. If you have found a bug or inconsistency in the code please [submit a ticket](https://github.com/synchrofit/synchrofit/issues). 
 
-## Scripts
-- `synchrofit.py` Main code that performs the fitting. 
-- `run_synchrofit.sh` Offers a shell-like execution of `synchrofit.py` and contains the relevant configuration options.
+
+## Main modules
+- `spectral_models` contains the KP, JP and CI models used in the fitting. 
+- `spectral_fitter` takes an input radio spectrum and applies an adaptive grid model fitting with Bayesian inference in order to estimate the injection index, break frequency and quiescent fraction. By generating a probability distribution over a grid of input parameters, the optimal values for each parameter are estimated by taking the peak of the probability distribution. 
+- `spectral_data` constructs a model spectrum using the parameters estimated by `spectral_fitter`. 
+- `spectral_ages` provides an optional feature to determine the spectral ages using the break frequency and quiescent fraction estimated by `spectral_fitter`. This requires both a magnetic field strength and cosmological redshift to be supplied. Ages are derived using equation 4 of Turner, et al (2018)<sup>**[2]**</sup>. 
+- `spectral_plotter` provides an optional feature to plot the input data and fitted model for a visual comparison.
 
 ## Example workflow
 
