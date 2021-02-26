@@ -417,6 +417,180 @@ def spectral_models(frequency, luminosity, fit_type, break_frequency, injection_
     # return outputs
     return luminosity_predict, normalisation
 
+@jit(nopython=True) # Set "nopython" mode for best performance, equivalent to @njit
+def spectral_models_tribble(frequency, luminosity, fit_type, bfield, redshift, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F):
+    """
+    (usage) Numerical forms for the JP, KP and CI models.
+    
+    parameters
+    ----------
+    frequency : 1darray
+        The input frequency list
+    luminosity : 1darray
+        The input flux density list
+    dluminosity : 1darray
+        The uncertainty on the input flux density list
+    fit_type : str
+        The type of model to fit (JP, KP, KGJP, CI)
+    err_model_width : int
+        range of the model uncertainty envelope in sigma
+    n_remnants : int
+        The remnant ratio range
+    n_model_freqs : int
+        The number of plotting frequencies
+    mc_length : int
+        Number of MC iterations
+        
+    returns
+    -------
+    luminosity_predict : 1darray
+        fitted flux density for given frequency list
+    normalisation : float
+        normalisation factor for correct scaling
+    """
+    # define constants (SI units)
+    c = 299792458       # light speed
+    me = 9.10938356e-31 # electron mass
+    mu0 = 4*np.pi*1e-7  # magnetic permeability of free space
+    e = 1.60217662e-19  # charge on electron
+    sigmaT = 6.6524587158e-29 # electron cross-section
+    
+    if fit_type == 'JP' or fit_type == 'KP':
+        remnant_ratio = 0
+    nalpha, nfields, nenergiesJP, nenergiesCI = 32, 32, 32, 32 # can be increased for extra precision
+    nenergies = nenergiesJP + nenergiesCI
+    
+    # calculate the best fit to frequency-luminosity data
+    luminosity_sum, predict_sum, nfreqs = 0., 0., 0
+    luminosity_predict = np.zeros(len(frequency))
+    
+    # calculate the synchrotron age if B field provided as model parameter
+    const_a = bfield/np.sqrt(3)
+    const_synage = np.sqrt(243*np.pi)*me**(5./2)*c/(2*mu0*e**(7./2))
+    Bic = 0.318*((1 + redshift)**2)*1e-9
+    t_syn = const_synage*bfield**0.5/(bfield**2 + Bic**2)/np.sqrt(break_frequency*(1 + redshift))
+    
+    for freqPointer in range(0, len(frequency)):
+        if (normalisation > 0 or luminosity[freqPointer] > 0): # either valid luminosity data or not fitting
+            
+            luminosity_predict[freqPointer] = 0. # should already be zero
+            
+            # integrate over magnetic field (as B)
+            B_min = np.log10(const_a) - 4
+            B_max = np.log10(const_a) + 4
+            for i in range(0, nfields):
+            
+                # set up numerical integration
+                B = (10**((i + 1)*(B_max - B_min)/nfields + B_min) + 10**(i*(B_max - B_min)/nfields + B_min))/2
+                dB = 10**((i + 1)*(B_max - B_min)/nfields + B_min) - 10**(i*(B_max - B_min)/nfields + B_min)
+                            
+                # integral over pitch angle
+                alpha_min = 0
+                alpha_max = np.pi/2 # should be pi, but sin(alpha) is symmetric about pi/2
+                for j in range(0, nalpha):
+                    
+                    # set up numerical integration
+                    alpha = ((j + 0.5)/nalpha)*(alpha_max - alpha_min) + alpha_min
+                    dalpha = (alpha_max - alpha_min)/nalpha
+                    
+                    # integrate over energy (as E): TRIBBLE
+                    if (fit_type == 'CI' or fit_type == 'JP'):
+                        const_losses = 4*sigmaT*(B**2 + Bic**2)/(3*me**2*c**3)/(2*mu0)
+                    elif (fit_type == 'KP'):
+                        const_losses = 4*sigmaT*((B*np.sin(alpha))**2 + Bic**2)/(3*me**2*c**3)/(2*mu0)
+                    else:
+                        raise Exception('Spectral fit must be either \'CI\', \'JP\' or \'KP\' model.')
+                    E_crit = np.log10(1./(const_losses*t_syn))
+                    E_min = E_crit - 4 # can be increased for extra precision away from break
+                    E_max = E_crit + 4
+                                
+                    for k in range(0, nenergies):
+                        
+                        # set up numerical integration, allowing for different spacing above and below x_crit
+                        if (k < nenergiesJP):
+                            E = (10**((k + 1)*(E_crit - E_min)/nenergiesJP + E_min) + 10**(k*(E_crit - E_min)/nenergiesJP + E_min))/2 # trapezoidal rule
+                            dE = 10**((k + 1)*(E_crit - E_min)/nenergiesJP + E_min) - 10**(k*(E_crit - E_min)/nenergiesJP + E_min)
+                        else:
+                            E = (10**((k + 1 - nenergiesJP)*(E_max - E_crit)/nenergiesCI + E_crit) + 10**((k - nenergiesJP)*(E_max - E_crit)/nenergiesCI + E_crit))/2
+                            dE = 10**((k + 1 - nenergiesJP)*(E_max - E_crit)/nenergiesCI + E_crit) + 10**((k - nenergiesJP)*(E_max - E_crit)/nenergiesCI + E_crit)
+                    
+                        # calculate x, dx, x_crit and x_crit_star
+                        x = 4*np.pi*me**3*c**4*frequency[freqPointer]/(3*e*E**2*B*np.sin(alpha))
+                        dx = np.abs(-8*np.pi*me**3*c**4*frequency[freqPointer]/(3*e*E**3*B*np.sin(alpha))*dE - 4*np.pi*me**3*c**4*frequency[freqPointer]/(3*e*E**2*B**2*np.sin(alpha))*dB)
+                        
+                        if (fit_type == 'CI' or fit_type == 'JP'):
+                            x_crit = np.log10(frequency[freqPointer]/(break_frequency*np.sin(alpha)))
+                        elif (fit_type == 'KP'):
+                            x_crit = np.log10(frequency[freqPointer]*np.sin(alpha)**3/(break_frequency))
+                        else:
+                            raise Exception('Spectral fit must be either \'CI\', \'JP\' or \'KP\' model.')
+                        if remnant_ratio > 0:
+                            x_crit_star = np.log10(frequency[freqPointer]/(break_frequency*np.sin(alpha))*remnant_ratio**2)
+                        else:
+                            x_crit_star = -307. # close to zero in log space
+                    
+                        # calculate the spectrum for JP, KP or CI/off models
+                        if (x > 10**x_crit):
+                            if (fit_type == 'CI'):
+                                if remnant_ratio > 0:
+                                    N_x = x**(-1./2)*((np.sqrt(x) - 10**(x_crit_star/2))**(injection_index - 1) - (np.sqrt(x) - 10**(x_crit/2))**(injection_index - 1))
+                                else:
+                                    N_x = x**((injection_index - 2)/2.)*(1 - x**((1 - injection_index)/2.)*(np.sqrt(x) - 10**(x_crit/2))**(injection_index - 1))
+                            elif (fit_type == 'JP' or fit_type == 'KP'):
+                                N_x = x**(-1./2)*(np.sqrt(x) - 10**(x_crit/2))**(injection_index - 2)
+                        elif (x > 10**x_crit_star): # only CI-off model should meet this condition
+                            if (fit_type == 'CI'):
+                                if remnant_ratio > 0:
+                                    N_x = x**(-1./2)*(np.sqrt(x) - 10**(x_crit_star/2))**(injection_index - 1)
+                                else:
+                                    N_x = x**((injection_index - 2)/2.)
+                            else:
+                                N_x = 0
+                        else:
+                            N_x = 0
+                        
+                        # evalute x \int_x^inf BesselK_5/3 using lookup table
+                        if (x < bessel_x[0]):
+                            F_x = 2.15*x**(1./3)
+                        else:
+                            if (x > bessel_x[-1]):
+                                F_x = 0
+                            else:
+                                # use bisection method to improve computational efficiency
+                                bessla = 0
+                                besslb = len(bessel_x) - 1
+                                besslc = (bessla + besslb)//2
+                                while (bessla < besslb):
+                                    if (bessel_x[besslc] < x):
+                                        bessla = besslc + 1
+                                    else:
+                                        besslb = besslc - 1
+                                    besslc = (bessla + besslb)//2
+                                F_x = bessel_F[besslc]
+
+                        # add contribution to the model spectrum flux
+                        if (fit_type == 'CI'):
+                            luminosity_predict[freqPointer] = luminosity_predict[freqPointer] + frequency[freqPointer]**(-injection_index/2.)*np.sin(alpha)**((injection_index + 4)/2.)*F_x*N_x*dx*dalpha *B**2*np.exp(-B**2/(2*const_a))
+                        elif (fit_type == 'JP'):
+                            luminosity_predict[freqPointer] = luminosity_predict[freqPointer] + frequency[freqPointer]**((1 - injection_index)/2.)*np.sin(alpha)**((injection_index + 3)/2.)*F_x*N_x*dx*dalpha# *B**2*np.exp(-B**2/(2*const_a))
+                        elif (fit_type == 'KP'):
+                            luminosity_predict[freqPointer] = luminosity_predict[freqPointer] + frequency[freqPointer]**((1 - injection_index)/2.)*np.sin(alpha)**((3*injection_index + 1)/2.)*F_x*N_x*dx*dalpha *B**2*np.exp(-B**2/(2*const_a))
+
+            if (normalisation <= 0):
+                luminosity_sum = luminosity_sum + np.log10(luminosity[freqPointer] + 1e-307)
+                predict_sum = predict_sum + np.log10(luminosity_predict[freqPointer] + 1e-307)
+                nfreqs = nfreqs + 1
+    
+    # calculate constant of proportionality
+    if (normalisation <= 0):
+        normalisation = 10**((luminosity_sum - predict_sum)/nfreqs)
+    
+    # record normalised, predicted values for each frequency
+    luminosity_predict = normalisation*luminosity_predict
+    
+    # return outputs
+    return luminosity_predict, normalisation
+
 def spectral_data(params, n_model_freqs=100, mc_length=500, err_model_width=2, work_dir=None, write_model=None):
     """
     (usage) Uses the optimized parameters to return a 1darray of model flux densities for a given frequency list. An uncertainty envelope on the model is calculated following an MC approach. 
