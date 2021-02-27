@@ -418,8 +418,7 @@ def spectral_models(frequency, luminosity, fit_type, break_frequency, injection_
     return luminosity_predict, normalisation
 
 @jit(nopython=True) # Set "nopython" mode for best performance, equivalent to @njit
-#bfield, redshift,
-def spectral_models_tribble(frequency, luminosity, fit_type, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F):
+def spectral_models_tribble(frequency, luminosity, fit_type, bfield, redshift, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F):
     """
     (usage) Numerical forms for the JP, KP and CI models.
     
@@ -449,8 +448,6 @@ def spectral_models_tribble(frequency, luminosity, fit_type, break_frequency, in
     normalisation : float
         normalisation factor for correct scaling
     """
-    bfield = 1e-9
-    redshift = 0.1
     # define constants (SI units)
     c = 299792458       # light speed
     me = 9.10938356e-31 # electron mass
