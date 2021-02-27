@@ -32,12 +32,32 @@ For each model described above, we offer a standard and Tribble form that descri
 
 The advantage to the synchrotron spectrum described by the standard form is its independence of the magnetic field strength; see Equation 9 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract) who demonstrate that the magnetic field strength can be taken out of the integration and simply scale the spectrum. The caveat here is that the assumption of a uniform magnetic field strength is violated within radio lobes. While the Tribble form thus provides a more accurate description of the magnetic field strength structure, the caveat here is that the magnetic field strength must be known in order to parameterize the spectral shape. It should be noted that while spectrum expected by the standard versus Tribble forms of the JP and KP models differs, the difference in spectral shape between the Tribble-CI and standard-CI spectrum is negligible (see Section 2.3 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract))
 
-## Main modules
+<!-- ## Main modules
 - `spectral_models` contains the KP, JP and CI models used in the fitting. 
 - `spectral_fitter` takes an input radio spectrum and applies an adaptive grid model fitting with Bayesian inference in order to estimate the injection index, break frequency and quiescent fraction. By generating a probability distribution over a grid of input parameters, the optimal values for each parameter are estimated by taking the peak of the probability distribution. 
 - `spectral_data` constructs a model spectrum using the parameters estimated by `spectral_fitter`.
 - `spectral_ages` provides an optional feature to determine the spectral ages using the break frequency and quiescent fraction estimated by `spectral_fitter`. This requires both a magnetic field strength and cosmological redshift to be supplied. Ages are derived using [Equation 4 of Turner, et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract). 
-- `spectral_plotter` provides an optional feature to plot the input data and fitted model for a visual comparison.
+- `spectral_plotter` provides an optional feature to plot the input data and fitted model for a visual comparison. -->
+
+## How does synchrofit work? ##
+In essence, `synchrofit` uses the models described above and estimates their optimal free parameters. This is carried out in a number of functions, described below.<br />
+
+Model fitting is performed by the `spectral_fitter` function, which uses an adaptive grid model to estimate the peak probable values for each free parameter. The uncertainty on each free parameter is estimated by taking the standard deviation of the marginal distribution. `spectral_fitter` is setup as follows:
+```
+spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, break_range=[8,11], n_injects=31, inject_range=[2.01,2.99], n_remnants=31, remnant_range=[0,1], n_iterations=3, options=None)
+frequency     : 1darray of input frequencies
+luminosity    : 1darray of input flux densities
+dluminosity   : 1darray of input flux density uncertainties
+fit_type      : The type of model to fit
+n_breaks      : Number of increments with which to sample the break frequency range
+break_range   : Accepted range for the log(break frequency)
+n_injects     : Number of increments with which to sample the injection index range
+inject_range  : Accepted range for the energy injection index
+n_remnants    : Number of increments with which to sample the remnant ratio range
+remnant_range : Accepted range for the remnant ratio
+n_iterations  : Number of iterations
+options       : Options parsed through argparse (required only if synchrofit is executed from __main__)
+```
 
 ## Usage
 ### How do I run synchrofit ?
