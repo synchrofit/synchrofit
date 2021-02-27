@@ -258,7 +258,7 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, b
     print(colorstring)
 
     # write fitting outputs to file
-    if not write_model == None and write_model == True:
+    if 1 == 0:
         if fit_type is not None:
             filename = "{}_model_params.dat".format(fit_type)
         else:
@@ -418,7 +418,8 @@ def spectral_models(frequency, luminosity, fit_type, break_frequency, injection_
     return luminosity_predict, normalisation
 
 @jit(nopython=True) # Set "nopython" mode for best performance, equivalent to @njit
-def spectral_models_tribble(frequency, luminosity, fit_type, bfield, redshift, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F):
+#bfield, redshift,
+def spectral_models_tribble(frequency, luminosity, fit_type, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F):
     """
     (usage) Numerical forms for the JP, KP and CI models.
     
@@ -448,6 +449,8 @@ def spectral_models_tribble(frequency, luminosity, fit_type, bfield, redshift, b
     normalisation : float
         normalisation factor for correct scaling
     """
+    bfield = 1e-9
+    redshift = 0.1
     # define constants (SI units)
     c = 299792458       # light speed
     me = 9.10938356e-31 # electron mass
@@ -516,7 +519,7 @@ def spectral_models_tribble(frequency, luminosity, fit_type, bfield, redshift, b
                     
                         # calculate x, dx, x_crit and x_crit_star
                         x = 4*np.pi*me**3*c**4*frequency[freqPointer]/(3*e*E**2*B*np.sin(alpha))
-                        dx = np.abs(-8*np.pi*me**3*c**4*frequency[freqPointer]/(3*e*E**3*B*np.sin(alpha))*dE - 4*np.pi*me**3*c**4*frequency[freqPointer]/(3*e*E**2*B**2*np.sin(alpha))*dB)
+                        dx = (8*np.pi*me**3*c**4*frequency[freqPointer]/(3*e*E**3*B*np.sin(alpha))*dE)*( 4*np.pi*me**3*c**4*frequency[freqPointer]/(3*e*E**2*B**2*np.sin(alpha))*dB)
                         
                         if (fit_type == 'CI' or fit_type == 'JP'):
                             x_crit = np.log10(frequency[freqPointer]/(break_frequency*np.sin(alpha)))
@@ -572,7 +575,7 @@ def spectral_models_tribble(frequency, luminosity, fit_type, bfield, redshift, b
                         if (fit_type == 'CI'):
                             luminosity_predict[freqPointer] = luminosity_predict[freqPointer] + frequency[freqPointer]**(-injection_index/2.)*np.sin(alpha)**((injection_index + 4)/2.)*F_x*N_x*dx*dalpha *B**2*np.exp(-B**2/(2*const_a))
                         elif (fit_type == 'JP'):
-                            luminosity_predict[freqPointer] = luminosity_predict[freqPointer] + frequency[freqPointer]**((1 - injection_index)/2.)*np.sin(alpha)**((injection_index + 3)/2.)*F_x*N_x*dx*dalpha# *B**2*np.exp(-B**2/(2*const_a))
+                            luminosity_predict[freqPointer] = luminosity_predict[freqPointer] + frequency[freqPointer]**((1 - injection_index)/2.)*np.sin(alpha)**((injection_index + 3)/2.)*F_x*N_x*dx*dalpha *B**2*np.exp(-B**2/(2*const_a))
                         elif (fit_type == 'KP'):
                             luminosity_predict[freqPointer] = luminosity_predict[freqPointer] + frequency[freqPointer]**((1 - injection_index)/2.)*np.sin(alpha)**((3*injection_index + 1)/2.)*F_x*N_x*dx*dalpha *B**2*np.exp(-B**2/(2*const_a))
 
