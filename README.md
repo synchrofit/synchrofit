@@ -31,15 +31,16 @@ For each model described above, we offer a standard and Tribble form that descri
 
 The advantage to the synchrotron spectrum described by the standard form is its independence of the magnetic field strength; see Equation 9 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract) who demonstrate that the magnetic field strength can be taken out of the integration and simply scale the spectrum. The caveat here is that the assumption of a uniform magnetic field strength is violated within radio lobes. While the Tribble form thus provides a more accurate description of the magnetic field strength structure, the caveat here is that the magnetic field strength must be known in order to parameterize the spectral shape. It should be noted that while spectrum expected by the standard versus Tribble forms of the JP and KP models differs, the difference in spectral shape between the Tribble-CI and standard-CI spectrum is negligible (see Section 2.3 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract)) <br />
 
-**Free parameters**
+**Free parameters** <br />
 Each model described above has a number of free parameters that, ultimately, we want to estimate. The JP and KP models have the energy injection index (*s*) and break frequency *(\nu_b)* as free parameters. Additionally to these two, the CI models also have the quiescent fraction *(T)* as a free parameter (i.e. the fractional time spent in a remnant phase). 
 
 ## How does synchrofit work? ##
 In essence, `synchrofit` takes a spectral model and estimates its free parameters. This is carried out in a number of primary functions described below.<br />
 
-The functions `spectral_models` and `spectral_models_tribble` contain the standard and Tribble forms of the spectral models described above, and are setup as follows: 
+The functions `spectral_models` and `spectral_models_tribble` contain the standard and Tribble forms of the spectral models described above.
 ```
 spectral_models(frequency, luminosity, fit_type, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F)
+**Accepts:**
 frequency       : 1darray of input frequencies
 luminosity      : 1darray of input frequencies
 fit_type        : The type of model to fit
@@ -49,6 +50,9 @@ remnant_ratio   : The remnant ratio
 normalisation   : The normalisation factor
 bessel_x        : 1darray of values at which to evaluate the Bessel function
 bessel_F        : 1darray containing the values of the Bessel functions
+**Returns:**
+luminosity_predict : 1darray containing the predicted spectrum
+normalisation      : Normalisation factor to correctly scale the spectrum
 ```
 `spectral_models_tribble` is setup identical to this, with the one difference being an additional argument required for the magnetic field strength, e.g:
 ```
@@ -60,6 +64,7 @@ bfield : The magnetic field strength.
 Model fitting is performed by the `spectral_fitter` function, which uses an adaptive grid model to estimate the peak probable values for each free parameter. The uncertainty on each free parameter is estimated by taking the standard deviation of its marginal distribution. `spectral_fitter` is setup as follows:
 ```
 spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, break_range=[8,11], n_injects=31, inject_range=[2.01,2.99], n_remnants=31, remnant_range=[0,1], n_iterations=3, options=None)
+**Accepts**
 frequency     : 1darray of input frequencies
 luminosity    : 1darray of input flux densities
 dluminosity   : 1darray of input flux density uncertainties
@@ -72,7 +77,22 @@ n_remnants    : Number of increments with which to sample the remnant ratio rang
 remnant_range : Accepted range for the remnant ratio
 n_iterations  : Number of iterations
 options       : Options parsed through argparse (required only if synchrofit is executed from __main__)
+**Returns**
+params : A tuple containing (fit_type, break frequency, break frequency uncertainty, injection index, injection index uncertainty, quiescent fraction, quiescent fraction uncertainty, normalisation)
 ```
+An optional feature of `synchrofit` is to evaluate the spectral age using the parameters estimated by `spectral_fitter`. This is perfomed by the `spectral_age` function, which is based upon Equation 4 of [Turner et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract). 
+```
+**Accepts**
+spectral_ages(params, B, z)
+params : A tuple containing (fit_type, break frequency, quiescent fraction)
+B      : The magnetic field strength (nT)
+z      : The cosmological redshift. (dimensionless)
+**Returns**
+tau   : Total spectral age (Myr)
+t_on  : Duration of active phase (Myr)
+t_off : Duration of remnant phase (Myr)
+```
+Note, only the CI-off model will return a non-zero value for `t_off`. 
 
 ## Usage
 ### How do I run synchrofit ?
