@@ -29,9 +29,7 @@ The Kardashev-Pacholczyk (KP; [Kardashev (1962)](https://ui.adsabs.harvard.edu/a
 In contrast to the KP and JP models, the Continuous Injection models (CI-on; [Kardashev (1962)](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and (CI-off; [Komissarov & Gubanov (1994)](https://ui.adsabs.harvard.edu/abs/1994A%26A...285...27K/abstract)) describe the synchrotron spectrum arising from a **continuously injected** electron population -- that is, a mixed-age population of electrons with ages ranging anywhere between *t=0* and *t=\tau*. The CI-on model describes sources for which energy injection is currently taking place, whereas the CI-off model extends this by assuming the injection has switched off some time ago. 
 
 **The standard *(KP, KP, CI)* and Tribble *(TKP, TJP, TCI)* forms** <br />
-For each model described above, we offer a standard and Tribble form that describe the structure of the magnetic field strength across the source. The advantage and caveats of each form are described below. 
-
-The standard form assumes a uniform magnetic field strength across the source. By contrast, the Tribble form assumes an inhomogeneous magnetic field strength, e.g. a Maxwell-Boltzmann distribution as proposed by [Tribble (1991)](https://ui.adsabs.harvard.edu/abs/1991MNRAS.253..147T/abstract). The effect of local inohomogeneities in the magnetic field strength is The assumption of a uniform magnetic field strength is violated in reality (e.g. in radio lobes); as such, the Tribble form would seem to provide a better model.  
+For each model described above, we offer a standard and Tribble form that describe the structure of the magnetic field strength across the source. The **standard** form assumes a **uniform magnetic field strength** across the source. By contrast, the **Tribble** form assumes an **inhomogeneous magnetic field strength**, e.g. a Maxwell-Boltzmann distribution as proposed by [Tribble (1991)](https://ui.adsabs.harvard.edu/abs/1991MNRAS.253..147T/abstract). 
 
 ## Main modules
 - `spectral_models` contains the KP, JP and CI models used in the fitting. 
