@@ -19,7 +19,6 @@ Please read through the README.md for a description of the package as well as wo
 
 ## Spectral models
 This code offers three models describing the synchrotron spectrum, each of which comes in a standard and Tribble form. A brief qualitative description of each model is provided below. <br /> 
-Each model described here is implemented within the `spectral_models` function.
 
 **The KP and JP models** <br />
 The Kardashev-Pacholczyk (KP; [Kardashev (1962)](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and Jaffe-Perola (JP; [Jaffe & Perola (1973)](https://ui.adsabs.harvard.edu/abs/1973A%26A....26..423J/abstract)) model describe the synchrotron spectrum arising from an **impulsively injected** population of electrons -- that is, an entire electron population injected at *t=0* that undergoes radiative losses thereafter. The main constrast between these two models is the occurrence (JP model) or absence (KP model) of electron pitch angle scattering. 
@@ -40,9 +39,29 @@ The advantage to the synchrotron spectrum described by the standard form is its 
 - `spectral_plotter` provides an optional feature to plot the input data and fitted model for a visual comparison. -->
 
 ## How does synchrofit work? ##
-In essence, `synchrofit` uses the models described above and estimates their optimal free parameters. This is carried out in a number of functions, described below.<br />
+In essence, `synchrofit` takes a spectral model and estimates its free parameters. This is carried out in a number of primary functions described below.<br />
 
-Model fitting is performed by the `spectral_fitter` function, which uses an adaptive grid model to estimate the peak probable values for each free parameter. The uncertainty on each free parameter is estimated by taking the standard deviation of the marginal distribution. `spectral_fitter` is setup as follows:
+The functions `spectral_models` and `spectral_models_tribble` contain the standard and Tribble forms of the spectral models described above. `spectral_models` is setup as follows: 
+```
+spectral_models(frequency, luminosity, fit_type, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F)
+frequency       : 1darray of input frequencies
+luminosity      : 1darray of input frequencies
+fit_type        : The type of model to fit
+break_frequency : The break frequency 
+injection_index : The injection index
+remnant_ratio   : The remnant ratio
+normalisation   : The normalisation factor
+bessel_x        : 1darray of values at which to evaluate the Bessel function
+bessel_F        : 1darray containing the values of the Bessel functions
+```
+`spectral_models_tribble` is setup identical to `spectral_models`, the one difference being an additional argument required for the magnetic field strength, e.g:
+```
+spectral_models_tribble(frequency, luminosity, fit_type, bfield, redshift, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F)
+bfield : The magnetic field strength.
+```
+<br />
+
+Model fitting is performed by the `spectral_fitter` function, which uses an adaptive grid model to estimate the peak probable values for each free parameter. The uncertainty on each free parameter is estimated by taking the standard deviation of its marginal distribution. `spectral_fitter` is setup as follows:
 ```
 spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, break_range=[8,11], n_injects=31, inject_range=[2.01,2.99], n_remnants=31, remnant_range=[0,1], n_iterations=3, options=None)
 frequency     : 1darray of input frequencies
