@@ -1,5 +1,7 @@
 # synchrofit
-Welcome to ```synchrofit``` (**synchro**tron **fit**ter) -- a user-friendly Python package designed to model a synchrotron spectrum. The goal for this package is to provide a fairly accurate parameterization of a radio spectrum, while requiring little prior knowledge of the source other than its observed spectrum. Accounting for dynamical changes within the radio source, e.g. an evolving magnetic field, are beyond the scope of this code.
+Welcome to ```synchrofit``` (**synchro**tron **fit**ter) -- a user-friendly Python package designed to model a synchrotron spectrum. The goal for this package is to provide a fairly accurate<sup>[**1**]</sup> parameterization of a radio spectrum, while requiring little prior knowledge of the source other than its observed spectrum. This code is based on the modified synchrotron models presented by [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract) and [Turner et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract).<br />
+
+<sup>[**1**]</sup>Accounting for dynamical changes within the radio source, e.g. an evolving magnetic field, is beyond the scope of this code.
 
 ## Credits
 Please credit Ross J. Turner and Benjamin Quici if you use this code, or incorporate it into your own workflow. Please acknowledge the use of this code by providing a link to this repository (a citation will be available shortly). 
@@ -16,11 +18,8 @@ Or you can clone the repository and use `python3 setup.py install` or `pip3 inst
 Please read through the README.md for a description of the package as well as workflow and usage examples. If you have found a bug or inconsistency in the code please [submit a ticket](https://github.com/synchrofit/synchrofit/issues). 
 
 ## Spectral models
-This code offers three models describing the synchrotron spectrum, each implemented within `spectral_models`. <br />
-A brief qualitative description of each model is provided below. 
-
-<!-- : the Kardashev-Pacholczyk (KP; [Kardashev 1962](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) model, the Jaffe-Perola (JP; [Jaffe & Perola 1973](https://ui.adsabs.harvard.edu/abs/1973A%26A....26..423J/abstract)) model and the Continuous-Injection (CI-on; [Kardashev 1962](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and (CI-off; [Komissarov & Gubanov 1994](https://ui.adsabs.harvard.edu/abs/1994A%26A...285...27K/abstract)) models. The expressions for the KP, JP and CI-on models are adapted from [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract), and the expression for the CI-off model is adapted from [Turner et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract).  -->
-
+This code offers three models describing the synchrotron spectrum, each of which comes in a standard and Tribble form. A brief qualitative description of each model is provided below. <br /> 
+Each model described here is implemented within the `spectral_models` function.
 
 **The KP and JP models** <br />
 The Kardashev-Pacholczyk (KP; [Kardashev (1962)](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and Jaffe-Perola (JP; [Jaffe & Perola (1973)](https://ui.adsabs.harvard.edu/abs/1973A%26A....26..423J/abstract)) model describe the synchrotron spectrum arising from an **impulsively injected** population of electrons -- that is, an entire electron population injected at *t=0* that undergoes radiative losses thereafter. The main constrast between these two models is the occurrence (JP model) or absence (KP model) of electron pitch angle scattering. 
@@ -31,7 +30,7 @@ In contrast to the KP and JP models, the Continuous Injection models (CI-on; [Ka
 **The standard *(KP, KP, CI)* and Tribble *(TKP, TJP, TCI)* forms** <br />
 For each model described above, we offer a standard and Tribble form that describe the structure of the magnetic field strength across the source. The **standard** form assumes a **uniform magnetic field strength** across the source. By contrast, the **Tribble** form assumes an **inhomogeneous magnetic field strength**, e.g. a Maxwell-Boltzmann distribution as proposed by [Tribble (1991)](https://ui.adsabs.harvard.edu/abs/1991MNRAS.253..147T/abstract). 
 
-The advantage to the synchrotron spectrum described by the standard form is its independence of the magnetic field strength; [see Equation 9 of Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract) demonstrated that the magnetic field strength can be taken out of the integration and simply scale the spectrum. The caveat here is that the assumption of a uniform magnetic field strength is violated within radio lobes. While the Tribble form thus provides a more accurate description of the magnetic field strength structure, the caveat here is that the magnetic field strength must be known in order to parameterize the spectral shape. 
+The advantage to the synchrotron spectrum described by the standard form is its independence of the magnetic field strength; see Equation 9 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract) who demonstrate that the magnetic field strength can be taken out of the integration and simply scale the spectrum. The caveat here is that the assumption of a uniform magnetic field strength is violated within radio lobes. While the Tribble form thus provides a more accurate description of the magnetic field strength structure, the caveat here is that the magnetic field strength must be known in order to parameterize the spectral shape. It should be noted that while spectrum expected by the standard versus Tribble forms of the JP and KP models differs, the difference in spectral shape between the Tribble-CI and standard-CI spectrum is negligible (see Section 2.3 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract))
 
 ## Main modules
 - `spectral_models` contains the KP, JP and CI models used in the fitting. 
