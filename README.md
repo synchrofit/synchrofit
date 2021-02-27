@@ -29,19 +29,15 @@ In contrast to the KP and JP models, the Continuous Injection models (CI-on; [Ka
 **The standard *(KP, KP, CI)* and Tribble *(TKP, TJP, TCI)* forms** <br />
 For each model described above, we offer a standard and Tribble form that describe the structure of the magnetic field strength across the source. The **standard** form assumes a **uniform magnetic field strength** across the source. By contrast, the **Tribble** form assumes an **inhomogeneous magnetic field strength**, e.g. a Maxwell-Boltzmann distribution as proposed by [Tribble (1991)](https://ui.adsabs.harvard.edu/abs/1991MNRAS.253..147T/abstract). 
 
-The advantage to the synchrotron spectrum described by the standard form is its independence of the magnetic field strength; see Equation 9 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract) who demonstrate that the magnetic field strength can be taken out of the integration and simply scale the spectrum. The caveat here is that the assumption of a uniform magnetic field strength is violated within radio lobes. While the Tribble form thus provides a more accurate description of the magnetic field strength structure, the caveat here is that the magnetic field strength must be known in order to parameterize the spectral shape. It should be noted that while spectrum expected by the standard versus Tribble forms of the JP and KP models differs, the difference in spectral shape between the Tribble-CI and standard-CI spectrum is negligible (see Section 2.3 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract))
+The advantage to the synchrotron spectrum described by the standard form is its independence of the magnetic field strength; see Equation 9 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract) who demonstrate that the magnetic field strength can be taken out of the integration and simply scale the spectrum. The caveat here is that the assumption of a uniform magnetic field strength is violated within radio lobes. While the Tribble form thus provides a more accurate description of the magnetic field strength structure, the caveat here is that the magnetic field strength must be known in order to parameterize the spectral shape. It should be noted that while spectrum expected by the standard versus Tribble forms of the JP and KP models differs, the difference in spectral shape between the Tribble-CI and standard-CI spectrum is negligible (see Section 2.3 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract)) <br />
 
-<!-- ## Main modules
-- `spectral_models` contains the KP, JP and CI models used in the fitting. 
-- `spectral_fitter` takes an input radio spectrum and applies an adaptive grid model fitting with Bayesian inference in order to estimate the injection index, break frequency and quiescent fraction. By generating a probability distribution over a grid of input parameters, the optimal values for each parameter are estimated by taking the peak of the probability distribution. 
-- `spectral_data` constructs a model spectrum using the parameters estimated by `spectral_fitter`.
-- `spectral_ages` provides an optional feature to determine the spectral ages using the break frequency and quiescent fraction estimated by `spectral_fitter`. This requires both a magnetic field strength and cosmological redshift to be supplied. Ages are derived using [Equation 4 of Turner, et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract). 
-- `spectral_plotter` provides an optional feature to plot the input data and fitted model for a visual comparison. -->
+**Free parameters**
+Each model described above has a number of free parameters that, ultimately, we want to estimate. The JP and KP models have the energy injection index (*s*) and break frequency *(\nu_b)* as free parameters. Additionally to these two, the CI models also have the quiescent fraction *(T)* as a free parameter (i.e. the fractional time spent in a remnant phase). 
 
 ## How does synchrofit work? ##
 In essence, `synchrofit` takes a spectral model and estimates its free parameters. This is carried out in a number of primary functions described below.<br />
 
-The functions `spectral_models` and `spectral_models_tribble` contain the standard and Tribble forms of the spectral models described above. `spectral_models` is setup as follows: 
+The functions `spectral_models` and `spectral_models_tribble` contain the standard and Tribble forms of the spectral models described above, and are setup as follows: 
 ```
 spectral_models(frequency, luminosity, fit_type, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F)
 frequency       : 1darray of input frequencies
@@ -54,7 +50,7 @@ normalisation   : The normalisation factor
 bessel_x        : 1darray of values at which to evaluate the Bessel function
 bessel_F        : 1darray containing the values of the Bessel functions
 ```
-`spectral_models_tribble` is setup identical to `spectral_models`, the one difference being an additional argument required for the magnetic field strength, e.g:
+`spectral_models_tribble` is setup identical to this, with the one difference being an additional argument required for the magnetic field strength, e.g:
 ```
 spectral_models_tribble(frequency, luminosity, fit_type, bfield, redshift, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F)
 bfield : The magnetic field strength.
