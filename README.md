@@ -24,12 +24,12 @@ This code offers three models describing the synchrotron spectrum, each of which
 The Kardashev-Pacholczyk (KP; [Kardashev (1962)](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and Jaffe-Perola (JP; [Jaffe & Perola (1973)](https://ui.adsabs.harvard.edu/abs/1973A%26A....26..423J/abstract)) model describe the synchrotron spectrum arising from an **impulsively injected** population of electrons -- that is, an entire electron population injected at *t=0* that undergoes radiative losses thereafter. The main constrast between these two models is the occurrence (JP model) or absence (KP model) of electron pitch angle scattering. 
 
 **CI models** <br />
-In contrast to the KP and JP models, the Continuous Injection models (CI-on; [Kardashev (1962)](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and (CI-off; [Komissarov & Gubanov (1994)](https://ui.adsabs.harvard.edu/abs/1994A%26A...285...27K/abstract)) describe the synchrotron spectrum arising from a **continuously injected** electron population -- that is, a mixed-age population of electrons with ages ranging anywhere between *t=0* and *t=\tau*. The CI-on model describes sources for which energy injection is currently taking place, whereas the CI-off model extends this by assuming the injection has switched off some time ago. 
+In contrast to the KP and JP models, the Continuous Injection models (CI-on; [Kardashev (1962)](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and (CI-off; [Komissarov & Gubanov (1994)](https://ui.adsabs.harvard.edu/abs/1994A%26A...285...27K/abstract)) describe the synchrotron spectrum arising from a **continuously injected** electron population -- that is, a mixed-age population of electrons with ages ranging anywhere between *t=0* and *t=\tau*. <br /> The CI-on model describes sources for which energy injection is currently taking place, whereas the CI-off model extends this by assuming the injection has switched off some time ago. 
 
 **The standard *(KP, KP, CI)* and Tribble *(TKP, TJP, TCI)* forms** <br />
 For each model described above, we offer a standard and Tribble form that describe the structure of the magnetic field strength across the source. The **standard** form assumes a **uniform magnetic field strength** across the source. By contrast, the **Tribble** form assumes an **inhomogeneous magnetic field strength**, e.g. a Maxwell-Boltzmann distribution as proposed by [Tribble (1991)](https://ui.adsabs.harvard.edu/abs/1991MNRAS.253..147T/abstract). 
 
-The advantage to the synchrotron spectrum described by the standard form is its independence of the magnetic field strength; see Equation 9 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract) who demonstrate that the magnetic field strength can be taken out of the integration and simply scale the spectrum. The caveat here is that the assumption of a uniform magnetic field strength is violated within radio lobes. While the Tribble form thus provides a more accurate description of the magnetic field strength structure, the caveat here is that the magnetic field strength must be known in order to parameterize the spectral shape. It should be noted that while spectrum expected by the standard versus Tribble forms of the JP and KP models differs, the difference in spectral shape between the Tribble-CI and standard-CI spectrum is negligible (see Section 2.3 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract)) <br />
+The advantage to the synchrotron spectrum described by the standard form is its independence of the magnetic field strength; see Equation 9 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract) who demonstrate that the magnetic field strength can be taken out of the integration and simply scale the spectrum. The caveat here is that the assumption of a uniform magnetic field strength is violated within radio lobes. While the Tribble form thus provides a more accurate description of the magnetic field strength structure, the caveat here is that the magnetic field strength must be known in order to parameterize the spectral shape. It should be noted that while there is a noticeable difference in the spectrum expected by the standard versus Tribble forms of the JP and KP, the difference in spectral shape between the Tribble-CI and standard-CI spectrum is negligible (see Section 2.3 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract)) <br />
 
 **Free parameters** <br />
 Each model described above has a number of free parameters that, ultimately, we want to estimate. The JP and KP models have the energy injection index (*s*) and break frequency *(\nu_b)* as free parameters. Additionally to these two, the CI models also have the quiescent fraction *(T)* as a free parameter (i.e. the fractional time spent in a remnant phase). 
@@ -82,8 +82,8 @@ params : A tuple containing (fit_type, break frequency, break frequency uncertai
 ```
 An optional feature of `synchrofit` is to evaluate the spectral age using the parameters estimated by `spectral_fitter`. This is perfomed by the `spectral_age` function, which is based upon Equation 4 of [Turner et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract). 
 ```
-**Accepts**
 spectral_ages(params, B, z)
+**Accepts**
 params : A tuple containing (fit_type, break frequency, quiescent fraction)
 B      : The magnetic field strength (nT)
 z      : The cosmological redshift. (dimensionless)
@@ -96,12 +96,16 @@ Note, only the CI-off model will return a non-zero value for `t_off`.
 
 ## Usage
 ### How do I run synchrofit ?
-```synchrofit``` is easily ran by executing the following from a terminal: 
-`synchrofit --data ${data.dat} --fit_type ${fit_type}`. 
-In this example, `${data.dat}` is a `.dat` file containing the input spectrum (see [test_data.dat](https://github.com/synchrofit/synchrofit/test) for example of required format), and `${fit_type}` describes the model to be fit (e.g. KP, JP or CI). 
+To run `synchrofit` simply execute the following from terminal: <br />
+`synchrofit --data ${data.dat} --fit_type ${fit_type}`. <br />
+In this example, `${data.dat}` is a `.dat` file containing the input spectrum (see [test_data.dat](https://github.com/synchrofit/synchrofit/test) for an example of the format required), and `${fit_type}` describes the model to be fit (e.g. KP, JP, CI, TKP, TJP, TCI). 
 
-Alternatively, one can manually supply a spectrum by executing the following 
-`synchrofit --freq f1 f2 fn --flux s1 s2 sn --err_flux es1 es2 esn --fit_type ${fit_type}`. 
+Alternatively, one can manually supply a spectrum by executing the following <br />
+`synchrofit --freq f1 f2 fn --flux s1 s2 sn --err_flux es1 es2 esn --fit_type ${fit_type}`. <br />
+
+To integrate this code into your own workflow, simply `import synchrofit` as a package. <br />
+
+<!-- 
 
 ### Default and custom configurations
 ```synchrofit``` is setup with a default preset for all parameters related to the model fitting. The current default values seem to provide a good balance between the coarseness of the adaptive grid and the processing speeds. Any of these values can, however, be adjusted by the user based on their requirements. A complete list of arguments accepted by ```synchrofit``` and their descriptions is listed below. 
@@ -152,4 +156,4 @@ In this case, fitting either the KP or JP models is applicable here as we are si
 **Case 3: Is my radio source active or remnant ?**
 **#TODO** Perhaps you have a radio source with a curved radio spectrum and would like to ascertain whether the nature of the spectral curvature. 
 
-**Case 4: What if my radio source is ultra-steepa at all frequencies ?** 
+**Case 4: What if my radio source is ultra-steepa at all frequencies ?**  -->
