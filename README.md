@@ -67,17 +67,28 @@ spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, break
                 n_injects=31, inject_range=[2.01,2.99], n_remnants=31, remnant_range=[0,1], 
                 n_iterations=3, options=None)
 **Accepts**
-frequency     : Input frequency (type = 1darray, unit = Hz)
-luminosity    : Input flux densities (type = 1darray, unit = Jy)
-dluminosity   : Input flux density uncertainties (type = 1darray, unit = Jy)
-fit_type      : The type of model to fit (type = str)
-n_breaks      : Number of increments with which to sample the break frequency range (type = int)
-break_range   : Accepted range for the log(break frequency) (type = list)
-n_injects     : Number of increments with which to sample the injection index range (type = int)
-inject_range  : Accepted range for the energy injection index (type = list)
-n_remnants    : Number of increments with which to sample the remnant ratio range (type = int)
-remnant_range : Accepted range for the remnant ratio (type = list)
-n_iterations  : Number of iterations (type = int)
+frequency     : Input frequency 
+                (type = 1darray, unit = Hz)
+luminosity    : Input flux densities 
+                (type = 1darray, unit = Jy)
+dluminosity   : Input flux density uncertainties 
+                (type = 1darray, unit = Jy)
+fit_type      : The type of model to fit 
+                (type = str)
+n_breaks      : Number of increments with which to sample the break frequency range 
+                (type = int)
+break_range   : Accepted range for the log(break frequency) 
+                (type = list)
+n_injects     : Number of increments with which to sample the injection index range 
+                (type = int)
+inject_range  : Accepted range for the energy injection index 
+                (type = list)
+n_remnants    : Number of increments with which to sample the remnant ratio range 
+                (type = int)
+remnant_range : Accepted range for the remnant ratio 
+                (type = list)
+n_iterations  : Number of iterations 
+                (type = int)
 options       : Options parsed through argparse (required only if synchrofit is executed from __main__)
 **Returns**
 params : A tuple containing (fit_type, break frequency, break frequency uncertainty, injection index, injection index uncertainty, quiescent fraction, quiescent fraction uncertainty, normalisation)
