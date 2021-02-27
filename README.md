@@ -103,7 +103,7 @@ n_iterations  : Number of iterations
 options       : Options parsed through argparse 
                 (required only if synchrofit is executed from __main__)
 **Returns**
-params : fit_type, break frequency, break frequency uncertainty, injection index, 
+params : fit_type, log(break frequency), log(break frequency uncertainty), injection index, 
          injection index uncertainty, quiescent fraction, quiescent fraction uncertainty, normalisation
          (type = tuple)
 ```
@@ -138,16 +138,32 @@ Alternatively, one can manually supply a spectrum by executing the following <br
 
 To integrate this code into your own workflow, simply `import synchrofit` as a package. <br />
 
-### I have an integrated radio galaxy spectrum ###
-In this case, fitting the standard forms of the Continuous Injection models `--fit_type CI` is most applicable, as this takes into consideration the averaging over a mixed-age plasma. By default, `--fit_type CI` will fit the spectrum using a CI-off model. If the radio galaxy is known to be active the spectrum needs to be modelled using the simpler CI-on model. This is done setting `--remnant_range 0`. This will look as follows:<br />
-`synchrofit --data ${data_file.dat} --fit_type CI -- remnant_range 0`
-or as follows if executing function as standalone: <br />
+### I have an integrated radio galaxy spectrum, what should I do ? ###
+In this case fitting the standard forms of the Continuous Injection models is most applicable. By default, `--fit_type CI` will fit the spectrum using a CI-off model. If the radio galaxy is **known to be active** the spectrum needs to be modelled using the simpler **CI-on** model. This is done setting `--remnant_range 0`. This will look as follows:<br />
+`synchrofit --data ${data_file.dat} --fit_type CI --remnant_range 0` <br />
+or as follows if executing the function within your own workflow: <br />
 `spectral_fitter($frequency, $luminosity, $dluminosity, CI, remnant_range=0)`
 
-<!-- 
+### I want to model the spectrum of a supernova remnant, what should I do ? ###
+In this case fitting the standard forms of the JP or KP models is best, given the supernova remnant is just a shell of impulsively-injected electrons. This will look as follows:<br />
+`synchrofit --data ${data_file.dat} --fit_type JP` <br />
+or as follows if executing the function within your own workflow: <br />
+`spectral_fitter($frequency, $luminosity, $dluminosity, JP)`
 
-### Default and custom configurations
-```synchrofit``` is setup with a default preset for all parameters related to the model fitting. The current default values seem to provide a good balance between the coarseness of the adaptive grid and the processing speeds. Any of these values can, however, be adjusted by the user based on their requirements. A complete list of arguments accepted by ```synchrofit``` and their descriptions is listed below. 
+### I want to evaluate the spectral age from my radio spectrum, what should I do ? ###
+Firstly, this requires that you provide a value for the magnetic field strength (nT) and a cosmological redshift. In the example below, we evaluate the spectral ages of an inactive (remnant) radio galaxy at redshift `z = 0.2` and with a lobe magnetic field strength of `B = 0.5 nT`:<br />
+`synchrofit --data ${data_file.dat} --fit_type CI --age --b_field 0.5--z 0.2` <br />
+or as follows if executing the function within your own workflow: <br />
+```
+params = spectral_fitter($frequency, $luminosity, $dluminosity, CI)
+params = (params[0], 10**params[1], params[5])
+spectral_age(params, 0.5, 0.2)
+```
+
+If you have a spatially-resolved radio spectrum, you may want to consider mapping the age across the lobes. In this case you will need to integrate `synchrofit` into your own workflow by fitting each resolved spectrum yourself (currently `synchrofit` will not do this automatically). Assuming you are able to do this, follow the example above using either the JP or KP model instead. We note however that if the plasma within the lobes is well-mixed, the resolved age map will not give the true spectral age of the source as even the oldest regions will contain relatively young electrons that will dominate the radio spectrum. 
+
+## Default and custom configurations
+Most parameters accepted by `spectral_fitter` already have default values. The current default values seem to provide a good balance between the coarseness of the adaptive grid and the processing speeds. Any of these values can, however, be adjusted by the user based on their requirements. A complete list of arguments accepted by ```synchrofit``` and their descriptions is listed below. 
 - `--work_dir` the directory to which fitting outputs and plots are written to. If None, defaults to current working directory. Default = None.
 - `--data` name of the data file containing the input spectrum (requires .dat format). Default = None.
 - `--freq` list of input frequencies (if `--data` is not specified). Default = None. 
@@ -155,11 +171,11 @@ or as follows if executing function as standalone: <br />
 - `--err_flux` list of input flux density errors (if `--data` is not specified). Default = None. 
 - `--freq_unit` input frequency units. Default = Hz.
 - `--flux_unit` input flux density units. Default = Jy.
-- `--fit_type` Model to fit, e.g. KP, JP or CI. No default. 
+- `--fit_type` Model to fit, e.g. KP, JP, CI TKP, TJP, TCI. No default. 
 - `--n_breaks` Number of increments with which to sample the break frequency range. Default = 31.
 - `--n_injects` Number of increments with which to sample the injection index range. Default = 31.
 - `--n_remnants` Number of increments with which to sample the remnant ratio range. Default = 31.
-- `--n_iterations` 
+- `--n_iterations` Number of iterations
 - `--break_range` Accepted range for the log(break frequency). Default = [8, 11]. 
 - `--inject_range` Accepted range for the energy injection index. Default = [2.01, 2.99]. 
 - `--remnant_range` Accepted range for the remnant ratio. Default = [0, 1]. 
@@ -176,23 +192,3 @@ An example of a custom configuration might look as follows:
 `synchrofit --data ${data.dat} --fit_type CI --n_breaks 21 --n_injects 21 --n_remnants 21 --n_iterations 5 --break_range 8 10 --inject_range 2.0 3.0 --mc_length 1000`
 
 Consider loading any custom configuration into `run_synchrofit.sh`, which will allow you to save and store these presets for later re-use. To execute this custom setup, simply run `./run_synchrofit.sh` from the terminal.
-
-### What to do in practice
-Now that we know how to run ```synchrofit```, below are some suggestions for how you might want to implement this for your radio source. 
-
-
-**I want to constrain the break frequency**
-
-**I want to measure the spectral age**
-
-
-**Case 1: I have an integrated radio spectrum, what should I do ?**
-In this case, fitting the Continuous Injection models `--fit_type CI` is most applicable, as this takes into consideration the averaging over a mixed-age plasma. By default, `--fit_type CI` will fit the spectrum using a CI-off model. If the radio galaxy is known to be active the spectrum needs to be modelled using the simpler CI-on model. This is done setting `--remnant_range 0`.
-
-**Case 2: I have a spatially-resolved radio spectrum**
-In this case, fitting either the KP or JP models is applicable here as we are simply interested in the total spectral age of a small emitting-region.
-
-**Case 3: Is my radio source active or remnant ?**
-**#TODO** Perhaps you have a radio source with a curved radio spectrum and would like to ascertain whether the nature of the spectral curvature. 
-
-**Case 4: What if my radio source is ultra-steepa at all frequencies ?**  -->
