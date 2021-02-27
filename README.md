@@ -9,7 +9,7 @@ Please credit Ross J. Turner and Benjamin Quici if you use this code, or incorpo
 ## Installation
 ```synchrofit``` is built and tested on python 3.8.5.
 
-You can install via pip using
+You can install via pip using 
 `pip3 install synchrofit`
 
 Or you can clone the repository and use `python3 setup.py install` or `pip3 install .`
@@ -136,7 +136,7 @@ In this example, `${data.dat}` is a `.dat` file containing the input spectrum (s
 Alternatively, one can manually supply a spectrum by executing the following <br />
 `synchrofit --freq f1 f2 fn --flux s1 s2 sn --err_flux es1 es2 esn --fit_type ${fit_type}`. <br />
 
-To integrate this code into your own workflow, simply `import synchrofit` as a package. <br />
+To integrate this code into your own workflow, simply import using `from SynchrofitTool import synchrofit`. <br />
 
 ### I have an integrated radio galaxy spectrum, what should I do ? ###
 In this case fitting the standard forms of the Continuous Injection models is most applicable. By default, `--fit_type CI` will fit the spectrum using a CI-off model. If the radio galaxy is **known to be active** the spectrum needs to be modelled using the simpler **CI-on** model. This is done setting `--remnant_range 0`. This will look as follows:<br />
