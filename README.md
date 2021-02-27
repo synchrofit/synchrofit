@@ -1,27 +1,36 @@
 # synchrofit
-```synchrofit``` (**synchro**tron **fit**) provides a user-friendly Python package that will model the synchrotron spectrum arising from a radio galaxy. Three models are offered: the Kardashev-Pacholczyk (KP; [Kardashev 1962](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)), the Jaffe-Perola (JP; [Jaffe & Perola 1973](https://ui.adsabs.harvard.edu/abs/1973A%26A....26..423J/abstract)) and the Continuous-Injection (CI-on; [Kardashev 1962](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and (CI-off; [Komissarov & Gubanov 1994](https://ui.adsabs.harvard.edu/abs/1994A%26A...285...27K/abstract)) models. The expressions for the KP, JP and CI-on models are adapted from [Turner, et al (2017b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract), and the expression for the CI-off model is adapted from [Turner, et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract)
+Welcome to ```synchrofit``` (**synchro**tron **fit**ter) -- a user-friendly Python package designed to model a synchrotron spectrum. 
 
 ## Credits
-Please credit Ross J. Turner and Benjamin Quici if you use this code, or incorporate it into your own workflow. Please acknowledge the use of this code by citing ___ and by providing a link to this repository. 
+Please credit Ross J. Turner and Benjamin Quici if you use this code, or incorporate it into your own workflow. Please acknowledge the use of this code by providing a link to this repository (a citation will be available shortly). 
 
 ## Installation
 ```synchrofit``` is built and tested on python 3.8.5.
 
 You can install via pip using
-`pip install synchrofit`
+`pip3 install synchrofit`
 
-Or you can clone the repository and use `python3 setup.py install` or `pip install .`
+Or you can clone the repository and use `python3 setup.py install` or `pip3 install .`
 
 ## Help
 Please read through the README.md for a description of the package as well as workflow and usage examples. If you have found a bug or inconsistency in the code please [submit a ticket](https://github.com/synchrofit/synchrofit/issues). 
 
 ## Spectral models
+This code offers three models describing the synchrotron spectrum: the Kardashev-Pacholczyk (KP; [Kardashev 1962](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) model, the Jaffe-Perola (JP; [Jaffe & Perola 1973](https://ui.adsabs.harvard.edu/abs/1973A%26A....26..423J/abstract)) model and the Continuous-Injection (CI-on; [Kardashev 1962](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and (CI-off; [Komissarov & Gubanov 1994](https://ui.adsabs.harvard.edu/abs/1994A%26A...285...27K/abstract)) models. The expressions for the KP, JP and CI-on models are adapted from [Turner, et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract), and the expression for the CI-off model is adapted from [Turner, et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract)
+
+**The KP Model**
+
+**The JP Model**
+
+**The CI models**
+
+
 TODO: Provide concise descriptions of the KP, JP and CI models? Mainly so that there's a rough understanding of what the models are doing, which will also make clear why remnant_range isn't important for JP and KP. Perhaps also include any caveats/benefits of the mdoels -- e.g. CI does a good job at modelling the injection index and break frequency for an integrated radio spectrum, the user should be aware that uncertainties in the age estimates will largely be driven by uncertainties in the B field estimate. 
 
 ## Main modules
 - `spectral_models` contains the KP, JP and CI models used in the fitting. 
 - `spectral_fitter` takes an input radio spectrum and applies an adaptive grid model fitting with Bayesian inference in order to estimate the injection index, break frequency and quiescent fraction. By generating a probability distribution over a grid of input parameters, the optimal values for each parameter are estimated by taking the peak of the probability distribution. 
-- `spectral_data` constructs a model spectrum using the parameters estimated by `spectral_fitter`. 
+- `spectral_data` constructs a model spectrum using the parameters estimated by `spectral_fitter`.
 - `spectral_ages` provides an optional feature to determine the spectral ages using the break frequency and quiescent fraction estimated by `spectral_fitter`. This requires both a magnetic field strength and cosmological redshift to be supplied. Ages are derived using [Equation 4 of Turner, et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract). 
 - `spectral_plotter` provides an optional feature to plot the input data and fitted model for a visual comparison.
 
