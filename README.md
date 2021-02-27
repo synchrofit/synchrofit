@@ -1,5 +1,5 @@
 # synchrofit
-Welcome to ```synchrofit``` (**synchro**tron **fit**ter) -- a user-friendly Python package designed to model a synchrotron spectrum. 
+Welcome to ```synchrofit``` (**synchro**tron **fit**ter) -- a user-friendly Python package designed to model a synchrotron spectrum. The goal for this package is to provide a fairly accurate parameterization of a radio spectrum, while requiring little prior knowledge of the source other than its observed spectrum. Accounting for dynamical changes within the radio source, e.g. an evolving magnetic field, are beyond the scope of this code.
 
 ## Credits
 Please credit Ross J. Turner and Benjamin Quici if you use this code, or incorporate it into your own workflow. Please acknowledge the use of this code by providing a link to this repository (a citation will be available shortly). 
@@ -16,16 +16,21 @@ Or you can clone the repository and use `python3 setup.py install` or `pip3 inst
 Please read through the README.md for a description of the package as well as workflow and usage examples. If you have found a bug or inconsistency in the code please [submit a ticket](https://github.com/synchrofit/synchrofit/issues). 
 
 ## Spectral models
-This code offers three models describing the synchrotron spectrum: the Kardashev-Pacholczyk (KP; [Kardashev 1962](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) model, the Jaffe-Perola (JP; [Jaffe & Perola 1973](https://ui.adsabs.harvard.edu/abs/1973A%26A....26..423J/abstract)) model and the Continuous-Injection (CI-on; [Kardashev 1962](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and (CI-off; [Komissarov & Gubanov 1994](https://ui.adsabs.harvard.edu/abs/1994A%26A...285...27K/abstract)) models. The expressions for the KP, JP and CI-on models are adapted from [Turner, et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract), and the expression for the CI-off model is adapted from [Turner, et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract)
+This code offers three models describing the synchrotron spectrum, each implemented within `spectral_models`. A brief qualitative description of each model is provided below. 
 
-**The KP Model**
-
-**The JP Model**
-
-**The CI models**
+<!-- : the Kardashev-Pacholczyk (KP; [Kardashev 1962](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) model, the Jaffe-Perola (JP; [Jaffe & Perola 1973](https://ui.adsabs.harvard.edu/abs/1973A%26A....26..423J/abstract)) model and the Continuous-Injection (CI-on; [Kardashev 1962](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and (CI-off; [Komissarov & Gubanov 1994](https://ui.adsabs.harvard.edu/abs/1994A%26A...285...27K/abstract)) models. The expressions for the KP, JP and CI-on models are adapted from [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract), and the expression for the CI-off model is adapted from [Turner et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract).  -->
 
 
-TODO: Provide concise descriptions of the KP, JP and CI models? Mainly so that there's a rough understanding of what the models are doing, which will also make clear why remnant_range isn't important for JP and KP. Perhaps also include any caveats/benefits of the mdoels -- e.g. CI does a good job at modelling the injection index and break frequency for an integrated radio spectrum, the user should be aware that uncertainties in the age estimates will largely be driven by uncertainties in the B field estimate. 
+**The KP and JP models**
+The Kardashev-Pacholczyk (KP; [Kardashev (1962)](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and Jaffe-Perola (JP; [Jaffe & Perola (1973)](https://ui.adsabs.harvard.edu/abs/1973A%26A....26..423J/abstract)) model describe the synchrotron spectrum arising from an **impulsively injected** population of electrons -- that is, an entire electron population injected at *t=0* that undergoes radiative losses thereafter. The main constrast between these two models is the occurrence (JP model) or absence (KP model) of electron pitch angle scattering. 
+
+**CI models**
+In contrast to the KP and JP models, the Continuous Injection models (CI-on; [Kardashev (1962)](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and (CI-off; [Komissarov & Gubanov (1994)](https://ui.adsabs.harvard.edu/abs/1994A%26A...285...27K/abstract)) describe the synchrotron spectrum arising from a **continuously injected** electron population -- that is, a mixed-age population of electrons with ages ranging anywhere between *t=0* and *t=\tau*. The CI-on model describes sources for which energy injection is currently taking place, whereas the CI-off model extends this by assuming the injection has switched off some time ago. 
+
+**The *standard* and *Tribble* forms**
+For each model described above, we offer a standard and Tribble form that describe the structure of the magnetic field strength across the source. The advantage and caveats of each form are described below. 
+
+The standard form assumes a uniform magnetic field strength across the source. By contrast, the Tribble form assumes an inhomogeneous magnetic field strength, e.g. a Maxwell-Boltzmann distribution as proposed by [Tribble (1991)](https://ui.adsabs.harvard.edu/abs/1991MNRAS.253..147T/abstract). The effect of local inohomogeneities in the magnetic field strength is The assumption of a uniform magnetic field strength is violated in reality (e.g. in radio lobes); as such, the Tribble form would seem to provide a better model.  
 
 ## Main modules
 - `spectral_models` contains the KP, JP and CI models used in the fitting. 
@@ -76,6 +81,12 @@ Consider loading any custom configuration into `run_synchrofit.sh`, which will a
 
 ### What to do in practice
 Now that we know how to run ```synchrofit```, below are some suggestions for how you might want to implement this for your radio source. 
+
+
+**I want to constrain the break frequency**
+
+**I want to measure the spectral age**
+
 
 **Case 1: I have an integrated radio spectrum, what should I do ?**
 In this case, fitting the Continuous Injection models `--fit_type CI` is most applicable, as this takes into consideration the averaging over a mixed-age plasma. By default, `--fit_type CI` will fit the spectrum using a CI-off model. If the radio galaxy is known to be active the spectrum needs to be modelled using the simpler CI-on model. This is done setting `--remnant_range 0`.
