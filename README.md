@@ -63,7 +63,9 @@ bfield : The magnetic field strength.
 
 Model fitting is performed by the `spectral_fitter` function, which uses an adaptive grid model to estimate the peak probable values for each free parameter. The uncertainty on each free parameter is estimated by taking the standard deviation of its marginal distribution. `spectral_fitter` is setup as follows:
 ```
-spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, break_range=[8,11], n_injects=31, inject_range=[2.01,2.99], n_remnants=31, remnant_range=[0,1], n_iterations=3, options=None)
+spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, break_range=[8,11], 
+                n_injects=31, inject_range=[2.01,2.99], n_remnants=31, remnant_range=[0,1], 
+                n_iterations=3, options=None)
 **Accepts**
 frequency     : 1darray of input frequencies
 luminosity    : 1darray of input flux densities
