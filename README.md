@@ -41,18 +41,29 @@ The functions `spectral_models` and `spectral_models_tribble` contain the standa
 ```
 spectral_models(frequency, luminosity, fit_type, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F)
 **Accepts:**
-frequency       : 1darray of input frequencies
-luminosity      : 1darray of input frequencies
+frequency       : Input frequencies
+                  (type = 1darray, unit = Hz)
+luminosity      : Input flux densities
+                  (type = 1darray, unit = Jy)
 fit_type        : The type of model to fit
+                  (type = str)
 break_frequency : The break frequency 
+                  (type = float, unit = Hz)
 injection_index : The injection index
+                  (type = float, unit = dimensionless)
 remnant_ratio   : The remnant ratio
+                  (type = float, unit = dimensionless)
 normalisation   : The normalisation factor
-bessel_x        : 1darray of values at which to evaluate the Bessel function
-bessel_F        : 1darray containing the values of the Bessel functions
+                  (type = float)
+bessel_x        : Values at which to evaluate the Bessel function
+                  (type = 1darray)
+bessel_F        : Evaluated Bessel function
+                  (type = 1darray)
 **Returns:**
-luminosity_predict : 1darray containing the predicted spectrum
+luminosity_predict : The predicted spectrum
+                     (type = 1darray, unit = Jy)
 normalisation      : Normalisation factor to correctly scale the spectrum
+                     (type = float, unit = dimensionless)
 ```
 `spectral_models_tribble` is setup identical to this, with the one difference being an additional argument required for the magnetic field strength, e.g:
 ```
@@ -67,7 +78,7 @@ spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, break
                 n_injects=31, inject_range=[2.01,2.99], n_remnants=31, remnant_range=[0,1], 
                 n_iterations=3, options=None)
 **Accepts**
-frequency     : Input frequency 
+frequency     : Input frequencies
                 (type = 1darray, unit = Hz)
 luminosity    : Input flux densities 
                 (type = 1darray, unit = Jy)
@@ -77,7 +88,7 @@ fit_type      : The type of model to fit
                 (type = str)
 n_breaks      : Number of increments with which to sample the break frequency range 
                 (type = int)
-break_range   : Accepted range for the log(break frequency) 
+break_range   : Accepted range for the log(break_frequency) 
                 (type = list)
 n_injects     : Number of increments with which to sample the injection index range 
                 (type = int)
@@ -89,21 +100,30 @@ remnant_range : Accepted range for the remnant ratio
                 (type = list)
 n_iterations  : Number of iterations 
                 (type = int)
-options       : Options parsed through argparse (required only if synchrofit is executed from __main__)
+options       : Options parsed through argparse 
+                (required only if synchrofit is executed from __main__)
 **Returns**
-params : A tuple containing (fit_type, break frequency, break frequency uncertainty, injection index, injection index uncertainty, quiescent fraction, quiescent fraction uncertainty, normalisation)
+params : fit_type, break frequency, break frequency uncertainty, injection index, 
+         injection index uncertainty, quiescent fraction, quiescent fraction uncertainty, normalisation
+         (type = tuple)
 ```
 An optional feature of `synchrofit` is to evaluate the spectral age using the parameters estimated by `spectral_fitter`. This is perfomed by the `spectral_age` function, which is based upon Equation 4 of [Turner et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract). 
 ```
 spectral_ages(params, B, z)
 **Accepts**
-params : A tuple containing (fit_type, break frequency, quiescent fraction)
-B      : The magnetic field strength (nT)
-z      : The cosmological redshift. (dimensionless)
+params : fit_type, break frequency, quiescent fraction
+         (type = tuple)
+B      : The magnetic field strength
+         (type = float, unit = nT)
+z      : The cosmological redshift.
+         (type = float, unit = dimensionless)
 **Returns**
-tau   : Total spectral age (Myr)
-t_on  : Duration of active phase (Myr)
-t_off : Duration of remnant phase (Myr)
+tau   : Total spectral age 
+        (type = float, unit = Myr)
+t_on  : Duration of active phase
+        (type = float, unit = Myr)
+t_off : Duration of remnant phase
+        (type = float, unit = Myr)
 ```
 Note, only the CI-off model will return a non-zero value for `t_off`. 
 
@@ -117,6 +137,12 @@ Alternatively, one can manually supply a spectrum by executing the following <br
 `synchrofit --freq f1 f2 fn --flux s1 s2 sn --err_flux es1 es2 esn --fit_type ${fit_type}`. <br />
 
 To integrate this code into your own workflow, simply `import synchrofit` as a package. <br />
+
+### I have an integrated radio galaxy spectrum ###
+In this case, fitting the standard forms of the Continuous Injection models `--fit_type CI` is most applicable, as this takes into consideration the averaging over a mixed-age plasma. By default, `--fit_type CI` will fit the spectrum using a CI-off model. If the radio galaxy is known to be active the spectrum needs to be modelled using the simpler CI-on model. This is done setting `--remnant_range 0`. This will look as follows:<br />
+`synchrofit --data ${data_file.dat} --fit_type CI -- remnant_range 0`
+or as follows if executing function as standalone: <br />
+`spectral_fitter($frequency, $luminosity, $dluminosity, CI, remnant_range=0)`
 
 <!-- 
 
