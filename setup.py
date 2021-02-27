@@ -38,7 +38,7 @@ setup(
         'Topic :: Scientific/Engineering :: Astronomy',
     ],
     install_requires=reqs,
-    packages=['SynchrofitTools'],
+    packages=['SynchrofitTool'],
     scripts=["scripts/synchrofit"],
     python_requires='>=2.7',
 )

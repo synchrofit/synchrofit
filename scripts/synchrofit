@@ -10,7 +10,7 @@ import logging
 import argparse
 
 # synchrofit
-from SynchrofitTools.synchrofit import spectral_fitter, spectral_data, spectral_plotter, spectral_ages, spectral_units, logger, color_text, Colors
+from SynchrofitTool.synchrofit import spectral_fitter, spectral_data, spectral_plotter, spectral_ages, spectral_units, logger, color_text, Colors
 
 __author__ = 'Benjamin Quici'
 
