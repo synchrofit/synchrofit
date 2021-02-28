@@ -1,5 +1,5 @@
 # synchrofit
-Welcome to ```synchrofit``` (**synchro**tron **fit**ter) -- a user-friendly Python package designed to model a synchrotron spectrum. The goal for this package is to provide a fairly accurate<sup>[**1**]</sup> parameterization of a radio spectrum, while requiring little prior knowledge of the source other than its observed spectrum. This code is based on the modified synchrotron models presented by [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract) and [Turner et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract).<br />
+Welcome to ```synchrofit``` (**synchro**tron **fit**ter) -- a user-friendly Python package designed to model a synchrotron spectrum. The goal for this package is to provide an accurate<sup>[**1**]</sup> parameterization of a radio spectrum, while requiring little prior knowledge of the source other than its observed spectrum. This code is based on the modified synchrotron models presented by [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract) and [Turner et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract).<br />
 
 <sup>[**1**]</sup>Accounting for dynamical changes within the radio source, e.g. an evolving magnetic field, is beyond the scope of this code.
 
@@ -107,6 +107,43 @@ params : fit_type, log(break frequency), log(break frequency uncertainty), injec
          injection index uncertainty, quiescent fraction, quiescent fraction uncertainty, normalisation
          (type = tuple)
 ```
+Note, you do not need to interface with `spectral_fitter` as it is an internal function. <br />
+
+Once you have determined the optimal fit, you might want to construct a model spectrum e.g. to compare the observed and model data, or to simulate the model over a range of frequencies to visualize on a plot. This is performed using the `spectral_data` function which takes the parameters estimated by `spectral_fitter` and simulates the model spectrum. `spectral_data` uses the uncertainties in each free parameter and estimates the uncertainties in the model using a standard Monte-Carlo approach.
+```
+spectral_data(params, frequency_observed=None, n_model_freqs=100, mc_length=500, err_model_width=2,
+              work_dir=None, write_model=None)
+**Accepts**
+params             : fit_type, log(break frequency), log(break frequency uncertainty), injection index, 
+                     injection index uncertainty, quiescent fraction, quiescent fraction uncertainty, normalisation
+                     (type = tuple)
+frequency_observed : Oberserved frequencies. If not None, will evaluate the model at each observing frequency
+                     and will use the observed frequencies to define the bounds of the simulated plotting frequencies
+                     If None, will simply evaluate the model at the simulate plotting frequencies, which by default
+                     range between 50 MHz and 50 GHz. 
+                     (type = 1darray, unit = Hz)
+n_model_freqs      : Number of plotting frequencies to simulate within the allowed range
+                     (type = int)
+mc_length          : Number of Monte-Carlo iterations
+                     (type = int)
+err_model_width    : Width of the model uncertainty envelope in multiples of sigma 
+                     (type = int)
+work_dir           : Directory to write outputs to
+                     (type = str)
+write_model        : If True, writes model spectrum to work_dir
+                     (type = Bool)
+**Returns**
+spectral_model_plot_data  : Matrix containing the simulated plotting frequencies, 
+                            model flux densities evaluated for the simulated plotting frequencies
+                            uncertainties in the model flux densities
+                            lower bound for the model flux densities
+                            upper bound for the model flux densities   
+                            (type = np.array)
+luminosity_model_observed : The model evaluate at the observed frequencies. 
+                            If frequency_observed == None, luminosity_model_observed = None
+                            (type = np.1darray)
+```
+
 An optional feature of `synchrofit` is to evaluate the spectral age using the parameters estimated by `spectral_fitter`. This is perfomed by the `spectral_age` function, which is based upon Equation 4 of [Turner et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract). 
 ```
 spectral_ages(params, B, z)
