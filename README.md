@@ -47,6 +47,7 @@ Each model described above has a number of free parameters that, ultimately, we 
 ## How does synchrofit work? ##
 In essence, `synchrofit` takes a spectral model and estimates its free parameters. This is carried out in a number of primary functions described below.<br />
 
+### spectral_models
 The functions `spectral_models` and `spectral_models_tribble` contain the standard and Tribble forms of the spectral models described above.
 ```
 spectral_models(frequency, luminosity, fit_type, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F)
