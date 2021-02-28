@@ -18,7 +18,7 @@ Or you can clone the repository and use `python3 setup.py install` or `pip3 inst
 Please read through the README.md for a description of the package as well as workflow and usage examples. If you have found a bug or inconsistency in the code please [submit a ticket](https://github.com/synchrofit/synchrofit/issues).  
 
 **Skip to:**<br />
-- [Spectral models](#-spectral-models)
+- [Spectral models](#spectral-models)
 - [How does synchrofit work?](##How-does-synchrofit-work)
 - [Usage](##Usage)
     - [How do I run synchrofit ?](##How-do-I-run-synchrofit)
