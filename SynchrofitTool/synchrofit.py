@@ -590,7 +590,7 @@ def spectral_models_tribble(frequency, luminosity, fit_type, bfield, redshift, b
     # return outputs
     return luminosity_predict, normalisation
 
-def spectral_data(frequency, params, n_model_freqs=100, mc_length=500, err_model_width=2, work_dir=None, write_model=None):
+def spectral_data(params, frequency_observed=None, n_model_freqs=100, mc_length=500, err_model_width=2, work_dir=None, write_model=None):
     """
     (usage) Uses the optimized parameters to return a 1darray of model flux densities for a given frequency list. An uncertainty envelope on the model is calculated following an MC approach. 
     
@@ -598,53 +598,75 @@ def spectral_data(frequency, params, n_model_freqs=100, mc_length=500, err_model
     ----------
     params : tuple
         Contains the fit_type, break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation
+    frequency_observed : 1darray
+        The list of observed frequencies. If None, model is evaluated between 50 MHz to 50 GHz. 
     n_model_freqs : int
         The number of frequencies at which to evaluate the model
     mc_length : int
         Number of MC iterations used for uncertainty estimation
     err_model_width : int
         Width of the uncertainty level corresponding to the model
+    work_dir : str
+        If not None, writes outputs to this directory
+    write_model : Bool
+        If True, writes outputs
         
     returns
     -------
-    frequency_model : 1darray
-        List of frequencies at which to evaluate the model
-    luminosity_model : 1darray
-        Peak probable model fit
-    err_luminosity_model : 1darray
-        1-sigma uncertainty on luminosity_model
-    luminosity_model_min : 1darray
-        Lower bound on the model
-    luminosity_model_max : 1darray
-        Upper bound on the model
+    spectral_model_plot_data : matrix : np.shape(matrix) = (5 x n_model_freqs)
+        contains the plotting frequency, model evaluated at the plotting frequency, error in the model, model lower bound, model upper bound. 
+    luminosity_model_observed : 1darray
+        If frequency_observed != None, luminosity_model_observed gives the model evaluated over the observed frequencies
     """
+    # unpack values
     fit_type, break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation = params
-    frequency_model = np.geomspace(10**(math.floor(np.min(np.log10(frequency)))),10**(math.ceil(np.max(np.log10(frequency)))), num=n_model_freqs)
     bessel_x, bessel_F = besselK53()
-    luminosity_model = spectral_models(frequency_model, np.zeros(len(frequency_model)), fit_type, 10**break_predict, inject_predict, remnant_predict, normalisation, bessel_x, bessel_F)[0]
+
+    # Determine whether to evaluate the model at the observed frequencies 
+    if frequency_observed is not None:
+        # evaluate the model at the observed frequencies, and use the observed frequencies to constrain the bounds of the plotting_frequency
+        frequency_model_simulated = np.geomspace(10**(math.floor(np.min(np.log10(frequency_observed)))),10**(math.ceil(np.max(np.log10(frequency_observed)))), num=n_model_freqs)
+        luminosity_model_observed = spectral_models(frequency_observed, np.zeros(len(frequency_model_simulated)), fit_type, 10**break_predict, inject_predict, remnant_predict, normalisation, bessel_x, bessel_F)[0]
+    else:
+        # default the plotting frequencies between 50 MHz and 50 GHz
+        luminosity_model_observed = None
+        frequency_model_simulated = np.geomspace(5e+7, 5e+10, num=n_model_freqs)
+    luminosity_model_simulated = spectral_models(frequency_model_simulated, np.zeros(len(frequency_model_simulated)), fit_type, 10**break_predict, inject_predict, remnant_predict, normalisation, bessel_x, bessel_F)[0]
     
-    # simulate a list of injection indices and break frequencies using their gaussian errors 
+    # simulate a distribution of injection indices, break frequencies and quiescent fractions assuming gaussian errors.
     break_predict_vec = np.random.normal(break_predict, dbreak_predict, mc_length)
     inject_predict_vec = np.random.normal(inject_predict, dinject_predict, mc_length)
     remnant_predict_vec = np.random.normal(remnant_predict, dremnant_predict, mc_length)
     
-    # MC simulate an array of model luminosities
-    luminosityArray = np.zeros([mc_length,len(frequency_model)])
+    # instantiate array to store Monte-Carlo simulated spectra
+    luminosityArray = np.zeros([mc_length,len(frequency_model_simulated)])
+
+    # evaluate and store the model spectrum for each set of free parameters
     for mcPointer in range(0,mc_length):
-        fitmc, normmc = spectral_models(frequency_model, np.zeros(len(frequency_model)), fit_type, 10**break_predict_vec[mcPointer], inject_predict_vec[mcPointer], remnant_predict_vec[mcPointer], normalisation, besselK53()[0], besselK53()[1])
+        fitmc, normmc = spectral_models(frequency_model_simulated, np.zeros(len(frequency_model_simulated)), fit_type, 10**break_predict_vec[mcPointer], inject_predict_vec[mcPointer], remnant_predict_vec[mcPointer], normalisation, besselK53()[0], besselK53()[1])
         luminosityArray[mcPointer] = (np.asarray(fitmc))
     
-    err_luminosity_model=np.zeros([len(frequency_model)])
-    luminosity_model_min=np.zeros([len(frequency_model)])
-    luminosity_model_max=np.zeros([len(frequency_model)])
-    # at each plotting frequency use the std dev to determine the uncertainty on the model luminosity
-    colorstring = color_text("Estimating model errors from {} MC iterations".format(mc_length), Colors.DogderBlue)
-    logger.info(colorstring)
-    for plotfreqPointer in range(0,len(frequency_model)):
-        err_luminosity_model[plotfreqPointer] = np.std(luminosityArray.T[plotfreqPointer])
-        luminosity_model_min[plotfreqPointer] = luminosity_model[plotfreqPointer] - 0.5*err_model_width*np.std(luminosityArray.T[plotfreqPointer])
-        luminosity_model_max[plotfreqPointer] = luminosity_model[plotfreqPointer] + 0.5*err_model_width*np.std(luminosityArray.T[plotfreqPointer])
+    # instantiate vectors to store the uncertainties in the model at the corresponding frequency
+    err_luminosity_model_simulated=np.zeros([len(frequency_model_simulated)])
+    luminosity_model_simulated_min=np.zeros([len(frequency_model_simulated)])
+    luminosity_model_simulated_max=np.zeros([len(frequency_model_simulated)])
     
+    # take the std dev in the model at each frequency to evaluate a model uncertainty
+    colorstring = color_text("Estimating model errors from {} Monte-Carlo iterations".format(mc_length), Colors.DogderBlue)
+    logger.info(colorstring)
+    for plotfreqPointer in range(0,len(frequency_model_simulated)):
+        err_luminosity_model_simulated[plotfreqPointer] = np.std(luminosityArray.T[plotfreqPointer])
+        luminosity_model_simulated_min[plotfreqPointer] = luminosity_model_simulated[plotfreqPointer] - 0.5*err_model_width*np.std(luminosityArray.T[plotfreqPointer])
+        luminosity_model_simulated_max[plotfreqPointer] = luminosity_model_simulated[plotfreqPointer] + 0.5*err_model_width*np.std(luminosityArray.T[plotfreqPointer])
+    
+    # stack the model frequency, model luminosity, error in model luminosity and the upper/lower bounds of the model in an array
+    spectral_model_plot_data = np.empty([5,len(frequency_model_simulated)])
+    spectral_model_plot_data[0] = frequency_model_simulated
+    spectral_model_plot_data[1] = luminosity_model_simulated
+    spectral_model_plot_data[2] = err_luminosity_model_simulated
+    spectral_model_plot_data[3] = luminosity_model_simulated_min
+    spectral_model_plot_data[4] = luminosity_model_simulated_max
+
     # write fitting outputs to file
     if write_model is not None and write_model == True:
         if fit_type is not None:
@@ -660,13 +682,13 @@ def spectral_data(frequency, params, n_model_freqs=100, mc_length=500, err_model
     
         file = open(savename, "w")
         file.write("Frequency, {0} Model, unc {0} Model, {0} Model +- {1} sigma, {0} Model +- {1} sigma \n".format(fit_type, err_model_width))
-        for i in range(0,len(frequency_model)):
-            file.write("{}, {}, {}, {}, {} \n".format(frequency_model[i], luminosity_model[i], err_luminosity_model[i], luminosity_model_min[i], luminosity_model_max[i]))
+        for i in range(0,len(frequency_model_simulated)):
+            file.write("{}, {}, {}, {}, {} \n".format(frequency_model_simulated[i], luminosity_model_simulated[i], err_luminosity_model_simulated[i], luminosity_model_simulated_min[i], luminosity_model_simulated_max[i]))
         file.close()
 
-    return(frequency_model, luminosity_model, err_luminosity_model, luminosity_model_min, luminosity_model_max)
+    return(spectral_model_plot_data, luminosity_model_observed)
 
-def spectral_plotter(frequency, luminosity, dluminosity, frequency_model, luminosity_model, err_luminosity_model, luminosity_model_min, luminosity_model_max, work_dir=None, fit_type=None, err_model_width=None):
+def spectral_plotter(frequency, luminosity, dluminosity, spectral_model_plot_data=None, luminosity_model_observed=None, work_dir=None, fit_type=None, err_model_width=None):
     """
     (usage) Plots the data and optimised model fit and writes to file. 
     
@@ -678,16 +700,8 @@ def spectral_plotter(frequency, luminosity, dluminosity, frequency_model, lumino
         The input flux density list (observed data)
     dluminosity : 1darray
         The uncertainty on the input flux density list (observed data)
-    frequency_model : 1darray
-        List of frequencies at which the model is evaluated
-    luminosity_model : 1darray
-        Best-fit model evaluated for frequency_model
-    err_luminosity_model : 1darray
-        Uncertainty on luminosity_model
-    luminosity_model_min : 1darray
-        Lower bound on luminosity_model
-    luminosity_model_max : 1darray
-        Upper bound on luminosity_model
+    spectral_model_plot_data : 
+        output of spectral_data() function
     work_dir : str
         Directory to write plot to
     fit_type : str
@@ -695,25 +709,49 @@ def spectral_plotter(frequency, luminosity, dluminosity, frequency_model, lumino
     err_model_width : int
         Print width of uncertainty envelope on figure
     """
+    
+    # instantiate figure
     fig = plt.figure(figsize=(12,12))
-    ax = fig.add_axes([0.1,0.1,0.86,0.86])
+    if luminosity_model_observed is not None:
+        ax = fig.add_axes([0.1,0.15,0.86,0.81])
+        ax.axes.get_xaxis().set_visible(False)
+        ax0 = fig.add_axes([0.1, 0.06, 0.86, 0.08])
+        ax0.axes.get_yaxis().set_ticks([1])
+        ax0.set_xscale('log')
+        ax0.set_xlim([10**(math.floor(np.min(np.log10(frequency)))),10**(math.ceil(np.max(np.log10(frequency))))])
+        ax0.set_xlabel('Frequency / Hz', fontsize=20)
+        ax0.scatter(frequency, (luminosity/luminosity_model_observed), marker='.', c='black', zorder=1)
+        ax0.tick_params(axis='both', labelsize=20, which='both', direction='in', length=5, width=2)
+        ax0.plot([10**(math.floor(np.min(np.log10(frequency)))),10**(math.ceil(np.max(np.log10(frequency))))],[1, 1], c='red')
+        ax0.set_ylabel('$\\frac{data}{model}$', fontsize=25)
+    else:
+        ax = fig.add_axes([0.1,0.1,0.86,0.86])
+        ax.set_xlabel('Frequency / Hz', fontsize=20)
     ax.set_xscale('log')
     ax.set_yscale('log')
-    ax.set_xlabel('Frequency / Hz', fontsize=20)
     ax.set_ylabel('Integrated flux density / Jy', fontsize=20)
     ax.set_xlim([10**(math.floor(np.min(np.log10(frequency)))),10**(math.ceil(np.max(np.log10(frequency))))])
     ax.set_ylim([0.2*np.min(luminosity),5*np.max(luminosity)])
     ax.tick_params(axis='both', labelsize=20, which='both', direction='in', length=5, width=2)
 
-    if fit_type is not None:
-        ax.plot(frequency_model, luminosity_model, c='C0', label='{} Model'.format(fit_type), zorder=2)
-    else:
-        ax.plot(frequency_model, luminosity_model, c='C0', label='Model', zorder=2)
-    ax.fill_between(frequency_model, luminosity_model_min.T, luminosity_model_max.T, color='purple', alpha=0.15)
+    # plot the observed data
     ax.scatter(frequency, luminosity, marker='.', c='black', label='Data', zorder=1)
     ax.errorbar(frequency, luminosity, xerr=0, yerr=dluminosity, color='black', capsize=1, linestyle='None',hold=True, fmt='none',alpha=0.9)
-    plt.legend(loc='upper right', fontsize=20)
 
+    # if supplied, unpack and overlay the simulated model
+    if spectral_model_plot_data is not None:
+        frequency_model_simulated = spectral_model_plot_data[0]
+        luminosity_model_simulated = spectral_model_plot_data[1]
+        err_luminosity_model_simulated = spectral_model_plot_data[2]
+        luminosity_model_simulated_min = spectral_model_plot_data[3]
+        luminosity_model_simulated_max = spectral_model_plot_data[4]
+        if fit_type is not None:
+            ax.plot(frequency_model_simulated, luminosity_model_simulated, c='C0', label='{} Model'.format(fit_type), zorder=2)
+        else:
+            ax.plot(frequency_model_simulated, luminosity_model_simulated, c='C0', label='Model', zorder=2)
+        ax.fill_between(frequency_model_simulated, luminosity_model_simulated_min.T, luminosity_model_simulated_max.T, color='purple', alpha=0.15)
+
+    # work out the appropriate save name
     extension='.pdf'
     if fit_type is not None:
         plotname='{}_model_fit{}'.format(fit_type,extension)
@@ -723,8 +761,11 @@ def spectral_plotter(frequency, luminosity, dluminosity, frequency_model, lumino
         savename='{}/{}'.format(work_dir,plotname)
     else:
         savename=plotname
+
+    # write figure to file
     colorstring = color_text("Writing figure to: {}".format(savename), Colors.DogderBlue)
     logger.info(colorstring)
+    plt.legend(loc='upper right', fontsize=20)
     plt.savefig(savename,dpi=200)
 
 def spectral_ages(params, B, z):

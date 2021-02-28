@@ -102,12 +102,12 @@ if __name__ == "__main__":
     
     colorstring = color_text("Evaluating model and estimating model uncertainties.", Colors.Orange)
     print("INFO __main__ {}".format(colorstring))
-    frequency_model, luminosity_model, err_luminosity_model, luminosity_model_min, luminosity_model_max = spectral_data(frequency, params, work_dir=options.work_dir, write_model=options.write_model)
+    spectral_model_plot_data, luminosity_model_observed = spectral_data(params, frequency, work_dir=options.work_dir, write_model=options.write_model)
     
     if options.plot:
         colorstring = color_text("Writing model fit to figure", Colors.Orange)
         print("INFO __main__ {}".format(colorstring))
-        spectral_plotter(frequency, luminosity, dluminosity, frequency_model, luminosity_model, err_luminosity_model, luminosity_model_min, luminosity_model_max, options.work_dir, options.fit_type, options.err_model_width)
+        spectral_plotter(frequency, luminosity, dluminosity, spectral_model_plot_data, luminosity_model_observed, options.work_dir, options.fit_type, options.err_model_width)
     
     if options.age:
         colorstring = color_text("Estimating spectral ages", Colors.Orange)
