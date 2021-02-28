@@ -20,6 +20,10 @@ Please read through the README.md for a description of the package as well as wo
 **Skip to:**<br />
 - [Spectral models](#spectral-models)
 - [How does synchrofit work?](#how-does-synchrofit-work-)
+    - [spectral_fitter](#spectral_fitter)
+    - [spectral_models](#spectral_models)
+    - [spectral_data](#spectral_data)
+    - [spectral_ages](#spectral_ages)
 - [Usage](#Usage)
     - [How do I run synchrofit ?](#how-do-I-run-synchrofit-)
     - [I have an integrated radio galaxy spectrum, what should I do ?](#i-have-an-integrated-radio-galaxy-spectrum-what-should-I-do-)
@@ -81,8 +85,8 @@ normalisation      : Normalisation factor to correctly scale the spectrum
 spectral_models_tribble(frequency, luminosity, fit_type, bfield, redshift, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F)
 bfield : The magnetic field strength.
 ```
-<br />
 
+### spectral_fitter
 Model fitting is performed by the `spectral_fitter` function, which uses an adaptive grid model to estimate the peak probable values for each free parameter. The uncertainty on each free parameter is estimated by taking the standard deviation of its marginal distribution. `spectral_fitter` is setup as follows:
 ```
 spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, break_range=[8,11], 
@@ -120,6 +124,7 @@ params : fit_type, log(break frequency), log(break frequency uncertainty), injec
 ```
 Note, you do not need to interface with `spectral_fitter` as it is an internal function. <br />
 
+### spectral_data
 Once you have determined the optimal fit, you might want to construct a model spectrum e.g. to compare the observed and model data, or to simulate the model over a range of frequencies to visualize on a plot. This is performed using the `spectral_data` function which takes the parameters estimated by `spectral_fitter` and simulates the model spectrum. `spectral_data` uses the uncertainties in each free parameter and estimates the uncertainties in the model using a standard Monte-Carlo approach.
 ```
 spectral_data(params, frequency_observed=None, n_model_freqs=100, mc_length=500, err_model_width=2,
@@ -155,6 +160,7 @@ luminosity_model_observed : The model evaluate at the observed frequencies.
                             (type = np.1darray)
 ```
 
+### spectral_ages
 An optional feature of `synchrofit` is to evaluate the spectral age using the parameters estimated by `spectral_fitter`. This is perfomed by the `spectral_age` function, which is based upon Equation 4 of [Turner et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract). 
 ```
 spectral_ages(params, B, z)
