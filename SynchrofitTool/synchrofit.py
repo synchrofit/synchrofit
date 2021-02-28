@@ -659,6 +659,25 @@ def spectral_data(params, frequency_observed=None, n_model_freqs=100, mc_length=
     break_predict_vec = np.random.normal(break_predict, dbreak_predict, mc_length)
     inject_predict_vec = np.random.normal(inject_predict, dinject_predict, mc_length)
     remnant_predict_vec = np.random.normal(remnant_predict, dremnant_predict, mc_length)
+
+    # write distributions to file
+    if write_model is not None and write_model == True:
+        free_param = [break_predict_vec, inject_predict_vec, remnant_predict_vec]
+        free_param_name = ['log_break_frequency', 'injection_index', 'remnant_ratio']
+        for i in range(0,len(free_param)):
+            fig = plt.figure(figsize=[5,5])
+            ax = fig.add_axes([0.1,0.1,0.85,0.85])
+            ax.hist(free_param[i])
+            ax.set_xlabel(free_param_name[i], fontsize=10)
+            if fit_type is not None:
+                filename = '{}_{}_distribution.pdf'.format(fit_type,free_param_name[i])
+            else:
+                filename = '{}_distribution.pdf'.format(free_param_name[i])
+            if work_dir is not None:
+                savename = '{}/{}'.format(work_dir, filename)
+            else:
+                savename = filename
+            plt.savefig(savename,dpi=200)
     
     # instantiate array to store Monte-Carlo simulated spectra
     luminosityArray = np.zeros([mc_length,len(frequency_model_simulated)])
@@ -681,6 +700,13 @@ def spectral_data(params, frequency_observed=None, n_model_freqs=100, mc_length=
         luminosity_model_simulated_min[plotfreqPointer] = luminosity_model_simulated[plotfreqPointer] - 0.5*err_model_width*np.std(luminosityArray.T[plotfreqPointer])
         luminosity_model_simulated_max[plotfreqPointer] = luminosity_model_simulated[plotfreqPointer] + 0.5*err_model_width*np.std(luminosityArray.T[plotfreqPointer])
     
+        # fig = plt.figure(figsize=(10,10))
+        # ax = fig.add_axes([0.1,0.1,0.85,0.85])
+        # ax.hist((luminosityArray.T[plotfreqPointer]))
+        # std = np.std((luminosityArray.T[plotfreqPointer]))
+        # ax.set_xlabel('{} {}'.format(frequency_model_simulated[plotfreqPointer], std))
+        # plt.savefig('/home/sputnik/Documents/{}.pdf'.format(frequency_model_simulated[plotfreqPointer]))
+
     # stack the model frequency, model luminosity, error in model luminosity and the upper/lower bounds of the model in an array
     spectral_model_plot_data = np.empty([5,len(frequency_model_simulated)])
     spectral_model_plot_data[0] = frequency_model_simulated
