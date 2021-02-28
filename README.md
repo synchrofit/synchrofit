@@ -19,12 +19,12 @@ Please read through the README.md for a description of the package as well as wo
 
 **Skip to:**<br />
 - [Spectral models](#spectral-models)
-- [How does synchrofit work?](#how-does-synchrofit-work)
-- [Usage](##Usage)
-    - [How do I run synchrofit ?](#how-do-I-run-synchrofit)
-    - [I have an integrated radio galaxy spectrum, what should I do ?](#i-have-an-integrated-radio-galaxy-spectrum,-what-should-I-do)
-    - [I want to model the spectrum of a supernova remnant, what should I do ?](#i-want-to-model-the-spectrum-of-a-supernova-remnant,-what-should-I-do)
-    - [I want to evaluate the spectral age from my radio spectrum, what should I do ?](#i-want-to-evaluate-the-spectral-age-from-my-radio-spectrum,-what-should-I-do)
+- [How does synchrofit work?](#how-does-synchrofit-work-)
+- [Usage](#Usage)
+    - [How do I run synchrofit ?](#how-do-I-run-synchrofit-)
+    - [I have an integrated radio galaxy spectrum, what should I do ?](#i-have-an-integrated-radio-galaxy-spectrum-what-should-I-do-)
+    - [I want to model the spectrum of a supernova remnant, what should I do ?](#i-want-to-model-the-spectrum-of-a-supernova-remnant-what-should-I-do-)
+    - [I want to evaluate the spectral age from my radio spectrum, what should I do ?](#i-want-to-evaluate-the-spectral-age-from-my-radio-spectrum-what-should-I-do-)
 - [Default and custom configurations](#default-and-custom-configurations)
     
 ## Spectral models
