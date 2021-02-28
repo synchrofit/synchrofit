@@ -15,9 +15,18 @@ You can install via pip using
 Or you can clone the repository and use `python3 setup.py install` or `pip3 install .`
 
 ## Help
-[create an anchor](#synchrofit)
-Please read through the README.md for a description of the package as well as workflow and usage examples. If you have found a bug or inconsistency in the code please [submit a ticket](https://github.com/synchrofit/synchrofit/issues). 
+Please read through the README.md for a description of the package as well as workflow and usage examples. If you have found a bug or inconsistency in the code please [submit a ticket](https://github.com/synchrofit/synchrofit/issues).  
 
+**Skip to:**
+- [Spectral models](##Spectral-models)
+- [How does synchrofit work?](##How-does-synchrofit-work)
+- [Usage](##Usage)
+    - [How do I run synchrofit ?](##How-do-I-run-synchrofit)
+    - [I have an integrated radio galaxy spectrum, what should I do ?](##I-have-an-integrated-radio-galaxy-spectrum,-what-should-I-do)
+    - [I want to model the spectrum of a supernova remnant, what should I do ?](##I-want-to-model-the-spectrum-of-a-supernova-remnant,-what-should-I-do)
+    - [I want to evaluate the spectral age from my radio spectrum, what should I do ?](##I-want-to-evaluate-the-spectral-age-from-my-radio-spectrum,-what-should-I-do)
+- [Default and custom configurations](##Default-and-custom-configurations)
+    
 ## Spectral models
 This code offers three models describing the synchrotron spectrum, each of which comes in a standard and Tribble form. A brief qualitative description of each model is provided below. <br /> 
 
