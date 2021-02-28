@@ -19,6 +19,7 @@ class Colors:
     Green = (0,200,0)
     Orange = (255, 165, 0)
     Red = (255, 0, 0)
+    MediumSpringGreen = (0, 250, 154)
 
 def _join(*values):
     return ";".join(str(v) for v in values)
@@ -80,6 +81,7 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, b
     params : tuple
         Contains the fitted model (fit_type) and the free parameters constrained by the fitting (and their uncertainties)
     """
+    logger.info(color_text('Entered function.',Colors.MediumSpringGreen))
     # read in custom configuration options from argparse
     if options is not None:
         n_breaks = options.n_breaks
@@ -275,6 +277,7 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, b
         file.close()
     
     params = fit_type, break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation
+    logger.info(color_text('Exitting function.',Colors.MediumSpringGreen))
     return(params)
 
 @jit(nopython=True) # Set "nopython" mode for best performance, equivalent to @njit
@@ -618,8 +621,27 @@ def spectral_data(params, frequency_observed=None, n_model_freqs=100, mc_length=
     luminosity_model_observed : 1darray
         If frequency_observed != None, luminosity_model_observed gives the model evaluated over the observed frequencies
     """
-    # unpack values
+    logger.info(color_text('Entered function.',Colors.MediumSpringGreen))
+    # check data is the correct type
+    if len(params) != 8:
+        raise Exception(color_text("len(params) needs to be 8.",Colors.Red))
     fit_type, break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation = params
+    if fit_type not in ['KP', 'TKP', 'JP', 'TJP', 'CI', 'TCI']:
+        raise Exception(color_text("fit_type needs to be one of: KP, TKP, JP, TJP, CI, TCI",Colors.Red))
+    if not isinstance(break_predict, float) or break_predict< 0:
+        raise Exception(color_text('break_predict needs to be a float and greater than zero',Colors.Red))
+    if not isinstance(dbreak_predict, (float, int)) or dbreak_predict < 0:
+        raise Exception(color_text('dbreak_predict needs to be a float/int and greater than zero',Colors.Red))
+    if not isinstance(inject_predict, float) or inject_predict < 0:
+        raise Exception(color_text('inject_predict needs to be a float and greater than zero',Colors.Red))
+    if not isinstance(dinject_predict, (float, int)) or dinject_predict < 0:
+        raise Exception(color_text('dinject_predict needs to be a float/int and greater than zero',Colors.Red))
+    if not isinstance(remnant_predict, float) or remnant_predict < 0:
+        raise Exception(color_text('remnant_predict needs to be a float and greater than zero',Colors.Red))
+    if not isinstance(dremnant_predict, (float, int)) or dremnant_predict < 0:
+        raise Exception(color_text('dremnant_predict needs to be a float/int and greater than zero',Colors.Red))
+    if not isinstance(normalisation, float) or normalisation < 0:
+        raise Exception(color_text('normalisation needs to be a float and greater than zero',Colors.Red))
     bessel_x, bessel_F = besselK53()
 
     # Determine whether to evaluate the model at the observed frequencies 
@@ -685,7 +707,8 @@ def spectral_data(params, frequency_observed=None, n_model_freqs=100, mc_length=
         for i in range(0,len(frequency_model_simulated)):
             file.write("{}, {}, {}, {}, {} \n".format(frequency_model_simulated[i], luminosity_model_simulated[i], err_luminosity_model_simulated[i], luminosity_model_simulated_min[i], luminosity_model_simulated_max[i]))
         file.close()
-
+    
+    logger.info(color_text('Exitting function.',Colors.MediumSpringGreen))
     return(spectral_model_plot_data, luminosity_model_observed)
 
 def spectral_plotter(frequency, luminosity, dluminosity, spectral_model_plot_data=None, luminosity_model_observed=None, work_dir=None, fit_type=None, err_model_width=None):
@@ -709,7 +732,12 @@ def spectral_plotter(frequency, luminosity, dluminosity, spectral_model_plot_dat
     err_model_width : int
         Print width of uncertainty envelope on figure
     """
-    
+    logger.info(color_text('Entered function.',Colors.MediumSpringGreen))
+    # check inputs are correct type and shape
+    if len(frequency) != len(luminosity) or len(frequency) != len(dluminosity) or len(luminosity) != len(dluminosity):
+        raise Exception(color_text('The observed frequency, flux density, and flux density errors must be equal length', Colors.Red))
+    if luminosity_model_observed is not None and len(luminosity_model_observed) != len(luminosity):
+        raise Exception(color_text('Observed and model flux densities need to be same length',Colors.Red))
     # instantiate figure
     fig = plt.figure(figsize=(12,12))
     if luminosity_model_observed is not None:
@@ -767,6 +795,8 @@ def spectral_plotter(frequency, luminosity, dluminosity, spectral_model_plot_dat
     logger.info(colorstring)
     plt.legend(loc='upper right', fontsize=20)
     plt.savefig(savename,dpi=200)
+    
+    logger.info(color_text('Exitting function.',Colors.MediumSpringGreen))
 
 def spectral_ages(params, B, z):
     """
@@ -790,6 +820,8 @@ def spectral_ages(params, B, z):
     t_off : float
         Duration of remnant phase in Myr
     """
+    logger.info(color_text('Entered function.',Colors.MediumSpringGreen))
+
     fit_type, vb, T = params # unpack values
     if not isinstance(vb, (float)) or vb < 0:
         raise Exception(color_text('Break frequency needs to be a float and greater than zero.', Colors.Red))
@@ -841,6 +873,7 @@ def spectral_ages(params, B, z):
         colorstring = color_text(" {} Total age = {} Myr".format(espace, tau), Colors.Green)
         print(colorstring)
     
+    logger.info(color_text('Exitting function.',Colors.MediumSpringGreen))
     return(tau, t_on, t_off)
 
 def spectral_units(data, unit):
