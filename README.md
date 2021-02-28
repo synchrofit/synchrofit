@@ -186,7 +186,7 @@ Note, only the CI-off model will return a non-zero value for `t_off`.
 **Command-line execution**<br />
 To run `synchrofit` simply execute the following from terminal: <br />
 `synchrofit --data ${data.dat} --fit_type ${fit_type}`. <br />
-In this example, `${data.dat}` contains the input spectrum (see [test_spectra.dat](https://github.com/synchrofit/Examples) for an example of the format required), and `${fit_type}` describes the model to be fit (e.g. KP, JP, CI, TKP, TJP, TCI). 
+In this example, `${data.dat}` contains the input spectrum (see [test_spectra.dat](https://github.com/synchrofit/synchrofit/tree/main/Example) for an example of the format required), and `${fit_type}` describes the model to be fit (e.g. KP, JP, CI, TKP, TJP, TCI). 
 
 Alternatively, one can manually supply a spectrum by executing the following <br />
 `synchrofit --freq f1 f2 fn --flux s1 s2 sn --err_flux es1 es2 esn --fit_type ${fit_type}`. <br />
