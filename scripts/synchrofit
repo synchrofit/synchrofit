@@ -102,7 +102,7 @@ if __name__ == "__main__":
     
     colorstring = color_text("Evaluating model and estimating model uncertainties.", Colors.Orange)
     print("INFO __main__ {}".format(colorstring))
-    spectral_model_plot_data, luminosity_model_observed = spectral_data(params, frequency, work_dir=options.work_dir, write_model=options.write_model)
+    spectral_model_plot_data, luminosity_model_observed = spectral_data(params, frequency, options=options)
     
     if options.plot:
         colorstring = color_text("Writing model fit to figure", Colors.Orange)
