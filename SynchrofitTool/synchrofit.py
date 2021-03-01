@@ -45,7 +45,7 @@ def besselK53():
     bessel_F = [0.04629204, 0.04810159, 0.04998175, 0.05193526, 0.05396496, 0.05607381, 0.05826488, 0.06054133, 0.06290648, 0.06536375, 0.06791669, 0.070569, 0.07332448, 0.07618712, 0.07916102, 0.08225045, 0.08545982, 0.08879372, 0.09225689, 0.09585424, 0.09959088, 0.1034721, 0.1075033, 0.1116901, 0.1160385, 0.1205543, 0.1252439, 0.1301138, 0.1351705, 0.1404209, 0.1458721, 0.1515314, 0.1574063, 0.1635045, 0.1698341, 0.176403, 0.1832197, 0.1902929, 0.1976311, 0.2052435, 0.2131391, 0.2213272, 0.2298174, 0.2386191, 0.247742, 0.257196, 0.2669908, 0.2771361, 0.2876418, 0.2985174, 0.3097725, 0.3214162, 0.3334574, 0.3459047, 0.3587661, 0.3720487, 0.3857592, 0.3999031, 0.4144848, 0.4295075, 0.4449725, 0.4512824, 0.4576629, 0.4641139, 0.4706351, 0.4772263, 0.483887, 0.4906169, 0.4974154, 0.5042819, 0.5112157, 0.5182161, 0.5252821, 0.5324129, 0.5396072, 0.546864, 0.554182, 0.5615596, 0.5689953, 0.5764874, 0.5840341, 0.5916334, 0.599283, 0.6069808, 0.614724, 0.6225102, 0.6303363, 0.6381993, 0.6460958, 0.6540225, 0.6619754, 0.6699506, 0.6779438, 0.6859505, 0.6939659, 0.7019849, 0.7100021, 0.7180117, 0.7260077, 0.7339838, 0.7419331, 0.7498485, 0.7577226, 0.7655474, 0.7733146, 0.7810154, 0.7886406, 0.7961807, 0.8036253, 0.810964, 0.8181855, 0.8252783, 0.8322301, 0.8390283, 0.8456595, 0.8521099, 0.8583651, 0.8644101, 0.8702292, 0.8758063, 0.8811245, 0.8861664, 0.8909142, 0.895349, 0.8994518, 0.9032027, 0.9065815, 0.9095673, 0.9121388, 0.914274, 0.9159508, 0.9171463, 0.9178378, 0.9180018, 0.9176149, 0.9166536, 0.9150942, 0.9129131, 0.910087, 0.906593, 0.9024084, 0.8975113, 0.8918805, 0.8854959, 0.8783384, 0.8703902, 0.8616355, 0.8520599, 0.8416513, 0.8303998, 0.8182985, 0.8053429, 0.7915322, 0.7768687, 0.7613587, 0.7450125, 0.7278449, 0.7098753, 0.6911279, 0.6716322, 0.6514228, 0.6305401, 0.6090297, 0.5869434, 0.5643382, 0.541277, 0.5178279, 0.4940644, 0.4700649, 0.445912, 0.4216926, 0.3974965, 0.3734163, 0.3495463, 0.3259814, 0.3028163, 0.2801445, 0.2580567, 0.23664, 0.2159765, 0.1961424, 0.1772062, 0.1592282, 0.1422594, 0.1263403, 0.1115008, 0.0977593, 0.08512255, 0.07358577, 0.06313278, 0.05373656, 0.04536004, 0.03795704, 0.03147351, 0.02584889, 0.02101761, 0.01691069, 0.01345729, 0.01058629, 0.008227734, 0.006314173, 0.004781787, 0.003571302, 0.002628682, 0.001905562, 0.00135946, 0.0009537575, 0.0006574939, 0.0004450058, 0.0002954477, 0.0001922383, 0.0001224694, 7.63148e-05, 4.646519e-05, 2.761261e-05, 1.599737e-05, 9.024603e-06, 4.951062e-06, 2.638069e-06, 1.3633e-06, 6.823153e-07, 3.302248e-07, 1.543035e-07, 6.94964e-08, 3.011714e-08, 1.253542e-08, 5.001613e-09, 1.909237e-09, 6.957938e-10, 2.41558e-10, 7.970527e-11, 2.493648e-11, 7.37861e-12, 2.059504e-12, 5.407576e-13, 1.331809e-13, 3.067388e-14, 6.585815e-15, 1.31379e-15, 2.426677e-16, 4.1351460000000005e-17, 6.476066e-18, 9.284197e-19, 1.2133319999999999e-19, 1.439201e-20, 1.542358e-21, 1.48625e-22, 1.281342e-23, 9.831652e-25, 6.677119999999999e-26]
     return(np.array(bessel_x), np.array(bessel_F))
 
-def spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, break_range=[8,11], n_injects=31, inject_range=[2.01,2.99], n_remnants=31, remnant_range=[0,1], n_iterations=3, options=None):
+def spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, break_range=[8,11], n_injects=31, inject_range=[2.01,2.99], n_remnants=31, remnant_range=[0,1], n_iterations=3, bfield=None, z=None, options=None):
     """
     (usage) Finds the optimal fit for a radio spectrum modelled by either the JP, KP or CI model.
     
@@ -82,6 +82,7 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, b
         Contains the fitted model (fit_type) and the free parameters constrained by the fitting (and their uncertainties)
     """
     logger.info(color_text('Entered function.',Colors.MediumSpringGreen))
+    
     # read in custom configuration options from argparse
     if options is not None:
         n_breaks = options.n_breaks
@@ -93,20 +94,23 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, b
         n_iterations = options.n_iterations
         work_dir = options.work_dir
         write_model = options.write_model
-        # since type(options.remnant_range)=list, I need to convert the list of length=1 into a float
+        bfield = options.bfield
+        z = options.z
+        # if a single value is parsed as rather than a range, convert the list containing 1 item into a float
         if len(break_range) == 1:
             break_range = break_range[0]
         if len(inject_range) == 1:
             inject_range = inject_range[0]
         if len(remnant_range) == 1:
             remnant_range = remnant_range[0]
+    
     # check inputs are of correct data types
     if not isinstance(frequency, (list, np.ndarray)) or not isinstance(luminosity, (list, np.ndarray)) or not isinstance(dluminosity, (list, np.ndarray)) or not len(luminosity) == len(frequency) or not len(dluminosity) == len(frequency):
-        raise Exception('Frequency, luminosity and uncertainty arrays must be lists or numpy arrays of the same length.')
-    if not isinstance(fit_type, str) or not (fit_type == 'CI' or fit_type == 'JP' or fit_type == 'KP'):
-        raise Exception('Spectral fit must be either \'CI\', \'JP\' or \'KP\' model.')
+        raise Exception(color_text('Frequency, luminosity and uncertainty arrays must be lists or numpy arrays of the same length.'),Colors.Red)
+    if not isinstance(fit_type, str) or fit_type not in ['JP','TJP','KP','TKP','CI','TCI']: #(fit_type == 'CI' or fit_type == 'JP' or fit_type == 'KP'):
+        raise Exception(color_text('Spectral fit must be either \'CI\', \'JP\' or \'KP\' model.'),Colors.Red)
     if not isinstance(n_breaks, (int, float)) or not isinstance(n_injects, (int, float)) or not isinstance(n_remnants, (int, float)):
-        raise Exception('Number of break frequencies, injection indices and remnant ratios must be integers.')
+        raise Exception(color_text('Number of break frequencies, injection indices and remnant ratios must be integers.'),Colors.Red)
     if isinstance(n_breaks, float):
         n_breaks = int(n_breaks)
     if isinstance(n_injects, float):
@@ -114,12 +118,12 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, b
     if isinstance(n_remnants, float):
         n_remnants = int(n_remnants)
     if not (isinstance(break_range, (float, int)) or isinstance(break_range, (list, np.ndarray)) and len(break_range) == 2):
-        raise Exception('Break frequency must be a float, or a two element list or numpy array.')
+        raise Exception(color_text('Break frequency must be a float, or a two element list or numpy array.'),Colors.Red)
     if isinstance(break_range, (float, int)):
         break_range = [break_range, break_range]
         n_breaks = 1
     if not (isinstance(inject_range, (float, int)) or isinstance(inject_range, (list, np.ndarray)) and len(inject_range) == 2):
-        raise Exception('Injection index must be a float, or a two element list or numpy array.')
+        raise Exception(color_text('Injection index must be a float, or a two element list or numpy array.'),Colors.Red)
     if isinstance(inject_range, (float, int)):
         inject_range = [inject_range, inject_range]
         n_injects = 1
@@ -127,13 +131,21 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, b
         remnant_range = [remnant_range, remnant_range]
         n_remnants = 1
     if not (isinstance(remnant_range, (float, int)) or isinstance(remnant_range, (list, np.ndarray)) and len(remnant_range) == 2):
-        raise Exception('Remnant ratio must be a float, or a two element list or numpy array.')
+        raise Exception(color_text('Remnant ratio must be a float, or a two element list or numpy array.'),Colors.Red)
+    if fit_type in ['TKP', 'TJP', 'TCI']:
+        if z is None or bfield is None:
+            raise Exception(color_text('{} requires a redshift and magnetic field strength.'.format(fit_type),Colors.Red))
+    if bfield is not None and (not isinstance(bfield, (float, int)) or bfield < 0):
+        raise Exception(color_text('Magnetic field strenth needs to be a float/int and greater than zero',Colors.Red))
+    if z is not None and (not isinstance(z, (float, int)) or z < 0):
+        raise Exception(color_text('Redshift needs to be a float/int and greater than zero',Colors.Red))
 
-    if fit_type == 'JP' or fit_type == 'KP':
+    # simplify the grid fitting if the following models are specified
+    if fit_type in ['JP', 'TJP', 'KP', 'TKP']:
         n_remnants = 1
         remnant_range = [0, 0]
 
-    # print accepted parameters to terminal
+    # print accepted parameters
     espace='                      '
     colorstring = color_text("Fitting options accepted:", Colors.DogderBlue)
     logger.info(colorstring)
@@ -191,7 +203,14 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, b
                     
                     # find spectral fit for current set of parameters
                     normalisation = 0 # specify that fit needs to be scaled
-                    luminosity_predict, normalisation = spectral_models(frequency, luminosity, fit_type, 10**break_frequency[breakPointer], injection_index[injectPointer], remnant_ratio[remnantPointer], normalisation, bessel_x, bessel_F)
+                    if fit_type in ['JP', 'KP', 'CI']:
+                        luminosity_predict, normalisation = spectral_models(frequency, luminosity, fit_type, \
+                            10**break_frequency[breakPointer], injection_index[injectPointer], \
+                            remnant_ratio[remnantPointer], normalisation, bessel_x, bessel_F)
+                    elif fit_type in ['TJP', 'TKP', 'TCI']:
+                        luminosity_predict, normalisation = spectral_models_tribble(frequency, luminosity, fit_type, \
+                            bfield, z, 10**break_frequency[breakPointer], injection_index[injectPointer], \
+                            remnant_ratio[remnantPointer], normalisation, bessel_x, bessel_F)
                     normalisation_array[breakPointer,injectPointer,remnantPointer] = normalisation
 
                     # calculate chi-squared statistic and probability */                    
@@ -283,26 +302,21 @@ def spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, b
 @jit(nopython=True) # Set "nopython" mode for best performance, equivalent to @njit
 def spectral_models(frequency, luminosity, fit_type, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F):
     """
-    (usage) Numerical forms for the JP, KP and CI models.  
+    (usage) The standard forms of the JP, KP and CI models.  
     
     parameters
     ----------
-    frequency : 1darray
-        The input frequency list
-    luminosity : 1darray
-        The input flux density list
-    dluminosity : 1darray
-        The uncertainty on the input flux density list
-    fit_type : str
-        The type of model to fit (JP, KP, KGJP, CI)
-    err_model_width : int
-        range of the model uncertainty envelope in sigma
-    n_remnants : int
-        The remnant ratio range
-    n_model_freqs : int
-        The number of plotting frequencies
-    mc_length : int
-        Number of MC iterations
+    frequency       : input frequencies
+                      (type = 1darray)
+    luminosity      : input flux densities
+                      (type = 1darray)
+    fit_type        : 
+    break_frequency :
+    injection_index :
+    remnant_ratio   :
+    normalisation   :
+    bessel_x        :
+    bessel_F        :
         
     returns
     -------
@@ -339,6 +353,8 @@ def spectral_models(frequency, luminosity, fit_type, break_frequency, injection_
                     x_crit = np.log10(frequency[freqPointer]/(break_frequency*np.sin(alpha)))
                 elif (fit_type == 'KP'):
                     x_crit = np.log10(frequency[freqPointer]*np.sin(alpha)**3/(break_frequency))
+                elif fit_type in ['TKP', 'TJP', 'TCI']:
+                        raise Exception('Tribble form supplied to spectral_models')
                 else:
                     raise Exception('Spectral fit must be either \'CI\', \'JP\' or \'KP\' model.')
                 if remnant_ratio > 0:
@@ -451,13 +467,14 @@ def spectral_models_tribble(frequency, luminosity, fit_type, bfield, redshift, b
         normalisation factor for correct scaling
     """
     # define constants (SI units)
-    c = 299792458       # light speed
+    c = 2.99792458e+8       # light speed
     me = 9.10938356e-31 # electron mass
     mu0 = 4*np.pi*1e-7  # magnetic permeability of free space
     e = 1.60217662e-19  # charge on electron
     sigmaT = 6.6524587158e-29 # electron cross-section
-    
-    if fit_type == 'JP' or fit_type == 'KP':
+    bfield = bfield * 1e-9
+
+    if fit_type == 'TJP' or fit_type == 'TKP':
         remnant_ratio = 0
     nalpha, nfields, nenergiesJP, nenergiesCI = 32, 32, 32, 32 # can be increased for extra precision
     nenergies = nenergiesJP + nenergiesCI
@@ -496,12 +513,14 @@ def spectral_models_tribble(frequency, luminosity, fit_type, bfield, redshift, b
                     dalpha = (alpha_max - alpha_min)/nalpha
                     
                     # integrate over energy (as E): TRIBBLE
-                    if (fit_type == 'CI' or fit_type == 'JP'):
+                    if (fit_type == 'TCI' or fit_type == 'TJP'):
                         const_losses = 4*sigmaT*(B**2 + Bic**2)/(3*me**2*c**3)/(2*mu0)
-                    elif (fit_type == 'KP'):
+                    elif (fit_type == 'TKP'):
                         const_losses = 4*sigmaT*((B*np.sin(alpha))**2 + Bic**2)/(3*me**2*c**3)/(2*mu0)
+                    elif fit_type in ['KP', 'JP', 'CI']:
+                        raise Exception('Standard form supplied to spectral_models_tribble')
                     else:
-                        raise Exception('Spectral fit must be either \'CI\', \'JP\' or \'KP\' model.')
+                        raise Exception('Spectral fit must be either \'TCI\', \'TJP\' or \'TKP\' model.')
                     E_crit = np.log10(1./(const_losses*t_syn))
                     E_min = E_crit - 4 # can be increased for extra precision away from break
                     E_max = E_crit + 4
@@ -517,15 +536,15 @@ def spectral_models_tribble(frequency, luminosity, fit_type, bfield, redshift, b
                             dE = 10**((k + 1 - nenergiesJP)*(E_max - E_crit)/nenergiesCI + E_crit) + 10**((k - nenergiesJP)*(E_max - E_crit)/nenergiesCI + E_crit)
                     
                         # calculate x, dx, x_crit and x_crit_star
-                        x = 4*np.pi*me**3*c**4*frequency[freqPointer]/(3*e*E**2*B*np.sin(alpha))
+                        x = 4*np.pi*me**3*(c**4)*frequency[freqPointer]/(3*e*E**2*B*np.sin(alpha))
                         dx = (8*np.pi*me**3*c**4*frequency[freqPointer]/(3*e*E**3*B*np.sin(alpha))*dE)*( 4*np.pi*me**3*c**4*frequency[freqPointer]/(3*e*E**2*B**2*np.sin(alpha))*dB)
                         
-                        if (fit_type == 'CI' or fit_type == 'JP'):
+                        if (fit_type == 'TCI' or fit_type == 'TJP'):
                             x_crit = np.log10(frequency[freqPointer]/(break_frequency*np.sin(alpha)))
-                        elif (fit_type == 'KP'):
+                        elif (fit_type == 'TKP'):
                             x_crit = np.log10(frequency[freqPointer]*np.sin(alpha)**3/(break_frequency))
                         else:
-                            raise Exception('Spectral fit must be either \'CI\', \'JP\' or \'KP\' model.')
+                            raise Exception('Spectral fit must be either \'TCI\', \'TJP\' or \'TKP\' model.')
                         if remnant_ratio > 0:
                             x_crit_star = np.log10(frequency[freqPointer]/(break_frequency*np.sin(alpha))*remnant_ratio**2)
                         else:
@@ -533,15 +552,15 @@ def spectral_models_tribble(frequency, luminosity, fit_type, bfield, redshift, b
                     
                         # calculate the spectrum for JP, KP or CI/off models
                         if (x > 10**x_crit):
-                            if (fit_type == 'CI'):
+                            if (fit_type == 'TCI'):
                                 if remnant_ratio > 0:
                                     N_x = x**(-1./2)*((np.sqrt(x) - 10**(x_crit_star/2))**(injection_index - 1) - (np.sqrt(x) - 10**(x_crit/2))**(injection_index - 1))
                                 else:
                                     N_x = x**((injection_index - 2)/2.)*(1 - x**((1 - injection_index)/2.)*(np.sqrt(x) - 10**(x_crit/2))**(injection_index - 1))
-                            elif (fit_type == 'JP' or fit_type == 'KP'):
+                            elif (fit_type == 'TJP' or fit_type == 'TKP'):
                                 N_x = x**(-1./2)*(np.sqrt(x) - 10**(x_crit/2))**(injection_index - 2)
                         elif (x > 10**x_crit_star): # only CI-off model should meet this condition
-                            if (fit_type == 'CI'):
+                            if (fit_type == 'TCI'):
                                 if remnant_ratio > 0:
                                     N_x = x**(-1./2)*(np.sqrt(x) - 10**(x_crit_star/2))**(injection_index - 1)
                                 else:
@@ -571,11 +590,11 @@ def spectral_models_tribble(frequency, luminosity, fit_type, bfield, redshift, b
                                 F_x = bessel_F[besslc]
 
                         # add contribution to the model spectrum flux
-                        if (fit_type == 'CI'):
+                        if (fit_type == 'TCI'):
                             luminosity_predict[freqPointer] = luminosity_predict[freqPointer] + frequency[freqPointer]**(-injection_index/2.)*np.sin(alpha)**((injection_index + 4)/2.)*F_x*N_x*dx*dalpha *B**2*np.exp(-B**2/(2*const_a))
-                        elif (fit_type == 'JP'):
+                        elif (fit_type == 'TJP'):
                             luminosity_predict[freqPointer] = luminosity_predict[freqPointer] + frequency[freqPointer]**((1 - injection_index)/2.)*np.sin(alpha)**((injection_index + 3)/2.)*F_x*N_x*dx*dalpha *B**2*np.exp(-B**2/(2*const_a))
-                        elif (fit_type == 'KP'):
+                        elif (fit_type == 'TKP'):
                             luminosity_predict[freqPointer] = luminosity_predict[freqPointer] + frequency[freqPointer]**((1 - injection_index)/2.)*np.sin(alpha)**((3*injection_index + 1)/2.)*F_x*N_x*dx*dalpha *B**2*np.exp(-B**2/(2*const_a))
 
             if (normalisation <= 0):
@@ -593,7 +612,7 @@ def spectral_models_tribble(frequency, luminosity, fit_type, bfield, redshift, b
     # return outputs
     return luminosity_predict, normalisation
 
-def spectral_data(params, frequency_observed=None, n_model_freqs=100, mc_length=500, err_model_width=2, work_dir=None, write_model=None):
+def spectral_data(params, frequency_observed=None, n_model_freqs=100, mc_length=10, err_model_width=2, bfield=None, z=None, work_dir=None, write_model=None, options=None):
     """
     (usage) Uses the optimized parameters to return a 1darray of model flux densities for a given frequency list. An uncertainty envelope on the model is calculated following an MC approach. 
     
@@ -621,6 +640,11 @@ def spectral_data(params, frequency_observed=None, n_model_freqs=100, mc_length=
     luminosity_model_observed : 1darray
         If frequency_observed != None, luminosity_model_observed gives the model evaluated over the observed frequencies
     """
+    if options is not None:
+        bfield = options.bfield
+        z = options.z
+        work_dir = options.work_dir
+        write_model = options.write_model
     logger.info(color_text('Entered function.',Colors.MediumSpringGreen))
     # check data is the correct type
     if len(params) != 8:
@@ -642,18 +666,34 @@ def spectral_data(params, frequency_observed=None, n_model_freqs=100, mc_length=
         raise Exception(color_text('dremnant_predict needs to be a float/int and greater than zero',Colors.Red))
     if not isinstance(normalisation, float) or normalisation < 0:
         raise Exception(color_text('normalisation needs to be a float and greater than zero',Colors.Red))
+    if fit_type in ['TKP', 'TJP', 'TCI']:
+        if z is None or bfield is None:
+            raise Exception(color_text('{} requires a redshift and magnetic field strength.'.format(fit_type),Colors.Red))
+    if bfield is not None and (not isinstance(bfield, (float, int)) or bfield < 0):
+        raise Exception(color_text('Magnetic field strenth needs to be a float/int and greater than zero',Colors.Red))
+    if z is not None and (not isinstance(z, (float, int)) or z < 0):
+        raise Exception(color_text('Redshift needs to be a float/int and greater than zero',Colors.Red))
+
     bessel_x, bessel_F = besselK53()
 
     # Determine whether to evaluate the model at the observed frequencies 
     if frequency_observed is not None:
         # evaluate the model at the observed frequencies, and use the observed frequencies to constrain the bounds of the plotting_frequency
         frequency_model_simulated = np.geomspace(10**(math.floor(np.min(np.log10(frequency_observed)))),10**(math.ceil(np.max(np.log10(frequency_observed)))), num=n_model_freqs)
-        luminosity_model_observed = spectral_models(frequency_observed, np.zeros(len(frequency_model_simulated)), fit_type, 10**break_predict, inject_predict, remnant_predict, normalisation, bessel_x, bessel_F)[0]
+        if fit_type in ['JP', 'KP', 'CI']:
+            luminosity_model_observed = spectral_models(frequency_observed, np.zeros(len(frequency_observed)), fit_type, 10**break_predict, inject_predict, remnant_predict, normalisation, bessel_x, bessel_F)[0]
+        elif fit_type in ['TJP', 'TKP', 'TCI']:
+            luminosity_model_observed = spectral_models_tribble(frequency_observed, np.zeros(len(frequency_observed)), fit_type, bfield, z, 10**break_predict, inject_predict, remnant_predict, normalisation, bessel_x, bessel_F)[0]
     else:
         # default the plotting frequencies between 50 MHz and 50 GHz
         luminosity_model_observed = None
         frequency_model_simulated = np.geomspace(5e+7, 5e+10, num=n_model_freqs)
-    luminosity_model_simulated = spectral_models(frequency_model_simulated, np.zeros(len(frequency_model_simulated)), fit_type, 10**break_predict, inject_predict, remnant_predict, normalisation, bessel_x, bessel_F)[0]
+    
+    # Evaluate the model over a list of simulated plotting frequencies
+    if fit_type in ['JP', 'KP', 'CI']:
+        luminosity_model_simulated = spectral_models(frequency_model_simulated, np.zeros(len(frequency_model_simulated)), fit_type, 10**break_predict, inject_predict, remnant_predict, normalisation, bessel_x, bessel_F)[0]
+    elif fit_type in ['TJP', 'TKP', 'TCI']:
+        luminosity_model_simulated = spectral_models_tribble(frequency_model_simulated, np.zeros(len(frequency_model_simulated)), fit_type, bfield, z, 10**break_predict, inject_predict, remnant_predict, normalisation, bessel_x, bessel_F)[0]
     
     # simulate a distribution of injection indices, break frequencies and quiescent fractions assuming gaussian errors.
     break_predict_vec = np.random.normal(break_predict, dbreak_predict, mc_length)
@@ -684,7 +724,11 @@ def spectral_data(params, frequency_observed=None, n_model_freqs=100, mc_length=
 
     # evaluate and store the model spectrum for each set of free parameters
     for mcPointer in range(0,mc_length):
-        fitmc, normmc = spectral_models(frequency_model_simulated, np.zeros(len(frequency_model_simulated)), fit_type, 10**break_predict_vec[mcPointer], inject_predict_vec[mcPointer], remnant_predict_vec[mcPointer], normalisation, besselK53()[0], besselK53()[1])
+        print('MC iteration: {}'.format(mcPointer))
+        if fit_type in ['JP', 'KP', 'CI']:
+            fitmc, normmc = spectral_models(frequency_model_simulated, np.zeros(len(frequency_model_simulated)), fit_type, 10**break_predict_vec[mcPointer], inject_predict_vec[mcPointer], remnant_predict_vec[mcPointer], normalisation, besselK53()[0], besselK53()[1])
+        elif fit_type in ['TJP', 'TKP', 'TCI']:
+            fitmc, normmc = spectral_models_tribble(frequency_model_simulated, np.zeros(len(frequency_model_simulated)), fit_type, bfield, z, 10**break_predict_vec[mcPointer], inject_predict_vec[mcPointer], remnant_predict_vec[mcPointer], normalisation, bessel_x, bessel_F)
         luminosityArray[mcPointer] = (np.asarray(fitmc))
     
     # instantiate vectors to store the uncertainties in the model at the corresponding frequency
@@ -869,7 +913,7 @@ def spectral_ages(params, B, z):
     print(colorstring)
 
     # define constants (SI units)
-    c = 299792458       # light speed
+    c = 2.99792458e+8       # light speed
     me = 9.10938356e-31 # electron mass
     mu0 = 4*np.pi*1e-7  # magnetic permeability of free space
     e = 1.60217662e-19  # charge on electron
