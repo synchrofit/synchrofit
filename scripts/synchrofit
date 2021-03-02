@@ -1,20 +1,21 @@
 #! /usr/bin/env python
 
+__author__ = "Benjamin Quici, Ross J. Turner"
+__date__ = "25/02/2021"
+
 # standard imports
-from matplotlib import pyplot as plt
 import pandas as pd
 import sys
 import os
-import argparse
 import logging
 import argparse
+import numpy as np
+import math
 
 # synchrofit
-from SynchrofitTool.synchrofit import spectral_fitter, spectral_data, spectral_plotter, spectral_ages, spectral_units, logger, color_text, Colors
+from sf.synchrofit import spectral_fitter, spectral_model, spectral_plotter, spectral_ages, spectral_units, logger, color_text, Colors
 
-__author__ = 'Benjamin Quici'
-
-# command line version of this program runs from here.
+# command line version of synchrofit runs from here.
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prefix_chars='-')
     group1 = parser.add_argument_group('Configuration Options')
@@ -56,21 +57,23 @@ if __name__ == "__main__":
                         help='(Default = 100) Number of frequencies to evaluate the model at')
     group3.add_argument("--mc_length", dest='mc_length', type=int, default=500, 
                         help='(Default = 500) Number of Monte-Carlo iterations used to estimate the model uncertainty')
-    group3.add_argument("--err_model_width", dest='err_model_width', type=int, default=2, 
+    group3.add_argument("--err_width", dest='err_width', type=int, default=2, 
                         help='(Default = 2) Width of the uncertainty envelope on the model, in units of sigma')
 
-    group4 = parser.add_argument_group('Extra fitting options')
+    group4 = parser.add_argument_group('Extra options')
     group4.add_argument('--plot', dest='plot', action='store_true',default=False, 
                         help='(Default = False) If True, produce a plot of the observed spectrum and fitted model')
     group4.add_argument('--write_model', dest='write_model', action='store_true', default=False, 
                         help='(Default = False) If True, write the fitting outputs to file')
+    group4.add_argument('--save_prefix', dest='save_prefix', type=str, default=None, 
+                        help='(Default = None) Prefix prepended to the name of any written files')
 
     group5 = parser.add_argument_group('Spectral age options')
     group5.add_argument('--age', dest='age', action='store_true', default=False, 
                         help='(Default = False) If True, determine the spectral age of the source (requires --bfield and --z)')
-    group5.add_argument('--bfield', dest='bfield', type=float, default=None, 
-                        help='(No default) Magnetic field strength in units of nT')
-    group5.add_argument('--z', dest='z', type=float, default=None, 
+    group5.add_argument('--b_field', dest='b_field', type=float, default=None, 
+                        help='(No default) Magnetic field strength in units of T')
+    group5.add_argument('--redshift', dest='redshift', type=float, default=None, 
                         help='(No default) Cosmological redshift of the source')
     options = parser.parse_args()
 
@@ -98,19 +101,30 @@ if __name__ == "__main__":
     espace='            '
     colorstring = color_text("Estimating free parameters.", Colors.Orange)
     print("INFO __main__ {}".format(colorstring))
-    params = spectral_fitter(frequency, luminosity, dluminosity, options.fit_type, options=options)
+    params = spectral_fitter(frequency, luminosity, dluminosity, options.fit_type, options.n_breaks, \
+            options.break_range, options.n_injects, options.inject_range, options.n_remnants, options.remnant_range, \
+            options.n_iterations, options.b_field, options.redshift, options.write_model, options.work_dir, options.save_prefix)
     
-    colorstring = color_text("Evaluating model and estimating model uncertainties.", Colors.Orange)
+    colorstring = color_text("Evaluating model over the observed frequencies", Colors.Orange)
     print("INFO __main__ {}".format(colorstring))
-    spectral_model_plot_data, luminosity_model_observed = spectral_data(params, frequency, options=options)
-    
+    model_data, err_model_data, model_data_min, model_data_max = spectral_model(params, frequency, options.mc_length, options.err_width, \
+                                                                options.b_field, options.redshift, \
+                                                                options.work_dir, options.write_model, '{}-observed'.format(options.save_prefix))
     if options.plot:
+        colorstring = color_text("Evaluating model over {} simulated frequencies".format(options.n_model_freqs), Colors.Orange)
+        print("INFO __main__ {}".format(colorstring))
+        plotting_frequency = np.geomspace(10**(math.floor(np.min(np.log10(frequency)))),10**(math.ceil(np.max(np.log10(frequency)))), options.n_model_freqs)
+        plotting_data, err_plotting_data, plotting_data_min, plotting_data_max = spectral_model(params, plotting_frequency, options.mc_length, options.err_width, \
+                                                                options.b_field, options.redshift, \
+                                                                options.work_dir, options.write_model, '{}-simulated'.format(options.save_prefix))
         colorstring = color_text("Writing model fit to figure", Colors.Orange)
         print("INFO __main__ {}".format(colorstring))
-        spectral_plotter(frequency, luminosity, dluminosity, spectral_model_plot_data, luminosity_model_observed, options.work_dir, options.fit_type, options.err_model_width)
-    
+        observed_data = (frequency, luminosity, dluminosity)
+        plotting_data = (plotting_frequency, plotting_data, err_plotting_data, plotting_data_min, plotting_data_max)
+        spectral_plotter(observed_data, model_data, plotting_data, work_dir=options.work_dir, \
+                        fit_type=options.fit_type, err_model_width=options.err_width, save_prefix=options.save_prefix)
     if options.age:
         colorstring = color_text("Estimating spectral ages", Colors.Orange)
         print("INFO __main__ {}".format(colorstring))
         params = (params[0], 10**params[1], params[5])
-        spectral_ages(params, options.bfield, options.z)
+        spectral_ages(params, options.b_field, options.redshift)
