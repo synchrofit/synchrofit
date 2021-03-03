@@ -42,11 +42,12 @@ Please read through the README.md for a description of the package as well as wo
 - [How do I run synchrofit ?](#how-do-I-run-synchrofit-)
     - [Command-line execution](#command-line-execution)
     - [Integrate modules into workflow](#integrate-modules-into-workflow)
+
 - [I have an integrated radio galaxy spectrum, what should I do ?](#i-have-an-integrated-radio-galaxy-spectrum-what-should-I-do-)
 - [I want to model the spectrum of a supernova remnant, what should I do ?](#i-want-to-model-the-spectrum-of-a-supernova-remnant-what-should-I-do-)
 - [I want to evaluate the spectral age from my radio spectrum, what should I do ?](#i-want-to-evaluate-the-spectral-age-from-my-radio-spectrum-what-should-I-do-)
 
-[Default and custom configurations](#default-and-custom-configurations)
+- [Default and custom configurations](#default-and-custom-configurations)
 
 
 ## Theory
@@ -274,7 +275,7 @@ spectral_age(params, 0.5, 0.2)
 
 If you have a spatially-resolved radio spectrum, you may want to consider mapping the age across the lobes. In this case you will need to integrate `synchrofit` into your own workflow by fitting each resolved spectrum yourself (currently `synchrofit` will not do this automatically). Assuming you are able to do this, follow the example above using either the JP or KP model instead. We note however that if the plasma within the lobes is well-mixed, the resolved age map will not give the true spectral age of the source as even the oldest regions will contain relatively young electrons that will dominate the radio spectrum. 
 
-## Default and custom configurations
+### Default and custom configurations
 Most parameters accepted by `spectral_fitter` already have default values. The current default values seem to provide a good balance between the coarseness of the adaptive grid and the processing speeds. Any of these values can, however, be adjusted by the user based on their requirements. A complete list of arguments accepted by ```synchrofit``` and their descriptions is listed below. 
 - `--work_dir` the directory to which fitting outputs and plots are written to. If None, defaults to current working directory. Default = None.
 - `--data` name of the data file containing the input spectrum (requires .dat format). Default = None.
