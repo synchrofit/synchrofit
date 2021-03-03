@@ -24,9 +24,9 @@ Please read through the README.md for a description of the package as well as wo
 
 **Skip to:**<br />
 - [Spectral models](#spectral-models)
-    - [The KP and JP models](#the-kp-and-jp-models-)
-    - [CI models](#ci-models-)
-    - [The standard *(KP, JP, CI)* and Tribble *(TKP, TJP, TCI)* forms](#the-standard-kp-jp-ci-and-tribble-tkp-tjp-tci-forms-)
+    - [The KP and JP models](#the-kp-and-jp-models)
+    - [CI models](#ci-models)
+    - [The standard *(KP, JP, CI)* and Tribble *(TKP, TJP, TCI)* forms](#the-standard-kp-jp-ci-and-tribble-tkp-tjp-tci-forms)
     - [Free parameters](#free-parameters)
 - [How does synchrofit work?](#how-does-synchrofit-work-)
     - [spectral_fitter](#spectral_fitter)
