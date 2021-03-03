@@ -30,12 +30,14 @@ Please read through the README.md for a description of the package as well as wo
 - [The KP and JP models](#the-kp-and-jp-models)
 - [CI models](#ci-models)
 - [The standard *(KP, JP, CI)* and Tribble *(TKP, TJP, TCI)* forms](#the-standard-kp-jp-ci-and-tribble-tkp-tjp-tci-forms)
-- [Free parameters](#free-parameters)
+- [Free parameters](#free-parameters) 
+
 [How does synchrofit work?](#how-does-synchrofit-work-)
 - [spectral_fitter](#spectral_fitter)
 - [spectral_models](#spectral_models)
 - [spectral_model](#spectral_data)
 - [spectral_ages](#spectral_ages)
+
 [Usage](#Usage)
 - [How do I run synchrofit ?](#how-do-I-run-synchrofit-)
     -[Command-line execution](#command-line-execution)
@@ -43,6 +45,7 @@ Please read through the README.md for a description of the package as well as wo
 - [I have an integrated radio galaxy spectrum, what should I do ?](#i-have-an-integrated-radio-galaxy-spectrum-what-should-I-do-)
 - [I want to model the spectrum of a supernova remnant, what should I do ?](#i-want-to-model-the-spectrum-of-a-supernova-remnant-what-should-I-do-)
 - [I want to evaluate the spectral age from my radio spectrum, what should I do ?](#i-want-to-evaluate-the-spectral-age-from-my-radio-spectrum-what-should-I-do-)
+
 [Default and custom configurations](#default-and-custom-configurations)
     
 ## Spectral models
