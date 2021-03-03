@@ -1,20 +1,23 @@
 # synchrofit
 The ```synchrofit``` (**synchro**tron **fit**ter) package implements a reduced dimensionality parameterisation ([Turner et al. 2018b](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract), [Turner 2018](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract)) of standard synchrotron spectrum models, and provides fitting routines applicable for active galactic nuclei and supernova remnants. The Python code includes the Jaffe-Parola model (JP; [Jaffe & Perola 1973](https://ui.adsabs.harvard.edu/abs/1973A%26A....26..423J/abstract)), Kardashev-Pacholczyk model (KP; [Kardashev 1962](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract), [Pacholczyk 1970](https://ui.adsabs.harvard.edu/abs/1970ranp.book.....P/abstract)), and continuous injection models (CI/KGJP; [Komissarov & Gubanov 1994](https://ui.adsabs.harvard.edu/abs/1994A%26A...285...27K/abstract)) for both constant or Maxwell-Boltzmann magnetic field distributions. An adaptive maximum likelihood algorithm is invoked to fit these models to multi-frequency radio observations; the adaptive mesh is customisable for either optimal precision or computational efficiency. Functions are additionally provided to plot the fitted spectral model with its confidence interval, and to derive the spectral age of the synchrotron emitting particles. 
 
-Welcome to ```synchrofit``` (**synchro**tron **fit**ter) -- a user-friendly Python package designed to model a synchrotron spectrum. The goal for this package is to provide an accurate<sup>[**1**]</sup> parameterization of a radio spectrum, while requiring little prior knowledge of the source other than its observed spectrum. This code is based on the modified synchrotron models presented by [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract) and [Turner et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract).<br />
+<!-- Welcome to ```synchrofit``` (**synchro**tron **fit**ter) -- a user-friendly Python package designed to model a synchrotron spectrum. The goal for this package is to provide an accurate<sup>[**1**]</sup> parameterization of a radio spectrum, while requiring little prior knowledge of the source other than its observed spectrum. This code is based on the modified synchrotron models presented by [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract) and [Turner et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract).<br />
 
-<sup>[**1**]</sup>Accounting for dynamical changes within the radio source, e.g. an evolving magnetic field, is beyond the scope of this code.
+<sup>[**1**]</sup>Accounting for dynamical changes within the radio source, e.g. an evolving magnetic field, is beyond the scope of this code. -->
 
 ## Credits
 Please credit Ross J. Turner and Benjamin Quici if you use this code, or incorporate it into your own workflow. Please acknowledge the use of this code by providing a link to this repository (a citation will be available shortly). 
 
 ## Installation
-```synchrofit``` is built and tested on python 3.8.5.
+```synchrofit``` is built and tested on python 3.8.5.<br /> 
 
-You can install via pip using 
-`pip3 install synchrofit`
+To obtain this code you can either download the repository, or, clone with git using<br /> 
+`git clone https://github.com/synchrofit/synchrofit.git`<br /> 
 
-Or you can clone the repository and use `python3 setup.py install` or `pip3 install .`
+To install `synchrofit` from the command line, `cd` into the root directory and use either:
+`python3 setup.py install` <br /> 
+or <br /> 
+`pip3 install .`
 
 ## Help
 Please read through the README.md for a description of the package as well as workflow and usage examples. If you have found a bug or inconsistency in the code please [submit a ticket](https://github.com/synchrofit/synchrofit/issues).  
