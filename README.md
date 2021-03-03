@@ -15,9 +15,9 @@ To obtain this code you can either download the repository, or, clone with git u
 `git clone https://github.com/synchrofit/synchrofit.git`<br /> 
 
 To install `synchrofit` from the command line, `cd` into the root directory and use either:
-`python3 setup.py install` <br /> 
+`python setup.py install` <br /> 
 or <br /> 
-`pip3 install .` <br /> 
+`pip install .` <br /> 
 
 Note, `pip` and `pip3` can be used interchangeably.
 
@@ -40,8 +40,8 @@ Please read through the README.md for a description of the package as well as wo
 
 [Usage](#Usage)
 - [How do I run synchrofit ?](#how-do-I-run-synchrofit-)
-    -[Command-line execution](#command-line-execution)
-    -[Integrate modules into workflow](#integrate-modules-into-workflow)
+    - [Command-line execution](#command-line-execution)
+    - [Integrate modules into workflow](#integrate-modules-into-workflow)
 - [I have an integrated radio galaxy spectrum, what should I do ?](#i-have-an-integrated-radio-galaxy-spectrum-what-should-I-do-)
 - [I want to model the spectrum of a supernova remnant, what should I do ?](#i-want-to-model-the-spectrum-of-a-supernova-remnant-what-should-I-do-)
 - [I want to evaluate the spectral age from my radio spectrum, what should I do ?](#i-want-to-evaluate-the-spectral-age-from-my-radio-spectrum-what-should-I-do-)
