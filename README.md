@@ -58,7 +58,8 @@ The advantage to the synchrotron spectrum described by the standard form is its 
 ### Free parameters
 Both the standard and Tribble forms of the KP and JP spectrum are parameterised in terms of:
 - **the injection index, *s***. The injection index is defined through N(E)dE ∝ E<sup>-s</sup>dE and describes the slope of the electron energy distribution. The injection index is related to the spectral injection index, α<sub>inj</sub>, through α<sub>inj</sub> = (*s* − 1)/2).
-- **the break frequency, *ν<sub>b</sub>***. The break frequency represents the frequency above which the spectrum steepens steepens as a result of the energy loss mechanisms.  <br />
+- **the break frequency, *ν<sub>b</sub>***. The break frequency represents the frequency above which the spectrum steepens steepens as a result of the energy loss mechanisms. <br />
+ 
 In addition to the injection index and break frequency, the parameterisation of the CI model requires:
 - **the remnant fraction, *T***. The remnant fraction is defined through *T = t<sub>off</sub>/τ* and gives the fractional time spent in an inactive phase (t<sub>off</sub>) with respect to the total source age (τ). 
 
