@@ -42,9 +42,10 @@ Please read through the README.md for a description of the package as well as wo
 - [How do I run synchrofit ?](#how-do-I-run-synchrofit-)
     - [Command-line execution](#command-line-execution)
     - [Integrate modules into workflow](#integrate-modules-into-workflow)
-- [I have an integrated radio galaxy spectrum, what should I do ?](#i-have-an-integrated-radio-galaxy-spectrum-what-should-I-do-)
-- [I want to model the spectrum of a supernova remnant, what should I do ?](#i-want-to-model-the-spectrum-of-a-supernova-remnant-what-should-I-do-)
-- [I want to evaluate the spectral age from my radio spectrum, what should I do ?](#i-want-to-evaluate-the-spectral-age-from-my-radio-spectrum-what-should-I-do-)
+- [Example applications for synchrofit](#example-applications-for-synchrofit)
+    - [I have an integrated radio galaxy spectrum, what should I do ?](#i-have-an-integrated-radio-galaxy-spectrum-what-should-I-do-)
+    - [I want to model the spectrum of a supernova remnant, what should I do ?](#i-want-to-model-the-spectrum-of-a-supernova-remnant-what-should-I-do-)
+    - [I want to evaluate the spectral age from my radio spectrum, what should I do ?](#i-want-to-evaluate-the-spectral-age-from-my-radio-spectrum-what-should-I-do-)
 - [Default and custom configurations](#default-and-custom-configurations)
 
 
@@ -249,19 +250,20 @@ To integrate this code into your own workflow, simply import synchrofit into you
  or:<br />
  `from sf.synchrofit import spectral_fitter, spectral_model, spectral_plotter, spectral_ages, spectral_units`<br />
 
-### I have an integrated radio galaxy spectrum, what should I do ? ###
+### Example applications for synchrofit
+#### I have an integrated radio galaxy spectrum, what should I do ? ###
 In this case fitting the standard forms of the Continuous Injection models is most applicable. By default, `--fit_type CI` will fit the spectrum using a CI-off model. If the radio galaxy is **known to be active** the spectrum needs to be modelled using the simpler **CI-on** model. This is done setting `--remnant_range 0`. This will look as follows:<br />
 `synchrofit --data ${data_file.dat} --fit_type CI --remnant_range 0` <br />
 or as follows if executing the function within your own workflow: <br />
 `spectral_fitter($frequency, $luminosity, $dluminosity, CI, remnant_range=0)`
 
-### I want to model the spectrum of a supernova remnant, what should I do ? ###
+#### I want to model the spectrum of a supernova remnant, what should I do ? ###
 In this case fitting the standard forms of the JP or KP models is best, given the supernova remnant is just a shell of impulsively-injected electrons. This will look as follows:<br />
 `synchrofit --data ${data_file.dat} --fit_type JP` <br />
 or as follows if executing the function within your own workflow: <br />
 `spectral_fitter($frequency, $luminosity, $dluminosity, JP)`
 
-### I want to evaluate the spectral age from my radio spectrum, what should I do ? ###
+#### I want to evaluate the spectral age from my radio spectrum, what should I do ? ###
 Firstly, this requires that you provide a value for the magnetic field strength (nT) and a cosmological redshift. In the example below, we evaluate the spectral ages of an inactive (remnant) radio galaxy at redshift `z = 0.2` and with a lobe magnetic field strength of `B = 0.5 nT`:<br />
 `synchrofit --data ${data_file.dat} --fit_type CI --age --b_field 0.5--z 0.2` <br />
 or as follows if executing the function within your own workflow: <br />
