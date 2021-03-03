@@ -237,7 +237,7 @@ Note, only the CI-off model will return a non-zero value for `t_off`.
 #### Command-line execution**<br />
 To run `synchrofit` simply execute the following from terminal: <br />
 `synchrofit --data ${data.dat} --fit_type ${fit_type}`. <br />
-In this example, `${data.dat}` contains the input spectrum (see [test_spectra.dat](https://github.com/synchrofit/synchrofit/tree/main/Example) for an example of the format required), and `${fit_type}` describes the model to be fit (e.g. KP, JP, CI, TKP, TJP, TCI). 
+In this example, `${data.dat}` contains the input spectrum (see [test_spectra.dat](https://github.com/synchrofit/synchrofit/tree/main/example) for an example of the format required), and `${fit_type}` describes the model to be fit (e.g. KP, JP, CI, TKP, TJP, TCI). 
 
 Alternatively, one can manually supply a spectrum by executing the following <br />
 `synchrofit --freq f1 f2 fn --flux s1 s2 sn --err_flux es1 es2 esn --fit_type ${fit_type}`. <br />
@@ -246,7 +246,7 @@ Alternatively, one can manually supply a spectrum by executing the following <br
 To integrate this code into your own workflow, simply import synchrofit into your Python code:<br />
  `from sf import synchrofit`. <br />
  or:<br />
- `from sf.synchrofit import spectral_fitter, spectral_data, spectral_plotter, spectral_ages, spectral_units`<br />
+ `from sf.synchrofit import spectral_fitter, spectral_model, spectral_plotter, spectral_ages, spectral_units`<br />
 
 ### I have an integrated radio galaxy spectrum, what should I do ? ###
 In this case fitting the standard forms of the Continuous Injection models is most applicable. By default, `--fit_type CI` will fit the spectrum using a CI-off model. If the radio galaxy is **known to be active** the spectrum needs to be modelled using the simpler **CI-on** model. This is done setting `--remnant_range 0`. This will look as follows:<br />
