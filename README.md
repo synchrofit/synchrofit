@@ -8,24 +8,15 @@ The ```synchrofit``` (**synchro**tron **fit**ter) package implements a reduced d
 ## Credits
 Please credit Ross J. Turner and Benjamin Quici if you use this code, or incorporate it into your own workflow. Please acknowledge the use of this code by providing a link to this repository (a citation will be available shortly). 
 
-## Installation
-```synchrofit``` is built and tested on python 3.8.5.<br /> 
 
-To obtain this code you can either download the repository, or, clone with git using<br /> 
-`git clone https://github.com/synchrofit/synchrofit.git`<br /> 
-
-To install `synchrofit` from the command line, `cd` into the root directory and use either:
-`python setup.py install` <br /> 
-or <br /> 
-`pip install .` <br /> 
-
-Note, `pip` and `pip3` can be used interchangeably.
 
 ## Help
 Please read through the README.md for a description of the package as well as workflow and usage examples. If you have found a bug or inconsistency in the code please [submit a ticket](https://github.com/synchrofit/synchrofit/issues).  
 
 ## Contents
 **Skip to:**<br />
+[Installation](#installation)
+
 [Spectral models](#spectral-models)
 - [The KP and JP models](#the-kp-and-jp-models)
 - [CI models](#ci-models)
@@ -48,14 +39,27 @@ Please read through the README.md for a description of the package as well as wo
 
 [Default and custom configurations](#default-and-custom-configurations)
     
+## Installation
+```synchrofit``` is built and tested on python 3.8.5.<br /> 
+
+To obtain this code you can either download the repository, or, clone with git using<br /> 
+`git clone https://github.com/synchrofit/synchrofit.git`<br /> 
+
+To install `synchrofit` from the command line, `cd` into the root directory and use either:<br /> 
+`python setup.py install` <br /> 
+or <br /> 
+`pip install .` <br /> 
+
+Note, `pip` and `pip3` can be used interchangeably.
+
 ## Spectral models
 `synchrofit` offers the standard and Tribble forms of **three** synchrotron spectrum models. A brief qualitative description of each model is provided below. <br /> 
 
 ### The KP and JP models
-The Kardashev-Pacholczyk (KP; [Kardashev (1962)](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and Jaffe-Perola (JP; [Jaffe & Perola (1973)](https://ui.adsabs.harvard.edu/abs/1973A%26A....26..423J/abstract)) model describe the synchrotron spectrum arising from an **impulsively injected** population of electrons -- that is, an entire electron population injected at *t=0* that undergoes radiative losses thereafter. The main constrast between these two models is the occurrence (JP model) or absence (KP model) of electron pitch angle scattering. 
+The Kardashev-Pacholczyk (KP; [Kardashev 1962](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract), [Pacholczyk 1970](https://ui.adsabs.harvard.edu/abs/1970ranp.book.....P/abstract)) and Jaffe-Perola (JP; [Jaffe & Perola 1973](https://ui.adsabs.harvard.edu/abs/1973A%26A....26..423J/abstract)) models describe the synchrotron spectrum arising from an **impulsively injected** population of electrons -- that is, the entire electron population is injected at *t=0* and thereafter undergoes radiative losses. The difference between these two models is the presence (JP model) or absence (KP model) of electron pitch angle scattering. 
 
 ### CI models
-In contrast to the KP and JP models, the Continuous Injection models (CI-on; [Kardashev (1962)](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and (CI-off; [Komissarov & Gubanov (1994)](https://ui.adsabs.harvard.edu/abs/1994A%26A...285...27K/abstract)) describe the synchrotron spectrum arising from a **continuously injected** electron population -- that is, a mixed-age population of electrons with ages ranging anywhere between *t=0* and *t=τ*. <br /> The CI-on model describes sources for which energy injection is currently taking place, whereas the CI-off model extends this by assuming the injection has switched off some time ago. 
+In contrast to the KP and JP models, the continuous injection models (CI-on; [Kardashev 1962](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract), CI-off; [Komissarov & Gubanov 1994](https://ui.adsabs.harvard.edu/abs/1994A%26A...285...27K/abstract)) describe the synchrotron spectrum arising from a **continuously injected** electron population -- that is, a mixed-age population of electrons with ages ranging uniformly between *t=0* and the source age *t=τ*. <br /> The CI-on model describes sources for which energy injection is currently taking place, whereas the CI-off model extends this by assuming the injection has switched off some time ago at *t<sub>on</sub>*. 
 
 ### The standard *(KP, JP, CI)* and Tribble *(TKP, TJP, TCI)* forms
 For each model described above, we offer a standard and Tribble form that describe the structure of the magnetic field strength across the source. The **standard** form assumes a **uniform magnetic field strength** across the source. By contrast, the **Tribble** form assumes an **inhomogeneous magnetic field strength**, e.g. a Maxwell-Boltzmann distribution as proposed by [Tribble (1991)](https://ui.adsabs.harvard.edu/abs/1991MNRAS.253..147T/abstract). 
