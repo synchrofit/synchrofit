@@ -22,6 +22,7 @@ or <br />
 ## Help
 Please read through the README.md for a description of the package as well as workflow and usage examples. If you have found a bug or inconsistency in the code please [submit a ticket](https://github.com/synchrofit/synchrofit/issues).  
 
+## Contents
 **Skip to:**<br />
 - [Spectral models](#spectral-models)
     - [The KP and JP models](#the-kp-and-jp-models)
