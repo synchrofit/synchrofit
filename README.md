@@ -17,16 +17,16 @@ Please read through the README.md for a description of the package as well as wo
 **Skip to:**<br />
 [Installation](#installation)
 
-[Spectral models](#spectral-models)
+[Theory](#theory)
 - [The KP and JP models](#the-kp-and-jp-models)
 - [CI models](#ci-models)
 - [The standard *(KP, JP, CI)* and Tribble *(TKP, TJP, TCI)* forms](#the-standard-kp-jp-ci-and-tribble-tkp-tjp-tci-forms)
 - [Free parameters](#free-parameters) 
 
-[How does synchrofit work?](#how-does-synchrofit-work-)
+[Functions](#functions)
 - [spectral_fitter](#spectral_fitter)
 - [spectral_models](#spectral_models)
-- [spectral_model](#spectral_data)
+- [spectral_data](#spectral_data)
 - [spectral_ages](#spectral_ages)
 
 [Usage](#Usage)
@@ -52,8 +52,8 @@ or <br />
 
 Note, `pip` and `pip3` can be used interchangeably.
 
-## Spectral models
-`synchrofit` offers the standard and Tribble forms of **three** synchrotron spectrum models. A brief qualitative description of each model is provided below. <br /> 
+## Theory
+The `synchrofit` package offers the standard and Tribble forms of **three** synchrotron spectrum models. A brief qualitative description of each model is provided below. <br /> 
 
 ### The KP and JP models
 The Kardashev-Pacholczyk (KP; [Kardashev 1962](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract), [Pacholczyk 1970](https://ui.adsabs.harvard.edu/abs/1970ranp.book.....P/abstract)) and Jaffe-Perola (JP; [Jaffe & Perola 1973](https://ui.adsabs.harvard.edu/abs/1973A%26A....26..423J/abstract)) models describe the synchrotron spectrum arising from an **impulsively injected** population of electrons -- that is, the entire electron population is injected at *t=0* and thereafter undergoes radiative losses. The difference between these two models is the presence (JP model) or absence (KP model) of electron pitch angle scattering. 
@@ -61,8 +61,8 @@ The Kardashev-Pacholczyk (KP; [Kardashev 1962](https://ui.adsabs.harvard.edu/abs
 ### CI models
 In contrast to the KP and JP models, the continuous injection models (CI-on; [Kardashev 1962](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract), CI-off; [Komissarov & Gubanov 1994](https://ui.adsabs.harvard.edu/abs/1994A%26A...285...27K/abstract)) describe the synchrotron spectrum arising from a **continuously injected** electron population -- that is, a mixed-age population of electrons with ages ranging uniformly between *t=0* and the source age *t=τ*. <br /> The CI-on model describes sources for which energy injection is currently taking place, whereas the CI-off model extends this by assuming the injection has switched off for a period of time *t<sub>off</sub>*.
 
-### The standard *(KP, JP, CI)* and Tribble *(TKP, TJP, TCI)* forms
-For each model described above, we offer a standard and Tribble form that describe the local structure of the magnetic field strength. The **standard** form assumes a **constant magnetic field strength** across the source. By contrast, the **Tribble** form assumes a locally **inhomogeneous magnetic field strength**, e.g. a Maxwell-Boltzmann distribution as proposed by [Tribble 1991](https://ui.adsabs.harvard.edu/abs/1991MNRAS.253..147T/abstract).
+### The standard and Tribble forms
+For each model described above, we offer a standard and Tribble form that describe the local structure of the magnetic field strength. These are referred to as TJP, TKP and TCI. The **standard** form assumes a **constant magnetic field strength** across the source. By contrast, the **Tribble** form assumes a locally **inhomogeneous magnetic field strength**, e.g. a Maxwell-Boltzmann distribution as proposed by [Tribble (1991)](https://ui.adsabs.harvard.edu/abs/1991MNRAS.253..147T/abstract).
 
 The advantage to the synchrotron spectrum described by the standard form is its independence of the magnetic field strength; see Equation 9 of [Turner et al. (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract).<!--  who reduce to dimensionality of a triple integral by parameterising in terms of a varible combining the effect of the energy and magnetic field strength. -->
 This form with greatly improved computational efficiency provides comparable spectra to the Tribble model for the CI, and to a lesser extent, the KP models; the JP model is quite different when using the standard and Tribble forms (see Section 2.3 of [Turner et al. 2018b](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract)). The Tribble model does provide a more accurate description of the magnetic field strength structure but the further caveat is that the magnetic field strength must be known in order to fit the spectral shape. 
@@ -77,11 +77,11 @@ Both the standard and Tribble forms of the JP, KP and CI-on spectra are paramete
 In addition to the injection index and break frequency, the parameterisation of the CI-off model requires:
 - **the remnant fraction, *T***. The remnant fraction is defined through *T = t<sub>off</sub>/τ* and gives the fractional time spent in an inactive phase (t<sub>off</sub>) with respect to the total source age (τ). 
 
-## How does synchrofit work? ##
-In short, `synchrofit` fits any of the models described in [Spectral models](#spectral-models) to a multi-frequency radio spectrum. This is carried out in a number of functions, which are described below.<br />
+## Functions ##
+In short, `synchrofit` fits any of the models described in [Theory](#theory) to a multi-frequency radio spectrum. This is carried out in a number of functions, which are described below.<br />
 
 ### spectral_models
-The functions `__spectral_models_standard` and `__spectral_models_tribble` contain the standard and Tribble forms of the spectral models described in [Spectral models](#spectral-models).
+The functions `__spectral_models_standard` and `__spectral_models_tribble` contain the standard and Tribble forms of the spectral models described in [Theory](#theory).
 ```
 __spectral_models_standard(frequency : (list, np.ndarray), luminosity : (list, np.ndarray), fit_type : str, break_frequency : float,
      injection_index : float, remnant_ratio : float, normalisation : float, bessel_x, bessel_F):
