@@ -53,6 +53,8 @@ The advantage to the synchrotron spectrum described by the standard form is its 
 **Free parameters** <br />
 Each model described above has a number of free parameters that, ultimately, we want to estimate. The JP and KP models have the energy injection index (*s*) and break frequency *(\nu_b)* as free parameters. Additionally to these two, the CI models also have the quiescent fraction *(T)* as a free parameter (i.e. the fractional time spent in a remnant phase). 
 
+*N(E)dE = $\propto$ E<sup>&theta;</sup>(-s)dE*
+
 ## How does synchrofit work? ##
 In essence, `synchrofit` takes a spectral model and estimates its free parameters. This is carried out in a number of primary functions described below.<br />
 
