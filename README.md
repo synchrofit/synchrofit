@@ -3,7 +3,7 @@ The ```synchrofit``` (**synchro**tron **fit**ter) package implements a reduced d
 
 <!-- Welcome to ```synchrofit``` (**synchro**tron **fit**ter) -- a user-friendly Python package designed to model a synchrotron spectrum. The goal for this package is to provide an accurate<sup>[**1**]</sup> parameterization of a radio spectrum, while requiring little prior knowledge of the source other than its observed spectrum. This code is based on the modified synchrotron models presented by [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract) and [Turner et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract).<br />
 
-<sup>[**1**]</sup>Accounting for dynamical changes within the radio source, e.g. an evolving magnetic field, is beyond the scope of this code. -->
+<!--<sup>[**1**]</sup>Accounting for dynamical changes within the radio source, e.g. an evolving magnetic field, is beyond the scope of this code. -->
 
 ## Credits
 Please credit Ross J. Turner and Benjamin Quici if you use this code, or incorporate it into your own workflow. Please acknowledge the use of this code by providing a link to this repository (a citation will be available shortly). 
@@ -17,7 +17,9 @@ To obtain this code you can either download the repository, or, clone with git u
 To install `synchrofit` from the command line, `cd` into the root directory and use either:
 `python3 setup.py install` <br /> 
 or <br /> 
-`pip3 install .`
+`pip3 install .` <br /> 
+
+Note, `pip` and `pip3` can be used interchangeably.
 
 ## Help
 Please read through the README.md for a description of the package as well as workflow and usage examples. If you have found a bug or inconsistency in the code please [submit a ticket](https://github.com/synchrofit/synchrofit/issues).  
@@ -32,7 +34,7 @@ Please read through the README.md for a description of the package as well as wo
 - [How does synchrofit work?](#how-does-synchrofit-work-)
     - [spectral_fitter](#spectral_fitter)
     - [spectral_models](#spectral_models)
-    - [spectral_data](#spectral_data)
+    - [spectral_model](#spectral_data)
     - [spectral_ages](#spectral_ages)
 - [Usage](#Usage)
     - [How do I run synchrofit ?](#how-do-I-run-synchrofit-)
@@ -42,7 +44,7 @@ Please read through the README.md for a description of the package as well as wo
 - [Default and custom configurations](#default-and-custom-configurations)
     
 ## Spectral models
-This code offers three models describing the synchrotron spectrum, each of which comes in a standard and Tribble form. A brief qualitative description of each model is provided below. <br /> 
+`synchrofit` offers the standard and Tribble forms of **three** synchrotron spectrum models. A brief qualitative description of each model is provided below. <br /> 
 
 ### The KP and JP models
 The Kardashev-Pacholczyk (KP; [Kardashev (1962)](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and Jaffe-Perola (JP; [Jaffe & Perola (1973)](https://ui.adsabs.harvard.edu/abs/1973A%26A....26..423J/abstract)) model describe the synchrotron spectrum arising from an **impulsively injected** population of electrons -- that is, an entire electron population injected at *t=0* that undergoes radiative losses thereafter. The main constrast between these two models is the occurrence (JP model) or absence (KP model) of electron pitch angle scattering. 
@@ -64,115 +66,140 @@ In addition to the injection index and break frequency, the parameterisation of 
 - **the remnant fraction, *T***. The remnant fraction is defined through *T = t<sub>off</sub>/τ* and gives the fractional time spent in an inactive phase (t<sub>off</sub>) with respect to the total source age (τ). 
 
 ## How does synchrofit work? ##
-In essence, `synchrofit` takes a spectral model and estimates its free parameters. This is carried out in a number of primary functions described below.<br />
+In short, `synchrofit` fits any of the models described in [Spectral models](#spectral-models) to a multi-frequency radio spectrum. This is carried out in a number of functions, which are described below.<br />
 
 ### spectral_models
-The functions `spectral_models` and `spectral_models_tribble` contain the standard and Tribble forms of the spectral models described above.
+The functions `__spectral_models_standard` and `__spectral_models_tribble` contain the standard and Tribble forms of the spectral models described in [Spectral models](#spectral-models).
 ```
-spectral_models(frequency, luminosity, fit_type, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F)
-**Accepts:**
-frequency       : Input frequencies
-                  (type = 1darray, unit = Hz)
-luminosity      : Input flux densities
-                  (type = 1darray, unit = Jy)
-fit_type        : The type of model to fit
-                  (type = str)
-break_frequency : The break frequency 
-                  (type = float, unit = Hz)
-injection_index : The injection index
-                  (type = float, unit = dimensionless)
-remnant_ratio   : The remnant ratio
-                  (type = float, unit = dimensionless)
-normalisation   : The normalisation factor
-                  (type = float)
-bessel_x        : Values at which to evaluate the Bessel function
-                  (type = 1darray)
-bessel_F        : Evaluated Bessel function
-                  (type = 1darray)
-**Returns:**
-luminosity_predict : The predicted spectrum
-                     (type = 1darray, unit = Jy)
-normalisation      : Normalisation factor to correctly scale the spectrum
-                     (type = float, unit = dimensionless)
+__spectral_models_standard(frequency : (list, np.ndarray), luminosity : (list, np.ndarray), fit_type : str, break_frequency : float,
+     injection_index : float, remnant_ratio : float, normalisation : float, bessel_x, bessel_F):
+     
+    (usage) The standard forms of the JP, KP and CI models.  
+    
+    Parameters
+    ----------
+    frequency       : an input list of frequencies (Hz).
+
+    luminosity      : an input list of flux densities (Jy).
+
+    fit_type        : the spectral model, must be one of [KP, JP, CI].
+
+    break_frequency : the break frequency (Hz).
+
+    injection_index : the energy injection index, s. (dimensionless).
+
+    remnant_ratio   : the remnant fraction, e.g. the fractional inactive time (dimensionless).
+
+    normalisation   : the normalisation factor (dimensionless).
+        
+    Returns
+    -------
+    luminosity_predict : fitted flux density for given frequency list
+
+    normalisation      : normalisation factor for correct scaling of 
 ```
-`spectral_models_tribble` is setup identical to this, with the one difference being an additional argument required for the magnetic field strength, e.g:
+
+`spectral_models_tribble` is setup identical to this, however with the inclusion of the magnetic field strength and redshift, e.g:
 ```
-spectral_models_tribble(frequency, luminosity, fit_type, bfield, redshift, break_frequency, injection_index, remnant_ratio, normalisation, bessel_x, bessel_F)
-bfield : The magnetic field strength.
+__spectral_models_tribble(frequency, luminosity, fit_type : str, b_field : float, redshift : float, \
+    break_frequency : float, injection_index : float, remnant_ratio : float, normalisation : float, bessel_x, bessel_F)
+
+    b_field         : the magnetic field strength (T)
+
+    redshift        : the cosmological redshift (dimensionless)
 ```
+
+Note, you do not need to interface with `__spectral_models_standard` and `__spectral_models_tribble` as these are internal functions. <br />
 
 ### spectral_fitter
-Model fitting is performed by the `spectral_fitter` function, which uses an adaptive grid model to estimate the peak probable values for each free parameter. The uncertainty on each free parameter is estimated by taking the standard deviation of its marginal distribution. `spectral_fitter` is setup as follows:
+Model fitting is performed by the `spectral_fitter` function, which uses an adaptive maximum likelihood algorithm to fit the observed radio spectrum; the adaptive mesh is customisable for either optimal precision or computational efficiency. In this way, the spectral index, break frequency and remnant fraction are estimated. Uncertainties on each parameter are quantified by taking the standard deviation of its marginal distribution. `spectral_fitter` is setup as follows:
 ```
-spectral_fitter(frequency, luminosity, dluminosity, fit_type, n_breaks=31, break_range=[8,11], 
-                n_injects=31, inject_range=[2.01,2.99], n_remnants=31, remnant_range=[0,1], 
-                n_iterations=3, options=None)
-**Accepts**
-frequency     : Input frequencies
-                (type = 1darray, unit = Hz)
-luminosity    : Input flux densities 
-                (type = 1darray, unit = Jy)
-dluminosity   : Input flux density uncertainties 
-                (type = 1darray, unit = Jy)
-fit_type      : The type of model to fit 
-                (type = str)
-n_breaks      : Number of increments with which to sample the break frequency range 
-                (type = int)
-break_range   : Accepted range for the log(break_frequency) 
-                (type = list)
-n_injects     : Number of increments with which to sample the injection index range 
-                (type = int)
-inject_range  : Accepted range for the energy injection index 
-                (type = list)
-n_remnants    : Number of increments with which to sample the remnant ratio range 
-                (type = int)
-remnant_range : Accepted range for the remnant ratio 
-                (type = list)
-n_iterations  : Number of iterations 
-                (type = int)
-options       : Options parsed through argparse 
-                (required only if synchrofit is executed from __main__)
-**Returns**
-params : fit_type, log(break frequency), log(break frequency uncertainty), injection index, 
-         injection index uncertainty, quiescent fraction, quiescent fraction uncertainty, normalisation
-         (type = tuple)
-```
-Note, you do not need to interface with `spectral_fitter` as it is an internal function. <br />
+spectral_fitter(frequency : (list, np.ndarray), luminosity : (list, np.ndarray), dluminosity : (list, np.ndarray), \
+    fit_type : str, n_breaks=31, break_range=[8,11], n_injects=31, inject_range=[2.01,2.99], n_remnants=31, \
+    remnant_range=[0,1], n_iterations=3, b_field=None, redshift=None, write_model=False, work_dir=None, save_prefix=None):
+    
+    (usage) Finds the optimal fit for a radio spectrum modelled by either the JP, KP or CI model.
+    
+    Parameters
+    ----------
+    frequency       : an input list of frequencies (Hz).
 
-### spectral_data
+    luminosity      : an input list of flux densities (Jy).
+
+    dluminosity     : an input list of flux density uncertainties (Jy).
+
+    fit_type        : the spectral model, must be one of [KP, TKP, JP, TJP, CI, TCI].
+
+    n_breaks        : number of increments with which to sample the break frequency range.
+
+    break_range     : accepted range for the log(break_frequency) (log Hz).
+
+    n_injects       : number of increments with which to sample the injection index range.
+
+    inject_range    : accepted range for the energy injection index.
+
+    n_remnants      : number of increments with which to sample the remnant ratio range.
+
+    remnant_range   : accepted range for the remnant ratio.
+
+    n_iterations    : number of iterations.
+
+    b_field         : the magnetic field strength (T).
+
+    redshift        : the cosmological redshift (dimensionless).
+
+    Returns
+    -------
+    params : (tuple) fit_type, break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation
+             fit_type         : the chosen model for fitting.
+             break_predict    : the log break frequency (Hz).
+             dbreak_predict   : the uncertainty in the log break frequency (Hz).
+             inject_predict   : the energy injection index (dimensionless).
+             dinject_predict  : the uncertainty in the energy injection index (dimensionless).
+             remnant_predict  : the remnant fraction, e.g. the fractiononal inactive time (dimensionless).
+             dremnant_predict : the uncertainty in the remnant fraction (dimensionless).
+             normalisation    : the normalisation factor for correct scaling (dimensionless).
+```
+
+### spectral_model
 Once you have determined the optimal fit, you might want to construct a model spectrum e.g. to compare the observed and model data, or to simulate the model over a range of frequencies to visualize on a plot. This is performed using the `spectral_data` function which takes the parameters estimated by `spectral_fitter` and simulates the model spectrum. `spectral_data` uses the uncertainties in each free parameter and estimates the uncertainties in the model using a standard Monte-Carlo approach.
 ```
-spectral_data(params, frequency_observed=None, n_model_freqs=100, mc_length=500, err_model_width=2,
-              work_dir=None, write_model=None)
-**Accepts**
-params             : fit_type, log(break frequency), log(break frequency uncertainty), injection index, 
-                     injection index uncertainty, quiescent fraction, quiescent fraction uncertainty, normalisation
-                     (type = tuple)
-frequency_observed : Oberserved frequencies. If not None, will evaluate the model at each observing frequency
-                     and will use the observed frequencies to define the bounds of the simulated plotting frequencies
-                     If None, will simply evaluate the model at the simulate plotting frequencies, which by default
-                     range between 50 MHz and 50 GHz. 
-                     (type = 1darray, unit = Hz)
-n_model_freqs      : Number of plotting frequencies to simulate within the allowed range
-                     (type = int)
-mc_length          : Number of Monte-Carlo iterations
-                     (type = int)
-err_model_width    : Width of the model uncertainty envelope in multiples of sigma 
-                     (type = int)
-work_dir           : Directory to write outputs to
-                     (type = str)
-write_model        : If True, writes model spectrum to work_dir
-                     (type = Bool)
-**Returns**
-spectral_model_plot_data  : Matrix containing the simulated plotting frequencies, 
-                            model flux densities evaluated for the simulated plotting frequencies
-                            uncertainties in the model flux densities
-                            lower bound for the model flux densities
-                            upper bound for the model flux densities   
-                            (type = np.array)
-luminosity_model_observed : The model evaluate at the observed frequencies. 
-                            If frequency_observed == None, luminosity_model_observed = None
-                            (type = np.1darray)
+spectral_model(params : tuple, frequency : (list, np.ndarray), mc_length=500, err_width=2, \
+    b_field=None, redshift=None, work_dir=None, write_model=False, save_prefix=None):
+
+    (usage) Uses the optimized parameters to return a 1darray of model flux densities for a given frequency list. 
+            Uncertainties on the model are calculated via Monte-Carlo simulation.
+    
+    Parameters
+    ----------
+    params        : (tuple) fit_type, break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation
+                    fit_type         : the chosen model for fitting.
+                    break_predict    : the log break frequency (Hz).
+                    dbreak_predict   : the uncertainty in the log break frequency (Hz).
+                    inject_predict   : the energy injection index (dimensionless).
+                    dinject_predict  : the uncertainty in the energy injection index (dimensionless).
+                    remnant_predict  : the remnant fraction, e.g. the fractiononal inactive time (dimensionless).
+                    dremnant_predict : the uncertainty in the remnant fraction (dimensionless).
+                    normalisation    : the normalisation factor for correct scaling (dimensionless).
+    
+    frequency     : a list of observed frequencies.
+    
+    mc_length     : number of MC iterations used for uncertainty estimation
+    
+    err_width     : The width of the uncertainty envelope in the model
+    
+    work_dir      : if not None, writes outputs to this directory
+    
+    write_model   : if True, writes outputs
+
+        
+    Returns
+    -------
+    model_data_tuple : a tuple containing (model_data, err_model_data, model_data_min, model_data_max)
+                         model_data     : a list of model flux densities
+                         err_model_data : a list of model flux density uncertainties
+                         model_data_min : a list of the lower-bound model flux densities
+                         model_data_max : a list of the upper-bound model flux densities
 ```
 
 ### spectral_ages
