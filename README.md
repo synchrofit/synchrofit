@@ -8,15 +8,24 @@ The ```synchrofit``` (**synchro**tron **fit**ter) package implements a reduced d
 ## Credits
 Please credit Ross J. Turner and Benjamin Quici if you use this code, or incorporate it into your own workflow. Please acknowledge the use of this code by providing a link to this repository (a citation will be available shortly). 
 
+## Installation
+```synchrofit``` is built and tested on python 3.8.5.<br /> 
 
+To obtain this code you can either download the repository, or, clone with git using<br /> 
+`git clone https://github.com/synchrofit/synchrofit.git`<br /> 
+
+To install `synchrofit` from the command line, `cd` into the root directory and use either:<br /> 
+`python setup.py install` <br /> 
+or <br /> 
+`pip install .` <br /> 
+
+Note, `pip` and `pip3` can be used interchangeably.
 
 ## Help
 Please read through the README.md for a description of the package as well as workflow and usage examples. If you have found a bug or inconsistency in the code please [submit a ticket](https://github.com/synchrofit/synchrofit/issues).  
 
 ## Contents
 **Skip to:**<br />
-[Installation](#installation)
-
 [Theory](#theory)
 - [The KP and JP models](#the-kp-and-jp-models)
 - [CI models](#ci-models)
@@ -38,19 +47,7 @@ Please read through the README.md for a description of the package as well as wo
 - [I want to evaluate the spectral age from my radio spectrum, what should I do ?](#i-want-to-evaluate-the-spectral-age-from-my-radio-spectrum-what-should-I-do-)
 
 [Default and custom configurations](#default-and-custom-configurations)
-    
-## Installation
-```synchrofit``` is built and tested on python 3.8.5.<br /> 
 
-To obtain this code you can either download the repository, or, clone with git using<br /> 
-`git clone https://github.com/synchrofit/synchrofit.git`<br /> 
-
-To install `synchrofit` from the command line, `cd` into the root directory and use either:<br /> 
-`python setup.py install` <br /> 
-or <br /> 
-`pip install .` <br /> 
-
-Note, `pip` and `pip3` can be used interchangeably.
 
 ## Theory
 The `synchrofit` package offers the standard and Tribble forms of **three** synchrotron spectrum models. A brief qualitative description of each model is provided below. <br /> 
