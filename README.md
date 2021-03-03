@@ -25,9 +25,9 @@ Please read through the README.md for a description of the package as well as wo
 
 [Functions](#functions)
 - [spectral_fitter](#spectral_fitter)
-- [spectral_models](#spectral_models)
 - [spectral_data](#spectral_data)
 - [spectral_ages](#spectral_ages)
+- [Private function](#private_functions)
 
 [Usage](#Usage)
 - [How do I run synchrofit ?](#how-do-I-run-synchrofit-)
@@ -79,49 +79,6 @@ In addition to the injection index and break frequency, the parameterisation of 
 
 ## Functions ##
 In short, `synchrofit` fits any of the models described in [Theory](#theory) to a multi-frequency radio spectrum. This is carried out in a number of functions, which are described below.<br />
-
-### spectral_models
-The functions `__spectral_models_standard` and `__spectral_models_tribble` contain the standard and Tribble forms of the spectral models described in [Theory](#theory).
-```
-__spectral_models_standard(frequency : (list, np.ndarray), luminosity : (list, np.ndarray), fit_type : str, break_frequency : float,
-     injection_index : float, remnant_ratio : float, normalisation : float, bessel_x, bessel_F):
-     
-    (usage) The standard forms of the JP, KP and CI models.  
-    
-    Parameters
-    ----------
-    frequency       : an input list of frequencies (Hz).
-
-    luminosity      : an input list of flux densities (Jy).
-
-    fit_type        : the spectral model, must be one of [KP, JP, CI].
-
-    break_frequency : the break frequency (Hz).
-
-    injection_index : the energy injection index, s. (dimensionless).
-
-    remnant_ratio   : the remnant fraction, e.g. the fractional inactive time (dimensionless).
-
-    normalisation   : the normalisation factor (dimensionless).
-        
-    Returns
-    -------
-    luminosity_predict : fitted flux density for given frequency list
-
-    normalisation      : normalisation factor for correct scaling of 
-```
-
-`spectral_models_tribble` is setup identical to this, however with the inclusion of the magnetic field strength and redshift, e.g:
-```
-__spectral_models_tribble(frequency, luminosity, fit_type : str, b_field : float, redshift : float, \
-    break_frequency : float, injection_index : float, remnant_ratio : float, normalisation : float, bessel_x, bessel_F)
-
-    b_field         : the magnetic field strength (T)
-
-    redshift        : the cosmological redshift (dimensionless)
-```
-
-Note, you do not need to interface with `__spectral_models_standard` and `__spectral_models_tribble` as these are internal functions. <br />
 
 ### spectral_fitter
 Model fitting is performed by the `spectral_fitter` function, which uses an adaptive maximum likelihood algorithm to fit the observed radio spectrum; the adaptive mesh is customisable for either optimal precision or computational efficiency. In this way, the spectral index, break frequency and remnant fraction are estimated. Uncertainties on each parameter are quantified by taking the standard deviation of its marginal distribution. `spectral_fitter` is setup as follows:
@@ -238,6 +195,47 @@ spectral_ages(params : tuple, b_field : float, redshift : float):
                     t_off : duration of the inactive phase in Myr (returns zero if the source is active)
 ```
 Note, only the CI-off model will return a non-zero value for `t_off`. 
+
+### Private functions
+The functions `__spectral_models_standard` and `__spectral_models_tribble` are private functions that contain the standard and Tribble forms of the spectral models described in [Theory](#theory). These functions are not accessed directly in expected workflow for the package.
+```
+__spectral_models_standard(frequency : (list, np.ndarray), luminosity : (list, np.ndarray), fit_type : str, break_frequency : float,
+     injection_index : float, remnant_ratio : float, normalisation : float, bessel_x, bessel_F):
+     
+    (usage) The standard forms of the JP, KP and CI models.  
+    
+    Parameters
+    ----------
+    frequency       : an input list of frequencies (Hz).
+
+    luminosity      : an input list of flux densities (Jy).
+
+    fit_type        : the spectral model, must be one of [KP, JP, CI].
+
+    break_frequency : the break frequency (Hz).
+
+    injection_index : the energy injection index, s. (dimensionless).
+
+    remnant_ratio   : the remnant fraction, e.g. the fractional inactive time (dimensionless).
+
+    normalisation   : the normalisation factor (dimensionless).
+        
+    Returns
+    -------
+    luminosity_predict : fitted flux density for given frequency list
+
+    normalisation      : normalisation factor for correct scaling of 
+```
+
+`spectral_models_tribble` is setup identical to this, however with the inclusion of the magnetic field strength and redshift, e.g:
+```
+__spectral_models_tribble(frequency, luminosity, fit_type : str, b_field : float, redshift : float, \
+    break_frequency : float, injection_index : float, remnant_ratio : float, normalisation : float, bessel_x, bessel_F)
+
+    b_field         : the magnetic field strength (T)
+
+    redshift        : the cosmological redshift (dimensionless)
+```
 
 ## Usage
 ### How do I run synchrofit ?
