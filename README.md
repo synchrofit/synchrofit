@@ -20,14 +20,14 @@ Please read through the README.md for a description of the package as well as wo
 [Theory](#theory)
 - [The KP and JP models](#the-kp-and-jp-models)
 - [CI models](#ci-models)
-- [The standard *(KP, JP, CI)* and Tribble *(TKP, TJP, TCI)* forms](#the-standard-kp-jp-ci-and-tribble-tkp-tjp-tci-forms)
+- [The standard and Tribble forms](#the-standard-and-tribble-forms)
 - [Free parameters](#free-parameters) 
 
 [Functions](#functions)
 - [spectral_fitter](#spectral_fitter)
-- [spectral_data](#spectral_data)
+- [spectral_model](#spectral_model)
 - [spectral_ages](#spectral_ages)
-- [Private function](#private_functions)
+- [Private functions](#private_functions)
 
 [Usage](#Usage)
 - [How do I run synchrofit ?](#how-do-I-run-synchrofit-)
