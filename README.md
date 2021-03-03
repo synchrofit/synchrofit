@@ -67,14 +67,14 @@ For each model described above, we offer a standard and Tribble form that descri
 The advantage to the synchrotron spectrum described by the standard form is its independence of the magnetic field strength; see Equation 9 of [Turner et al. (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract).% who reduce to dimensionality of a triple integral by parameterising in terms of a varible combining the effect of the energy and magnetic field strength. 
 This form with greatly improved computational efficiency provides comparable spectra to the Tribble model for the CI, and to a lesser extent, the KP models; the JP model is quite different when using the standard and Tribble forms (see Section 2.3 of [Turner et al. 2018b](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract)). The Tribble model does provide a more accurate description of the magnetic field strength structure but the further caveat is that the magnetic field strength must be known in order to fit the spectral shape. 
 
-%It should be noted that while there is a noticeable difference in the spectrum expected by the standard versus Tribble forms of the JP and KP, the difference in spectral shape between the Tribble-CI and standard-CI spectrum is negligible (see Section 2.3 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract)) <br />
+<!-- It should be noted that while there is a noticeable difference in the spectrum expected by the standard versus Tribble forms of the JP and KP, the difference in spectral shape between the Tribble-CI and standard-CI spectrum is negligible (see Section 2.3 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract)) <br /> -->
 
 ### Free parameters
-Both the standard and Tribble forms of the KP and JP spectrum are parameterised in terms of:
+Both the standard and Tribble forms of the JP, KP and CI-on spectra are parameterised in terms of:
 - **the injection index, *s***. The injection index is defined through *N(E)dE ∝ E<sup>-s</sup>dE* and describes the slope of the electron energy distribution at acceleration (or *injection* into an AGN lobe). The injection index is related to the injection spectral index, α<sub>inj</sub>, through α<sub>inj</sub> = (*s* − 1)/2.
-- **the break frequency, *ν<sub>b</sub>***. The break frequency represents the frequency above which the spectrum steepens steepens as a result of the energy loss mechanisms. <br />
+- **the break frequency, *ν<sub>b</sub>***. The break frequency represents the frequency above which the spectrum steepens as a result of the energy loss mechanisms. <br />
  
-In addition to the injection index and break frequency, the parameterisation of the CI model requires:
+In addition to the injection index and break frequency, the parameterisation of the CI-off model requires:
 - **the remnant fraction, *T***. The remnant fraction is defined through *T = t<sub>off</sub>/τ* and gives the fractional time spent in an inactive phase (t<sub>off</sub>) with respect to the total source age (τ). 
 
 ## How does synchrofit work? ##
