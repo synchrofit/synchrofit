@@ -31,18 +31,19 @@ Please read through the README.md for a description of the package as well as wo
 - [CI models](#ci-models)
 - [The standard *(KP, JP, CI)* and Tribble *(TKP, TJP, TCI)* forms](#the-standard-kp-jp-ci-and-tribble-tkp-tjp-tci-forms)
 - [Free parameters](#free-parameters)
-- [How does synchrofit work?](#how-does-synchrofit-work-)
-    - [spectral_fitter](#spectral_fitter)
-    - [spectral_models](#spectral_models)
-    - [spectral_model](#spectral_data)
-    - [spectral_ages](#spectral_ages)
-- [Usage](#Usage)
-    - [How do I run synchrofit ?](#how-do-I-run-synchrofit-)
-        -[test](#how-do-I-run-synchrofit-)
-    - [I have an integrated radio galaxy spectrum, what should I do ?](#i-have-an-integrated-radio-galaxy-spectrum-what-should-I-do-)
-    - [I want to model the spectrum of a supernova remnant, what should I do ?](#i-want-to-model-the-spectrum-of-a-supernova-remnant-what-should-I-do-)
-    - [I want to evaluate the spectral age from my radio spectrum, what should I do ?](#i-want-to-evaluate-the-spectral-age-from-my-radio-spectrum-what-should-I-do-)
-- [Default and custom configurations](#default-and-custom-configurations)
+[How does synchrofit work?](#how-does-synchrofit-work-)
+- [spectral_fitter](#spectral_fitter)
+- [spectral_models](#spectral_models)
+- [spectral_model](#spectral_data)
+- [spectral_ages](#spectral_ages)
+[Usage](#Usage)
+- [How do I run synchrofit ?](#how-do-I-run-synchrofit-)
+    -[Command-line execution](#command-line-execution)
+    -[Integrate modules into workflow](#integrate-modules-into-workflow)
+- [I have an integrated radio galaxy spectrum, what should I do ?](#i-have-an-integrated-radio-galaxy-spectrum-what-should-I-do-)
+- [I want to model the spectrum of a supernova remnant, what should I do ?](#i-want-to-model-the-spectrum-of-a-supernova-remnant-what-should-I-do-)
+- [I want to evaluate the spectral age from my radio spectrum, what should I do ?](#i-want-to-evaluate-the-spectral-age-from-my-radio-spectrum-what-should-I-do-)
+[Default and custom configurations](#default-and-custom-configurations)
     
 ## Spectral models
 `synchrofit` offers the standard and Tribble forms of **three** synchrotron spectrum models. A brief qualitative description of each model is provided below. <br /> 
@@ -226,7 +227,7 @@ Note, only the CI-off model will return a non-zero value for `t_off`.
 
 ## Usage
 ### How do I run synchrofit ?
-**Command-line execution**<br />
+#### Command-line execution**<br />
 To run `synchrofit` simply execute the following from terminal: <br />
 `synchrofit --data ${data.dat} --fit_type ${fit_type}`. <br />
 In this example, `${data.dat}` contains the input spectrum (see [test_spectra.dat](https://github.com/synchrofit/synchrofit/tree/main/Example) for an example of the format required), and `${fit_type}` describes the model to be fit (e.g. KP, JP, CI, TKP, TJP, TCI). 
@@ -234,7 +235,7 @@ In this example, `${data.dat}` contains the input spectrum (see [test_spectra.da
 Alternatively, one can manually supply a spectrum by executing the following <br />
 `synchrofit --freq f1 f2 fn --flux s1 s2 sn --err_flux es1 es2 esn --fit_type ${fit_type}`. <br />
 
-**Integrate modules into workflow**<br />
+#### Integrate modules into workflow**<br />
 To integrate this code into your own workflow, simply import synchrofit into your Python code:<br />
  `from SynchrofitTool import synchrofit`. <br />
  or:<br />
