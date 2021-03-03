@@ -24,6 +24,10 @@ Please read through the README.md for a description of the package as well as wo
 
 **Skip to:**<br />
 - [Spectral models](#spectral-models)
+    - [The KP and JP models](#The-KP-and-JP-models)
+    - [CI models](#CI-models)
+    - [The standard *(KP, JP, CI)* and Tribble *(TKP, TJP, TCI)* forms](#The-standard-KP-JP-CI-and-Tribble-TKP-TJP-TCI-forms)
+    - [Free parameters](#free-parameters)
 - [How does synchrofit work?](#how-does-synchrofit-work-)
     - [spectral_fitter](#spectral_fitter)
     - [spectral_models](#spectral_models)
@@ -39,21 +43,23 @@ Please read through the README.md for a description of the package as well as wo
 ## Spectral models
 This code offers three models describing the synchrotron spectrum, each of which comes in a standard and Tribble form. A brief qualitative description of each model is provided below. <br /> 
 
-**The KP and JP models** <br />
+### The KP and JP models** <br />
 The Kardashev-Pacholczyk (KP; [Kardashev (1962)](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and Jaffe-Perola (JP; [Jaffe & Perola (1973)](https://ui.adsabs.harvard.edu/abs/1973A%26A....26..423J/abstract)) model describe the synchrotron spectrum arising from an **impulsively injected** population of electrons -- that is, an entire electron population injected at *t=0* that undergoes radiative losses thereafter. The main constrast between these two models is the occurrence (JP model) or absence (KP model) of electron pitch angle scattering. 
 
-**CI models** <br />
+### CI models** <br />
 In contrast to the KP and JP models, the Continuous Injection models (CI-on; [Kardashev (1962)](https://ui.adsabs.harvard.edu/abs/1962SvA.....6..317K/abstract)) and (CI-off; [Komissarov & Gubanov (1994)](https://ui.adsabs.harvard.edu/abs/1994A%26A...285...27K/abstract)) describe the synchrotron spectrum arising from a **continuously injected** electron population -- that is, a mixed-age population of electrons with ages ranging anywhere between *t=0* and *t=\tau*. <br /> The CI-on model describes sources for which energy injection is currently taking place, whereas the CI-off model extends this by assuming the injection has switched off some time ago. 
 
-**The standard *(KP, KP, CI)* and Tribble *(TKP, TJP, TCI)* forms** <br />
+### The standard *(KP, JP, CI)* and Tribble *(TKP, TJP, TCI)* forms** <br />
 For each model described above, we offer a standard and Tribble form that describe the structure of the magnetic field strength across the source. The **standard** form assumes a **uniform magnetic field strength** across the source. By contrast, the **Tribble** form assumes an **inhomogeneous magnetic field strength**, e.g. a Maxwell-Boltzmann distribution as proposed by [Tribble (1991)](https://ui.adsabs.harvard.edu/abs/1991MNRAS.253..147T/abstract). 
 
 The advantage to the synchrotron spectrum described by the standard form is its independence of the magnetic field strength; see Equation 9 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract) who demonstrate that the magnetic field strength can be taken out of the integration and simply scale the spectrum. The caveat here is that the assumption of a uniform magnetic field strength is violated within radio lobes. While the Tribble form thus provides a more accurate description of the magnetic field strength structure, the caveat here is that the magnetic field strength must be known in order to parameterize the spectral shape. It should be noted that while there is a noticeable difference in the spectrum expected by the standard versus Tribble forms of the JP and KP, the difference in spectral shape between the Tribble-CI and standard-CI spectrum is negligible (see Section 2.3 of [Turner et al (2018b)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.474.3361T/abstract)) <br />
 
-**Free parameters** <br />
+### Free parameters
+To describe the standard/Tribble forms of the KP and JP models, the injection index and break frequency, and remnant fraction are three free parameters 
+
 Each model described above has a number of free parameters that, ultimately, we want to estimate. The JP and KP models have the energy injection index (*s*) and break frequency *(\nu_b)* as free parameters. Additionally to these two, the CI models also have the quiescent fraction *(T)* as a free parameter (i.e. the fractional time spent in a remnant phase). 
 
-*N(E)dE = ∝ E<sup>-s</sup>dE*
+<sup>[**1**]</sup> The ener*N(E)dE ∝ E<sup>-s</sup>dE*
 
 ## How does synchrofit work? ##
 In essence, `synchrofit` takes a spectral model and estimates its free parameters. This is carried out in a number of primary functions described below.<br />
