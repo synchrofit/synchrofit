@@ -210,21 +210,25 @@ spectral_model(params : tuple, frequency : (list, np.ndarray), mc_length=500, er
 ### spectral_ages
 An optional feature of `synchrofit` is to evaluate the spectral age using the parameters estimated by `spectral_fitter`. This is perfomed by the `spectral_age` function, which is based upon Equation 4 of [Turner et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract). 
 ```
-spectral_ages(params, B, z)
-**Accepts**
-params : fit_type, break frequency, quiescent fraction
-         (type = tuple)
-B      : The magnetic field strength
-         (type = float, unit = nT)
-z      : The cosmological redshift.
-         (type = float, unit = dimensionless)
-**Returns**
-tau   : Total spectral age 
-        (type = float, unit = Myr)
-t_on  : Duration of active phase
-        (type = float, unit = Myr)
-t_off : Duration of remnant phase
-        (type = float, unit = Myr)
+spectral_ages(params : tuple, b_field : float, redshift : float):
+
+    (usage) Derives the total, active and inactive spectral age using the break frequency, quiescent fraction, magnetic field strength and redshift.
+    
+    parameters
+    ----------
+    params   : a tuple containing (fit_type, break_frequency, remnant_fraction)
+               fit_type         : the spectral model, must be one of [KP, TKP, JP, TJP, CI, TCI].
+               break_frequency  : the break frequency in Hz.
+               remnant_fraction : the fraction of time spent inactive (if the source is active, set this parameter to zero).
+    b_field  :  magnetic field strength (T).
+    redshift :  cosmological redshift (dimensionless).
+
+    Returns
+    -------
+    spectral_ages : a tuple containing (tau, t_on, t_off)
+                    tau   : total spectral age in Myr
+                    t_on  : duration of the active phase in Myr
+                    t_off : duration of the inactive phase in Myr (returns zero if the source is active)
 ```
 Note, only the CI-off model will return a non-zero value for `t_off`. 
 
@@ -240,9 +244,9 @@ Alternatively, one can manually supply a spectrum by executing the following <br
 
 #### Integrate modules into workflow**<br />
 To integrate this code into your own workflow, simply import synchrofit into your Python code:<br />
- `from SynchrofitTool import synchrofit`. <br />
+ `from sf import synchrofit`. <br />
  or:<br />
- `from SynchrofitTool.synchrofit import spectral_fitter, spectral_data, spectral_plotter, spectral_ages, spectral_units`<br />
+ `from sf.synchrofit import spectral_fitter, spectral_data, spectral_plotter, spectral_ages, spectral_units`<br />
 
 ### I have an integrated radio galaxy spectrum, what should I do ? ###
 In this case fitting the standard forms of the Continuous Injection models is most applicable. By default, `--fit_type CI` will fit the spectrum using a CI-off model. If the radio galaxy is **known to be active** the spectrum needs to be modelled using the simpler **CI-on** model. This is done setting `--remnant_range 0`. This will look as follows:<br />
