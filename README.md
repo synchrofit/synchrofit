@@ -128,7 +128,7 @@ spectral_fitter(frequency : (list, np.ndarray), luminosity : (list, np.ndarray),
 ```
 
 ### spectral_model
-Once you have determined the optimal fit, you might want to construct a model spectrum e.g. to compare the observed and model data, or to simulate the model over a range of frequencies to visualize on a plot. This is performed using the `spectral_data` function which takes the parameters estimated by `spectral_fitter` and simulates the model spectrum. `spectral_data` uses the uncertainties in each free parameter and estimates the uncertainties in the model using a standard Monte-Carlo approach.
+Once you have determined the optimal fit, you might want to construct a model spectrum e.g. to compare the observed and model data, or to simulate the model over a range of frequencies to visualize on a plot. This is performed using the `spectral_model` function which takes the parameters estimated by `spectral_fitter` and simulates the model spectrum. `spectral_model` uses the uncertainties in each free parameter and estimates the uncertainties in the model using a standard Monte-Carlo approach.
 ```
 spectral_model(params : tuple, frequency : (list, np.ndarray), mc_length=500, err_width=2, \
     b_field=None, redshift=None, work_dir=None, write_model=False, save_prefix=None):
@@ -169,7 +169,7 @@ spectral_model(params : tuple, frequency : (list, np.ndarray), mc_length=500, er
 ```
 
 ### spectral_ages
-An optional feature of `synchrofit` is to evaluate the spectral age using the parameters estimated by `spectral_fitter`. This is perfomed by the `spectral_age` function, which is based upon Equation 4 of [Turner et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract). 
+An optional feature of `synchrofit` is to evaluate the spectral age using the parameters estimated by `spectral_fitter`. This is perfomed by the `spectral_ages` function, which is based upon Equation 4 of [Turner et al (2018)](https://ui.adsabs.harvard.edu/abs/2018MNRAS.476.2522T/abstract). 
 ```
 spectral_ages(params : tuple, b_field : float, redshift : float):
 
