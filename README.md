@@ -267,7 +267,7 @@ or as follows if executing the function within your own workflow: <br />
 
 #### I want to evaluate the spectral age from my radio spectrum, what should I do ? ###
 Firstly, this requires that you provide a value for the magnetic field strength (nT) and a cosmological redshift. In the example below, we evaluate the spectral ages of an inactive (remnant) radio galaxy at redshift `z = 0.2` and with a lobe magnetic field strength of `B = 0.5 nT`:<br />
-`synchrofit --data ${data_file.dat} --fit_type CI --age --b_field 0.5--z 0.2` <br />
+`synchrofit --data ${data_file.dat} --fit_type CI --age --b_field 0.5e-9 --redshift 0.2` <br />
 or as follows if executing the function within your own workflow: <br />
 ```
 params = spectral_fitter($frequency, $luminosity, $dluminosity, CI)
@@ -299,7 +299,7 @@ Most parameters accepted by `spectral_fitter` already have default values. The c
 - `--err_model_width` Width of the uncertainty envelope on the model, in units of sigma. Default = 2. 
 - `--plot` If True, produce a plot of the observed spectrum and fitted model. Default = False. 
 - `--write_model` If True, write the fitting outputs to file. Default = False.
-- `--age` If True, determine the spectral age of the source (requires `--bfield` and `--z`). Default = False.
+- `--age` If True, determine the spectral age of the source (requires `--b_field` and `--redshift`). Default = False.
 - `--b_field` Magnetic field strength in units of T. No default. 
 - `--redshift` Cosmological redshift of the source. No default. 
 
