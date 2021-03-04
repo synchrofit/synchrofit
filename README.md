@@ -181,7 +181,9 @@ spectral_ages(params : tuple, b_field : float, redshift : float):
                fit_type         : the spectral model, must be one of [KP, TKP, JP, TJP, CI, TCI].
                break_frequency  : the break frequency in Hz.
                remnant_fraction : the fraction of time spent inactive (if the source is active, set this parameter to zero).
+               
     b_field  :  magnetic field strength (T).
+    
     redshift :  cosmological redshift (dimensionless).
 
     Returns
