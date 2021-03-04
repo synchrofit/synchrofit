@@ -298,7 +298,7 @@ Most parameters accepted by `spectral_fitter` already have default values. The c
 - `--plot` If True, produce a plot of the observed spectrum and fitted model. Default = False. 
 - `--write_model` If True, write the fitting outputs to file. Default = False.
 - `--age` If True, determine the spectral age of the source (requires `--bfield` and `--z`). Default = False.
-- `--bfield` Magnetic field strength in units of nT. No default. 
+- `--bfield` Magnetic field strength in units of T. No default. 
 - `--z` Cosmological redshift of the source. No default. 
 
 An example of a custom configuration might look as follows:
