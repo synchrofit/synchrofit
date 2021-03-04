@@ -298,8 +298,8 @@ Most parameters accepted by `spectral_fitter` already have default values. The c
 - `--plot` If True, produce a plot of the observed spectrum and fitted model. Default = False. 
 - `--write_model` If True, write the fitting outputs to file. Default = False.
 - `--age` If True, determine the spectral age of the source (requires `--bfield` and `--z`). Default = False.
-- `--bfield` Magnetic field strength in units of T. No default. 
-- `--z` Cosmological redshift of the source. No default. 
+- `--b_field` Magnetic field strength in units of T. No default. 
+- `--redshift` Cosmological redshift of the source. No default. 
 
 An example of a custom configuration might look as follows:
 `synchrofit --data ${data.dat} --fit_type CI --n_breaks 21 --n_injects 21 --n_remnants 21 --n_iterations 5 --break_range 8 10 --inject_range 2.0 3.0 --mc_length 1000`
