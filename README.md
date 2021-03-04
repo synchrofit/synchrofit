@@ -303,7 +303,7 @@ Most parameters accepted by `spectral_fitter` already have default values. The c
 - `--b_field` Magnetic field strength in units of T. No default. 
 - `--redshift` Cosmological redshift of the source. No default. 
 
-An example of a custom configuration might look as follows:
+An example of a custom configuration might look as follows: <br />
 `synchrofit --data ${data.dat} --fit_type CI --n_breaks 21 --n_injects 21 --n_remnants 21 --n_iterations 5 --break_range 8 10 --inject_range 2.0 3.0 --mc_length 1000`
 
 Consider loading any custom configuration into `run_synchrofit.sh`, which will allow you to save and store these presets for later re-use. To execute this custom setup, simply run `./run_synchrofit.sh` from the terminal.
