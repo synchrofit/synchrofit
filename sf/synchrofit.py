@@ -511,7 +511,7 @@ def spectral_fitter(frequency : (list, np.ndarray), luminosity : (list, np.ndarr
     
     if not isinstance(remnant_range, (list, np.ndarray)):
         if isinstance(remnant_range, (float, int)):
-            if remnant_range > 0:
+            if remnant_range >= 0:
                 remnant_range = [remnant_range, remnant_range]
                 n_remnants = 1
             else:
