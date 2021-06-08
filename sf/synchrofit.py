@@ -335,7 +335,7 @@ def spectral_model(params : tuple, frequency : (list, np.ndarray), mc_length=500
         if redshift is None or b_field is None:
             raise Exception(color_text('{} requires a redshift and magnetic field strength.'.format(fit_type),Colors.Red))
     if b_field is not None and (not isinstance(b_field, (float, int)) or b_field < 0):
-        raise Exception(color_text('Magnetic field strenth needs to be a float/int and greater than zero',Colors.Red))
+        raise Exception(color_text('Magnetic field strength needs to be a float/int and greater than zero',Colors.Red))
     if redshift is not None and (not isinstance(redshift, (float, int)) or redshift < 0):
         raise Exception(color_text('Redshift needs to be a float/int and greater than zero',Colors.Red))
     
@@ -345,7 +345,7 @@ def spectral_model(params : tuple, frequency : (list, np.ndarray), mc_length=500
             10**break_predict, inject_predict, remnant_predict, normalisation)[0]
     elif fit_type in ['TJP', 'TKP', 'TCI']:
         model_data = __spectral_models_tribble(frequency, np.zeros(len(frequency)), fit_type, \
-            b_field, z, 10**break_predict, inject_predict, remnant_predict, normalisation)[0]
+            b_field, redshift, 10**break_predict, inject_predict, remnant_predict, normalisation)[0]
     
     # simulate a distribution of injection indices, break frequencies and quiescent fractions assuming gaussian errors.
     break_predict_vec = np.random.normal(break_predict, dbreak_predict, mc_length)
