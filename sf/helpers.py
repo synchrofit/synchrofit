@@ -218,7 +218,88 @@ class CheckFunctionInputs:
 
         return(frequency, luminosity, dluminosity, inject_range, break_range, remnant_range, n_injects, n_breaks, n_remnants)
     
-    def spectral_model():
-        pass
+    def spectral_model(params, 
+        frequency, 
+        mc_length, 
+        err_width, 
+        b_field,
+        redshift):
+
+        # check params has eight elements
+        if len(params) != 8:
+            raise Exception(color_text("Expected 8 elements in params, received {}".format(len(params)), Colors.Red))
+        
+        # unpack params
+        fit_type, break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation = params
+        
+        # check fit_type is correct
+        if not isinstance(fit_type, str):
+            raise Exception(color_text('Expected string type for "fit_type".',Colors.Red))
+        else:
+            if fit_type not in ['KP', 'TKP', 'JP', 'TJP', 'CI', 'TCI']:
+                raise Exception(color_text('fit_type needs to be a string and one of: "KP", "TKP", "JP", "TJP", "CI", "TCI"',Colors.Red))
+
+        # check break frequency (and uncertainty) has the correct type and sensible value
+        if not isinstance(break_predict, float):
+            raise Exception(color_text('break_predict needs to be a float',Colors.Red))
+        else:
+            if break_predict < 0:
+                raise Exception(color_text('break_predict cannot be negative',Colors.Red))
+        if not isinstance(dbreak_predict, (float, int)):
+            raise Exception(color_text('dbreak_predict needs to be a float or integer',Colors.Red))
+        else:
+            if dbreak_predict < 0:
+                raise Exception(color_text('dbreak_predict cannot be negative',Colors.Red))
+
+        # check injection index (and uncertainty) has the correct type and sensible value
+        if not isinstance(inject_predict, float):
+            raise Exception(color_text('inject_predict needs to be a float',Colors.Red))
+        else:
+            if inject_predict < 0:
+                raise Exception(color_text('inject_predict cannot be negative',Colors.Red))
+        if not isinstance(dinject_predict, (float, int)):
+            raise Exception(color_text('dinject_predict needs to be a float or integer',Colors.Red))
+        else:
+            if dinject_predict < 0:
+                raise Exception(color_text('dinject_predict cannot be negative',Colors.Red))
+
+        # check remnant fraction (and uncertainty) has the correct type and sensible value
+        if not isinstance(remnant_predict, float):
+            raise Exception(color_text('remnant_predict needs to be a float',Colors.Red))
+        else:
+            if remnant_predict < 0:
+                raise Exception(color_text('remnant_predict cannot be negative',Colors.Red))
+        if not isinstance(dremnant_predict, (float, int)):
+            raise Exception(color_text('dremnant_predict needs to be a float or integer',Colors.Red))
+        else:
+            if dremnant_predict < 0:
+                raise Exception(color_text('dremnant_predict cannot be negative',Colors.Red))
+
+        # check normalization has the correct type and sensible value
+        if not isinstance(normalisation, float):
+            raise Exception(color_text('normalisation needs to be a float',Colors.Red))
+        else:
+            if normalisation < 0:
+                raise Exception(color_text('normalisation cannot be negative',Colors.Red))
+        
+        # check magnetic field and redshift are supplied if Tribble models are selected
+        if fit_type in ['TKP', 'TJP', 'TCI']:
+            if redshift is None or b_field is None:
+                raise Exception(color_text('{} requires a redshift and magnetic field strength.'.format(fit_type),Colors.Red))
+
+        # check magnetic field strength has the correct type and sensible value
+        if not isinstance(b_field, (float, int)):
+            raise Exception(color_text('b_field needs to be a float or int',Colors.Red))
+        else:
+            if b_field < 0:
+                raise Exception(color_text('b_field cannot be negative',Colors.Red))
+
+        # check redshift has the correct type and sensible value
+        if not isinstance(redshift, (float, int)):
+            raise Exception(color_text('redshift needs to be a float or int',Colors.Red))
+        else:
+            if redshift < 0:
+                raise Exception(color_text('redshift cannot be negative',Colors.Red))
+            
     def spectral_plotter():
         pass

@@ -311,33 +311,7 @@ def spectral_model(params : tuple, frequency : (list, np.ndarray), mc_length=500
     
     # logger.info(color_text('Entered function.',Colors.MediumSpringGreen))
     
-    # check data is the correct type
-    if len(params) != 8:
-        raise Exception(color_text("len(params) needs to be 8.",Colors.Red))
-    fit_type, break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation = params
-    if fit_type not in ['KP', 'TKP', 'JP', 'TJP', 'CI', 'TCI']:
-        raise Exception(color_text("fit_type needs to be one of: KP, TKP, JP, TJP, CI, TCI",Colors.Red))
-    if not isinstance(break_predict, float) or break_predict< 0:
-        raise Exception(color_text('break_predict needs to be a float and greater than zero',Colors.Red))
-    if not isinstance(dbreak_predict, (float, int)) or dbreak_predict < 0:
-        raise Exception(color_text('dbreak_predict needs to be a float/int and greater than zero',Colors.Red))
-    if not isinstance(inject_predict, float) or inject_predict < 0:
-        raise Exception(color_text('inject_predict needs to be a float and greater than zero',Colors.Red))
-    if not isinstance(dinject_predict, (float, int)) or dinject_predict < 0:
-        raise Exception(color_text('dinject_predict needs to be a float/int and greater than zero',Colors.Red))
-    if not isinstance(remnant_predict, float) or remnant_predict < 0:
-        raise Exception(color_text('remnant_predict needs to be a float and greater than zero',Colors.Red))
-    if not isinstance(dremnant_predict, (float, int)) or dremnant_predict < 0:
-        raise Exception(color_text('dremnant_predict needs to be a float/int and greater than zero',Colors.Red))
-    if not isinstance(normalisation, float) or normalisation < 0:
-        raise Exception(color_text('normalisation needs to be a float and greater than zero',Colors.Red))
-    if fit_type in ['TKP', 'TJP', 'TCI']:
-        if redshift is None or b_field is None:
-            raise Exception(color_text('{} requires a redshift and magnetic field strength.'.format(fit_type),Colors.Red))
-    if b_field is not None and (not isinstance(b_field, (float, int)) or b_field < 0):
-        raise Exception(color_text('Magnetic field strength needs to be a float/int and greater than zero',Colors.Red))
-    if redshift is not None and (not isinstance(redshift, (float, int)) or redshift < 0):
-        raise Exception(color_text('Redshift needs to be a float/int and greater than zero',Colors.Red))
+    CheckFunctionInputs.spectral_model(params, frequency, mc_length, err_width, b_field, redshift)
     
     # Evaluate the model over a list of frequencies
     if fit_type in ['JP', 'KP', 'CI']:
@@ -382,10 +356,6 @@ def spectral_model(params : tuple, frequency : (list, np.ndarray), mc_length=500
     # evaluate and store the model spectrum for each set of free parameters
     colorstring = color_text("Estimating model errors from {} Monte-Carlo iterations".format(mc_length), Colors.DodgerBlue)
     logger.info(colorstring)
-    fig = plt.figure()
-    ax = fig.add_axes([0.05,0.05,0.9,0.9])
-    ax.set_xscale('log')
-    ax.set_yscale('log')
     for mcPointer in range(0,mc_length):
         if fit_type in ['JP', 'KP', 'CI']:
             fitmc, normmc = __spectral_models_standard(frequency, np.zeros(len(frequency)), fit_type, 10**break_predict_vec[mcPointer], \
@@ -395,19 +365,6 @@ def spectral_model(params : tuple, frequency : (list, np.ndarray), mc_length=500
             inject_predict_vec[mcPointer], remnant_predict_vec[mcPointer], normalisation)
         luminosityArray[mcPointer] = (np.asarray(fitmc))
         frequencyArray[mcPointer] = (np.asarray(frequency))
-    # ax.hexbin(frequencyArray.flatten(), luminosityArray.flatten(), label='Trumpet plot', cmap='gray_r', yscale='log', xscale='log', gridsize=100, bins='log')
-    ax.plot(frequency, luminosityArray[189], c='blue')
-    ax.plot(frequency, luminosityArray[45], c='red')
-    ax.plot(frequency, luminosityArray[432], c='orange')
-    ax.plot(frequency, luminosityArray[230], c='cyan')
-    ax.plot(frequency, luminosityArray[10], c='magenta')
-    ax.plot(frequency, luminosityArray[342], c='C0')
-    ax.plot(frequency, luminosityArray[289], c='C1')
-    ax.plot(frequency, luminosityArray[11], c='C2')
-    ax.plot(frequency, luminosityArray[139], c='C3')
-    ax.plot(frequency, model_data, c='black', lw=2)
-    plt.savefig('testspectrum.pdf')
-
     
     # instantiate vectors to store the uncertainties in the model at the corresponding frequency
     err_model_data=np.zeros([len(frequency)])
