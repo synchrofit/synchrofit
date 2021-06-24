@@ -311,7 +311,8 @@ def spectral_model(params : tuple, frequency : (list, np.ndarray), mc_length=500
     
     # logger.info(color_text('Entered function.',Colors.MediumSpringGreen))
     
-    CheckFunctionInputs.spectral_model(params, frequency, mc_length, err_width, b_field, redshift)
+    fit_type, break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation = \
+        CheckFunctionInputs.spectral_model(params, frequency, mc_length, err_width, b_field, redshift)
     
     # Evaluate the model over a list of frequencies
     if fit_type in ['JP', 'KP', 'CI']:

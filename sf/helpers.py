@@ -287,19 +287,21 @@ class CheckFunctionInputs:
             if redshift is None or b_field is None:
                 raise Exception(color_text('{} requires a redshift and magnetic field strength.'.format(fit_type),Colors.Red))
 
-        # check magnetic field strength has the correct type and sensible value
-        if not isinstance(b_field, (float, int)):
-            raise Exception(color_text('b_field needs to be a float or int',Colors.Red))
-        else:
-            if b_field < 0:
-                raise Exception(color_text('b_field cannot be negative',Colors.Red))
+            # check magnetic field strength has the correct type and sensible value
+            if not isinstance(b_field, (float, int)):
+                raise Exception(color_text('b_field needs to be a float or int',Colors.Red))
+            else:
+                if b_field < 0:
+                    raise Exception(color_text('b_field cannot be negative',Colors.Red))
 
-        # check redshift has the correct type and sensible value
-        if not isinstance(redshift, (float, int)):
-            raise Exception(color_text('redshift needs to be a float or int',Colors.Red))
-        else:
-            if redshift < 0:
-                raise Exception(color_text('redshift cannot be negative',Colors.Red))
+            # check redshift has the correct type and sensible value
+            if not isinstance(redshift, (float, int)):
+                raise Exception(color_text('redshift needs to be a float or int',Colors.Red))
+            else:
+                if redshift < 0:
+                    raise Exception(color_text('redshift cannot be negative',Colors.Red))
+
+        return(fit_type, break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation)
             
     def spectral_plotter():
         pass
