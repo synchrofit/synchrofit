@@ -57,9 +57,22 @@ def spectral_units(data, unit):
         logger.info(colorstring)
         return(1e-6*data)
 
-def spectral_fitter(frequency : (list, np.ndarray), luminosity : (list, np.ndarray), dluminosity : (list, np.ndarray), \
-    fit_type : str, n_breaks=31, break_range=[8,11], n_injects=31, inject_range=[2.01,2.99], n_remnants=31, \
-    remnant_range=[0,1], n_iterations=3, b_field=None, redshift=None, write_model=False, work_dir=None, save_prefix=None):
+def spectral_fitter(frequency, 
+    luminosity, 
+    dluminosity, 
+    fit_type, 
+    n_breaks=31, 
+    break_range=[8,11], 
+    n_injects=31, 
+    inject_range=[2.01,2.99], 
+    n_remnants=31, 
+    remnant_range=[0,1], 
+    n_iterations=3, 
+    b_field=None, 
+    redshift=None, 
+    write_model=False, 
+    work_dir=None, 
+    save_prefix=None):
     """
     (usage) Finds the optimal fit for a radio spectrum modelled by either the JP, KP or CI model.
     
@@ -271,8 +284,15 @@ def spectral_fitter(frequency : (list, np.ndarray), luminosity : (list, np.ndarr
     # logger.info(color_text('Exitting function.',Colors.MediumSpringGreen))
     return(params)
 
-def spectral_model(params : tuple, frequency : (list, np.ndarray), mc_length=500, err_width=2, \
-    b_field=None, redshift=None, work_dir=None, write_model=False, save_prefix=None):
+def spectral_model(params, 
+    frequency, 
+    mc_length=500, 
+    err_width=2, 
+    b_field=None, 
+    redshift=None, 
+    work_dir=None, 
+    write_model=False, 
+    save_prefix=None):
     """
     (usage) Uses the optimized parameters to return a 1darray of model flux densities for a given frequency list. 
             Uncertainties on the model are calculated via Monte-Carlo simulation.
@@ -355,7 +375,7 @@ def spectral_model(params : tuple, frequency : (list, np.ndarray), mc_length=500
     frequencyArray = np.zeros([mc_length,len(frequency)])
 
     # evaluate and store the model spectrum for each set of free parameters
-    colorstring = color_text("Estimating model errors from {} Monte-Carlo iterations".format(mc_length), Colors.DodgerBlue)
+    colorstring = color_text("Estimating model errors from {} Monte-Carlo simulations".format(mc_length), Colors.DodgerBlue)
     logger.info(colorstring)
     for mcPointer in range(0,mc_length):
         if fit_type in ['JP', 'KP', 'CI']:
@@ -404,7 +424,13 @@ def spectral_model(params : tuple, frequency : (list, np.ndarray), mc_length=500
     # logger.info(color_text('Exitting function.',Colors.MediumSpringGreen))
     return(model_data, err_model_data, model_data_min, model_data_max)
 
-def spectral_plotter(observed_data : tuple, model_data=None, plotting_data=None, work_dir=None, fit_type=None, err_model_width=2, save_prefix=None):
+def spectral_plotter(observed_data, 
+    model_data=None, 
+    plotting_data=None, 
+    work_dir=None, 
+    fit_type=None, 
+    err_model_width=2, 
+    save_prefix=None):
     """
     (usage) Plots the data and optimised model fit to figure, and writes figure to file. 
     
@@ -463,8 +489,9 @@ def spectral_plotter(observed_data : tuple, model_data=None, plotting_data=None,
         err_luminosity_obs = np.asarray(err_luminosity_obs)
     
     # check model data is correct type
-    if model_data is not None and not isinstance(model_data, (list, np.ndarray)):
-        raise Exception(color_text('model_data needs to be a list or np.ndarray',Colors.Red))
+    if model_data is not None:
+        if isinstance(model_data, (list, np.ndarray)):
+            raise Exception(color_text('model_data needs to be a list or np.ndarray',Colors.Red))
         if len(model_data) != len(frequency_obs):
             raise Exception(color_text('model_data must have same length as frequency_obs',Colors.Red))
         if isinstance(model_data, list):
@@ -548,7 +575,9 @@ def spectral_plotter(observed_data : tuple, model_data=None, plotting_data=None,
     
     # logger.info(color_text('Exitting function.',Colors.MediumSpringGreen))
 
-def spectral_ages(params : tuple, b_field : float, redshift : float):
+def spectral_ages(params,
+    b_field, 
+    redshift):
     """
     (usage) Derives the total, active and inactive spectral age using the break frequency, quiescent fraction, magnetic field strength and redshift.
     

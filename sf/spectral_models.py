@@ -28,9 +28,14 @@ def besselK53():
     return(np.array(bessel_x), np.array(bessel_F))
 
 @jit(nopython=True) # Set "nopython" mode for best performance, equivalent to @njit
-# @njit(parallel=True)
-def __spectral_models_standard(frequency : (list, np.ndarray), luminosity : (list, np.ndarray), fit_type : str, break_frequency : float,\
-     injection_index : float, remnant_ratio : float, normalisation : float, besselK53=besselK53()):
+def __spectral_models_standard(frequency, 
+    luminosity, 
+    fit_type, 
+    break_frequency,
+    injection_index, 
+    remnant_ratio, 
+    normalisation, 
+    besselK53=besselK53()):
     """
     (usage) The standard forms of the JP, KP and CI models.  
     
@@ -169,8 +174,16 @@ def __spectral_models_standard(frequency : (list, np.ndarray), luminosity : (lis
     return(luminosity_predict, normalisation)
 
 @jit(nopython=True) # Set "nopython" mode for best performance, equivalent to @njit
-def __spectral_models_tribble(frequency : (list, np.ndarray), luminosity : (list, np.ndarray), fit_type : str, b_field : float, redshift : float, \
-    break_frequency : float, injection_index : float, remnant_ratio : float, normalisation : float, besselK53=besselK53()):
+def __spectral_models_tribble(frequency,
+    luminosity, 
+    fit_type, 
+    b_field, 
+    redshift, 
+    break_frequency, 
+    injection_index, 
+    remnant_ratio, 
+    normalisation, 
+    besselK53=besselK53()):
     """
     (usage) The Tribble forms of the JP, KP and CI models.  
     
