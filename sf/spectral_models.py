@@ -67,7 +67,7 @@ def __spectral_models_standard(frequency,
     if fit_type == 'JP' or fit_type == 'KP':
         remnant_ratio = 0
 
-    nalpha, nenergiesJP, nenergiesCI = 32, 32, 32 # can be increased for extra precision
+    nalpha, nenergiesJP, nenergiesCI = 64, 64, 64 # can be increased for extra precision
     nenergies = nenergiesJP + nenergiesCI
     
     # calculate the best fit to frequency-luminosity data

@@ -21,24 +21,45 @@ import time
 from sf.spectral_models import __spectral_models_standard, __spectral_models_tribble
 from sf.helpers import Colors, color_text, logger, Const, CheckFunctionInputs
 
+class Params():
+    
+    """
+    Template to store outputs from spectral_fitter
+    """
+    
+    def __init__(self, fit_type, break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation):
+        """
+        """
+        self.fit_type = fit_type
+        self.break_predict = break_predict
+        self.dbreak_predict = dbreak_predict
+        self.inject_predict = inject_predict
+        self.dinject_predict = dinject_predict
+        self.remnant_predict = remnant_predict
+        self.dremnant_predict = dremnant_predict
+        self.normalisation = normalisation
 
 
-def __ComputeSpectralFit(fit_type, 
-                        frequency, 
-                        luminosity,
-                        break_frequency,
-                        injection_index,
-                        remnant_ratio,
-                        b_field=None,
-                        redshift=None):
+def __compute_sf(fit_type, 
+                frequency,
+                log_luminosity,
+                dlog_luminosity,
+                dof,
+                break_frequency,
+                injection_index,
+                remnant_ratio,
+                b_field=None,
+                redshift=None):
     """
     """
-                    
+
+    # find spectral fit for current set of parameters
+    
     normalisation = 0 # specify that fit needs to be scaled
     
     if fit_type in ['JP', 'KP', 'CI']:
         luminosity_predict, normalisation = __spectral_models_standard(frequency, 
-                                                                        luminosity, 
+                                                                        10**log_luminosity, 
                                                                         fit_type, 
                                                                         break_frequency, 
                                                                         injection_index, 
@@ -47,7 +68,7 @@ def __ComputeSpectralFit(fit_type,
     
     elif fit_type in ['TJP', 'TKP', 'TCI']:
         luminosity_predict, normalisation = __spectral_models_tribble(frequency, 
-                                                                        luminosity, 
+                                                                        10**log_luminosity, 
                                                                         fit_type, 
                                                                         b_field, 
                                                                         redshift, 
@@ -55,34 +76,6 @@ def __ComputeSpectralFit(fit_type,
                                                                         injection_index, 
                                                                         remnant_ratio, 
                                                                         normalisation)
-
-    return luminosity_predict, normalisation
-
-
-
-def __ComputeSpectralFitStats(fit_type, 
-                                frequency, 
-                                luminosity,
-                                log_luminosity,
-                                dlog_luminosity,
-                                dof,
-                                break_frequency,
-                                injection_index,
-                                remnant_ratio,
-                                b_field=None,
-                                redshift=None):
-    """
-    """
-
-    # find spectral fit for current set of parameters
-    luminosity_predict, normalisation = __ComputeSpectralFit(fit_type, 
-                                                            frequency, 
-                                                            luminosity,
-                                                            break_frequency,
-                                                            injection_index,
-                                                            remnant_ratio,
-                                                            b_field=b_field,
-                                                            redshift=redshift)
 
     # calculate chisquare on spectral fit
     chi = np.nansum(((log_luminosity - np.log10(luminosity_predict + 1e-307))/dlog_luminosity)**2)
@@ -92,87 +85,6 @@ def __ComputeSpectralFitStats(fit_type,
 
     return np.array([normalisation, chi, prob])
 
-
-def __FindBestSpectralFit(sf_stats_matrix, meshparameters, search_space):
-    """
-    """
-    max_probability = 1e-99
-    min_chisquare = 1e+99
-
-    normalisation_vector = sf_stats_matrix[:,0]
-    chisquare_vector = sf_stats_matrix[:,1]
-    probability_vector = sf_stats_matrix[:,2]
-
-    # find peak of joint probability distribution
-    max_break, max_inject, max_remnant = 0, 0, 0
-    for Pointer in range(len(probability_vector)):
-        if search_space == 'chi':
-            if chisquare_vector[Pointer] < min_chisquare:
-                min_chisquare = chisquare_vector[Pointer]
-                normalisation = normalisation_vector[Pointer]
-                bestPointer = Pointer
-        elif search_space == 'prob':
-            if probability_vector[Pointer] > max_probability: 
-                max_probability = probability_vector[Pointer]
-                normalisation = normalisation_vector[Pointer]
-                bestPointer = Pointer
-
-    break_predict = meshparameters[bestPointer,0]
-    inject_predict = meshparameters[bestPointer,1]
-    remnant_predict = meshparameters[bestPointer,2]
-
-    return np.array([break_predict, inject_predict, remnant_predict, normalisation])
-
-def __CalcStdDev(sf_stats_matrix, mesh_parameters, unique_parameters, predicted_parameters, search_space):
-    """
-    """
-
-    # unpack arrays
-    meshbreak = mesh_parameters[:,0]
-    meshinject = mesh_parameters[:,1]
-    meshremnant = mesh_parameters[:,2]
-
-    break_frequency = unique_parameters[0]
-    injection_index = unique_parameters[1]
-    remnant_ratio = unique_parameters[2]
-    
-    break_predict = predicted_parameters[0]
-    inject_predict = predicted_parameters[1]
-    remnant_predict = predicted_parameters[2]
-
-    chisquare_vector = sf_stats_matrix[:,1]
-    probability_vector = sf_stats_matrix[:,2]
-
-    if search_space == 'prob':
-        weights = chisquare_vector
-    elif search_space == 'chi':
-        weights = probability_vector
-    
-    # calc std dev in break frequency
-    dbreak_predict = 0
-    weights_ = weights[np.where((meshinject==inject_predict) & (meshremnant==remnant_predict))]
-    if len(weights_) > 2: 
-        for ii in range(len(weights_)):
-            dbreak_predict = dbreak_predict + weights_[ii]*((break_frequency[ii] - break_predict)**2)
-        dbreak_predict = np.sqrt(dbreak_predict/np.nansum(weights_))
-
-    # calc std dev in injection index
-    dinject_predict = 0
-    weights_ = weights[np.where((meshbreak==break_predict) & (meshremnant==remnant_predict))]
-    if len(weights_) > 2: 
-        for ii in range(len(weights_)):
-            dinject_predict = dinject_predict + weights_[ii]*((injection_index[ii] - inject_predict)**2)
-        dinject_predict = np.sqrt(dinject_predict/np.nansum(weights_))
-
-    # calc std dev in remnant ratio
-    dremnant_predict = 0
-    weights_ = weights[np.where((meshinject==inject_predict) & (meshbreak==break_predict))]
-    if len(weights_) > 2: 
-        for ii in range(len(weights_)):
-            dremnant_predict = dremnant_predict + weights_[ii]*((remnant_ratio[ii] - remnant_predict)**2)
-        dremnant_predict = np.sqrt(dremnant_predict/np.nansum(weights_))
-
-    return np.array([dbreak_predict, dinject_predict, dremnant_predict])
 
 def spectral_units(data, unit):
     """
@@ -216,9 +128,23 @@ def spectral_units(data, unit):
         return(1e-6*data)
 
 
-def spectral_fitter(frequency : (list, np.ndarray), luminosity : (list, np.ndarray), dluminosity : (list, np.ndarray), \
-    fit_type : str, n_breaks=31, break_range=[8,11], n_injects=31, inject_range=[2.01,2.99], n_remnants=31, \
-    remnant_range=[0,1], n_iterations=3, b_field=None, redshift=None, write_model=False, work_dir=None, save_prefix=None):
+def spectral_fitter(frequency, 
+                    luminosity, 
+                    dluminosity,
+                    fit_type, 
+                    n_breaks=31, 
+                    break_range=[8,11], 
+                    n_injects=31, 
+                    inject_range=[2.01,2.99], 
+                    n_remnants=31, 
+                    remnant_range=[0,1], 
+                    n_iterations=3, 
+                    search_space='prob',
+                    b_field=None, 
+                    redshift=None, 
+                    write_model=False, 
+                    work_dir=None, 
+                    save_prefix=None):
     """
     (usage) Finds the optimal fit for a radio spectrum modelled by either the JP, KP or CI model.
     
@@ -262,7 +188,6 @@ def spectral_fitter(frequency : (list, np.ndarray), luminosity : (list, np.ndarr
              dremnant_predict : the uncertainty in the remnant fraction (dimensionless).
              normalisation    : the normalisation factor for correct scaling (dimensionless).
     """
-    # logger.info(color_text('Entered function.',Colors.MediumSpringGreen))
     
     # ensure inputs have the correct type and sensible values
     frequency, luminosity, dluminosity, inject_range, break_range, remnant_range, n_injects, n_breaks, n_remnants = \
@@ -280,7 +205,10 @@ def spectral_fitter(frequency : (list, np.ndarray), luminosity : (list, np.ndarr
         b_field,
         redshift)
     
-    # convert luminosities and uncertainties to log-scale
+
+    """
+    Convert luminosities and uncertainties to log-scale
+    """
     log_luminosity = np.log10(luminosity + 1e-307)
     dlog_luminosity = np.zeros_like(log_luminosity)
     for freqPointer in range(0, len(frequency)):
@@ -289,7 +217,10 @@ def spectral_fitter(frequency : (list, np.ndarray), luminosity : (list, np.ndarr
         else:
             dlog_luminosity[freqPointer] = 1e-307
     
-    # calculate dof for chi-squared functions
+
+    """
+    Calculate dof for chi-squared functions
+    """
     dof = -3
     if (n_breaks <= 2):
         dof = dof + 1 # number of parameters being fitted
@@ -300,8 +231,11 @@ def spectral_fitter(frequency : (list, np.ndarray), luminosity : (list, np.ndarr
     for freqPointer in range(0, len(frequency)):
         if (dlog_luminosity[freqPointer] > 0):
             dof = dof + 1
-    
-    # set adaptive regions
+
+
+    """
+    Set adaptive regions
+    """
     if (n_breaks >= 2):
         break_frequency = np.linspace(break_range[0], break_range[1], n_breaks, endpoint=True)
     else:
@@ -319,34 +253,60 @@ def spectral_fitter(frequency : (list, np.ndarray), luminosity : (list, np.ndarr
         remnant_ratio[0] = (remnant_range[0] + remnant_range[1])/2
 
 
-    # instantiate array to store probabilities from chi-squared statistics for each adaptive mesh iteration.
-    adaptive_probability = np.zeros((max(1, n_iterations), max(1, n_breaks), max(1, n_injects), max(1, n_remnants)))
-    # instantiate array to store probabilities from chi-squared statistics
-    probability = np.zeros((max(1, n_breaks), max(1, n_injects), max(1, n_remnants)))
-    normalisation_array = np.zeros((max(1, n_breaks), max(1, n_injects), max(1, n_remnants)))
-    # find chi-squared statistic for each set of parameters, and iterate through with adaptive mesh
+    """
+    Instantiate arrays to store fitting outputs
+    """
+    # length of meshgrid
+    meshlength = n_breaks*n_injects*n_remnants
+    # store chi-squared statistic on each fit for each adaptive mesh.
+    adaptive_chisquare = np.zeros((max(1, n_iterations), meshlength))
+    # store probabilities from chi-squared statistics for each adaptive mesh.
+    adaptive_probability = np.zeros((max(1, n_iterations), meshlength))
+    # store normalisation on each spectral fit
+    adaptive_normalisation = np.zeros((max(1, n_iterations), meshlength))
 
-
-    # instantiate arrays to store parameter-space grids for each adaptive loop
-    adaptive_break_frequency = np.zeros((max(1, n_iterations), n_breaks))
-    adaptive_injection_index = np.zeros((max(1, n_iterations), n_injects))
-    adaptive_remnant_ratio = np.zeros((max(1, n_iterations), n_remnants))
+    # store break frequency marginal dist.
+    adaptive_break_marginal = np.zeros((max(1, n_iterations), n_breaks))
+    # store injection index marginal dist.
+    adaptive_inject_marginal = np.zeros((max(1, n_iterations), n_injects))
+    # store remnant ratio marginal dist.
+    adaptive_remnant_marginal = np.zeros((max(1, n_iterations), n_remnants))
     
-    # instantiate arrays to store Pointers corresponding to peak probability
+
+    # store discretized list of break frequencies
+    adaptive_break_frequency = np.zeros((max(1, n_iterations), n_breaks))
+    # store discretized list of injection indices
+    adaptive_injection_index = np.zeros((max(1, n_iterations), n_injects))
+    # store discretized list of remnant ratios
+    adaptive_remnant_ratio = np.zeros((max(1, n_iterations), n_remnants))
+
+    # store most probable (peak) break frequency
+    adaptive_break_predict = np.zeros(max(1, n_iterations))
+    # store most probable (peak) injection index
+    adaptive_inject_predict = np.zeros(max(1, n_iterations))
+    # store most probable (peak) remnant ratio
+    adaptive_remnant_predict = np.zeros(max(1, n_iterations))
+
+    # store indices corresponding to peak break frequency
     adaptive_max_break = np.zeros(max(1, n_iterations))
+    # store indices corresponding to peak injection index
     adaptive_max_inject = np.zeros(max(1, n_iterations))
+    # store indices corresponding to peak remnant ratio
     adaptive_max_remnant = np.zeros(max(1, n_iterations))
 
-    # instantiate arrays to store free parameter estimates after each adaptive loop
-    adaptive_break_peak = np.zeros(max(1, n_iterations))
-    adaptive_inject_peak = np.zeros(max(1, n_iterations))
-    adaptive_remnant_peak = np.zeros(max(1, n_iterations))
-
+    figmar = plt.figure(figsize=(12,8))
+    axbr = figmar.add_axes([0.05,0.05,0.44,0.9])
+    axin = figmar.add_axes([0.51,0.05,0.44,0.9])
     """
-    Parallelize fitting
+    Iterate through adaptive mesh
     """
-
     for iterationPointer in range(0, max(1, n_iterations)):
+        """
+        Setup parallelisation
+        """
+
+        # store unique discretized list in each parameter
+        unique_parameters = [break_frequency, injection_index, remnant_ratio]
 
         # instantiate list of pointers for each free parameter
         breakPointers = np.arange(max(1, n_breaks))
@@ -359,52 +319,157 @@ def spectral_fitter(frequency : (list, np.ndarray), luminosity : (list, np.ndarr
         # instantiate matrix to store unique value of each parameter
         mesh_parameters = np.zeros([len(meshPointers[0].flatten()), len(meshPointers)])
 
-        # define unique parameters list
-        unique_parameters = [break_frequency, injection_index, remnant_ratio]
-
         # store mesh parameters in array
         for meshPointer in range(len(meshPointers)):
             uniqueparam = unique_parameters[meshPointer]
             indices = meshPointers[meshPointer].flatten()
             mesh_parameters[:,meshPointer] = uniqueparam[indices]
 
+        # get the mesh list in each parameter 
+        meshbreak = mesh_parameters[:,0]
+        meshinject = mesh_parameters[:,1]
+        meshremnant = mesh_parameters[:,2]
+
+        # append list of arguments to parse to multiprocessed function
         args = []
         for ii in range(len(meshPointers[0].flatten())):
-            break_ = mesh_parameters[ii,0]
-            inject_ = mesh_parameters[ii,1]
-            remnant_ = mesh_parameters[ii,2]
-            args.append([fit_type, frequency, luminosity, log_luminosity, dlog_luminosity, dof, 10**break_, inject_, remnant_, b_field, redshift])
+            break_ = meshbreak[ii]
+            inject_ = meshinject[ii]
+            remnant_ = meshremnant[ii]
+            args.append([fit_type, frequency, log_luminosity, dlog_luminosity, dof, 10**break_, inject_, remnant_, b_field, redshift])
 
-        # multiprocess fit
-        ncpus = 8
+
+        """
+        Pool computation of spectral fits over multiple cores
+        """
+        ncpus = 6
         with multiprocessing.Pool(processes=ncpus, maxtasksperchild=None) as pool:
-            sf_stats_matrix = pool.starmap(__ComputeSpectralFitStats, args)
+            sf_stats_matrix = pool.starmap(__compute_sf, args)
             sf_stats_matrix = np.asarray(sf_stats_matrix)
 
-        # find optimal spectral fit
-        predicted_parameters = __FindBestSpectralFit(sf_stats_matrix, mesh_parameters, 'prob')
-        break_predict, inject_predict, remnant_predict, normalisation = predicted_parameters
 
-        # find std. dev in parameters
-        dpredicted_parameters = __CalcStdDev(sf_stats_matrix, mesh_parameters, unique_parameters, predicted_parameters, 'prob')
-        dbreak_predict, dinject_predict, dremnant_predict = dpredicted_parameters
+        """
+        Find optimal spectral fit
+        """
+        # unpack normalisation, chisquare and probability vectors
+        normalisation_vector = sf_stats_matrix[:,0]
+        chisquare_vector = sf_stats_matrix[:,1]
+        probability_vector = sf_stats_matrix[:,2]
 
-        # update adaptive regions
+        # set initial max prob and min chi
+        max_probability = 1e-99
+        min_chisquare = 1e+99
+
+        # iterate through to find optimal spectral fit
+        for Pointer in range(len(probability_vector)):
+            # find minima of joint chisquare distribution
+            if search_space == 'chi':
+                if chisquare_vector[Pointer] < min_chisquare:
+                    min_chisquare = chisquare_vector[Pointer]
+                    normalisation = normalisation_vector[Pointer]
+                    bestPointer = Pointer
+            elif search_space == 'prob':
+                # find peak of joint probability distribution
+                if probability_vector[Pointer] > max_probability: 
+                    max_probability = probability_vector[Pointer]
+                    normalisation = normalisation_vector[Pointer]
+                    bestPointer = Pointer
+
+        break_predict = meshbreak[bestPointer]
+        inject_predict = meshinject[bestPointer]
+        remnant_predict = meshremnant[bestPointer]
+
+
+        """
+        Find standard deviation in each marginal distribution
+        """
+        if search_space == 'prob':
+            weights = chisquare_vector
+        elif search_space == 'chi':
+            weights = probability_vector
+        
+        # calc std dev in break frequency
+        dbreak_predict = 0
+        weights_ = weights[np.where((meshinject==inject_predict) & (meshremnant==remnant_predict))]
+        if len(weights_) > 2: 
+            for ii in range(len(weights_)):
+                dbreak_predict = dbreak_predict + weights_[ii]*((break_frequency[ii] - break_predict)**2)
+            dbreak_predict = np.sqrt(dbreak_predict/np.nansum(weights_))
+
+        # calc std dev in injection index
+        dinject_predict = 0
+        weights_ = weights[np.where((meshbreak==break_predict) & (meshremnant==remnant_predict))]
+        if len(weights_) > 2: 
+            for ii in range(len(weights_)):
+                dinject_predict = dinject_predict + weights_[ii]*((injection_index[ii] - inject_predict)**2)
+            dinject_predict = np.sqrt(dinject_predict/np.nansum(weights_))
+
+        # calc std dev in remnant ratio
+        dremnant_predict = 0
+        weights_ = weights[np.where((meshinject==inject_predict) & (meshbreak==break_predict))]
+        if len(weights_) > 2: 
+            for ii in range(len(weights_)):
+                dremnant_predict = dremnant_predict + weights_[ii]*((remnant_ratio[ii] - remnant_predict)**2)
+            dremnant_predict = np.sqrt(dremnant_predict/np.nansum(weights_))
+
+
+        """
+        Create marginal distribution in each parameter
+        """
+        marginal_break_prob = np.empty(n_breaks)
+        if n_breaks > 2:
+            for breakPointer in breakPointers:
+                break_ = break_frequency[breakPointer]
+                probability_ = probability_vector[np.where(meshbreak==break_)]
+                marginal_break_prob[breakPointer] = np.nanmax(probability_)
+        axbr.plot(break_frequency, marginal_break_prob, color='C{}'.format(iterationPointer))
+
+        marginal_inject_prob = np.empty(n_injects)
+        if n_injects > 2:
+            for injectPointer in injectPointers:
+                inject_ = injection_index[injectPointer]
+                probability_ = probability_vector[np.where(meshinject==inject_)]
+                marginal_inject_prob[injectPointer] = np.nanmax(probability_)
+        axin.plot(injection_index, marginal_inject_prob, color='C{}'.format(iterationPointer))
+
+
+
+
+        """
+        Update adaptive regions
+        """
         if (iterationPointer < n_iterations - 1):
             if (n_breaks > 2):
                 dbreak_frequency = (break_frequency[-1] - break_frequency[0])/np.sqrt(n_breaks)
-                # print(dbreak_frequency)
                 break_frequency = np.linspace(max(break_range[0], break_predict - dbreak_frequency), min(break_range[1], break_predict + dbreak_frequency), n_breaks, endpoint=True)
-                # break_frequency = np.linspace(break_predict - dbreak_frequency, break_predict + dbreak_frequency, n_breaks, endpoint=True)
 
             if (n_injects > 2):
                 dinjection_index = (injection_index[-1] - injection_index[0])/np.sqrt(n_injects)
                 injection_index = np.linspace(max(inject_range[0], inject_predict - dinjection_index), min(inject_range[1], inject_predict + dinjection_index), n_injects, endpoint=True)
-                # injection_index = np.linspace(inject_predict - dinjection_index, inject_predict + dinjection_index, n_injects, endpoint=True)
 
             if (n_remnants > 2):
                 dremnant_ratio = (remnant_ratio[-1] - remnant_ratio[0])/np.sqrt(n_remnants)
                 remnant_ratio = np.linspace(max(remnant_range[0], remnant_predict - dremnant_ratio), min(remnant_range[1], remnant_predict + dremnant_ratio), n_remnants, endpoint=True)
+
+
+        """
+        Store results of adaptive mesh in arrays
+        """
+        adaptive_chisquare[iterationPointer,:] = chisquare_vector
+        adaptive_probability[iterationPointer,:] = probability_vector
+        adaptive_normalisation[iterationPointer,:] = normalisation_vector
+
+
+    # """
+    # Create marginal distributions
+    # """
+    # for iterationPointer in range(0, max(1, n_iterations)):
+    figmar.savefig('test.pdf')
+
+
+
+
+
 
     # return set of best-fit parameters with uncertainties
     espace='                      '
@@ -435,7 +500,8 @@ def spectral_fitter(frequency : (list, np.ndarray), luminosity : (list, np.ndarr
         file.write("{}, {}, {}, {}, {}, {}, {} \n".format(break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation))
         file.close()
     
-    params = fit_type, break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation
+    params = Params(fit_type, break_predict, dbreak_predict, inject_predict, dinject_predict, remnant_predict, dremnant_predict, normalisation)
+
     debug_output = adaptive_probability, adaptive_break_frequency, adaptive_injection_index, adaptive_remnant_ratio, adaptive_max_break, adaptive_max_inject, adaptive_max_remnant
 
     return params

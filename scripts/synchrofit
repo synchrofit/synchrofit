@@ -52,6 +52,7 @@ if __name__ == "__main__":
                         help='(Default = [2.01, 2.99]) Accepted range for the energy injection index')
     group2.add_argument("--remnant_range", dest='remnant_range', type=float, nargs='+', default=[0, 1], 
                         help='(Default = [0, 1]) Accepted range for the remnant ratio')
+    group2.add_argument("--search_space", dest='search_space', type=str, default='prob')
 
     group3 = parser.add_argument_group('Output Model Options')
     group3.add_argument("--n_model_freqs", dest='n_model_freqs', type=int, default=100, 
@@ -104,7 +105,9 @@ if __name__ == "__main__":
     print("INFO __main__ {}".format(colorstring))
     params = spectral_fitter(frequency, luminosity, dluminosity, options.fit_type, options.n_breaks, \
             options.break_range, options.n_injects, options.inject_range, options.n_remnants, options.remnant_range, \
-            options.n_iterations, options.b_field, options.redshift, options.write_model, options.work_dir, options.save_prefix)
+            options.n_iterations, options.search_space, options.b_field, options.redshift, options.write_model, options.work_dir, options.save_prefix)
+    print(params)
+    print(stop)
 
     colorstring = color_text("Evaluating model over the observed frequencies", Colors.Orange)
     print("INFO __main__ {}".format(colorstring))
