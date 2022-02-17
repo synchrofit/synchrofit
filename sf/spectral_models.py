@@ -67,7 +67,7 @@ def __spectral_models_standard(frequency,
     if fit_type == 'JP' or fit_type == 'KP':
         remnant_ratio = 0
 
-    nalpha, nenergiesJP, nenergiesCI = 64, 64, 64 # can be increased for extra precision
+    nalpha, nenergiesJP, nenergiesCI = 32, 64, 64 # can be increased for extra precision
     nenergies = nenergiesJP + nenergiesCI
     
     # calculate the best fit to frequency-luminosity data
@@ -99,8 +99,8 @@ def __spectral_models_standard(frequency,
                     x_crit_star = np.log10(frequency[freqPointer]/(break_frequency*np.sin(alpha))*remnant_ratio**2)
                 else:
                     x_crit_star = -307. # close to zero in log space
-                x_min = x_crit - 8 # can be increased for extra precision away from break
-                x_max = x_crit + 8 
+                x_min = x_crit - 16 # can be increased for extra precision away from break
+                x_max = x_crit + 16 
                 for k in range(0, nenergies):
                     
                     # set up numerical integration, allowing for different spacing above and below x_crit
@@ -226,7 +226,7 @@ def __spectral_models_tribble(frequency,
 
     if fit_type == 'TJP' or fit_type == 'TKP':
         remnant_ratio = 0
-    nalpha, nfields, nenergiesJP, nenergiesCI = 32, 32, 32, 32 # can be increased for extra precision
+    nalpha, nfields, nenergiesJP, nenergiesCI = 32, 128, 128, 128 # can be increased for extra precision (128 for TJP)
     nenergies = nenergiesJP + nenergiesCI
     
     # calculate the best fit to frequency-luminosity data
@@ -245,8 +245,8 @@ def __spectral_models_tribble(frequency,
             luminosity_predict[freqPointer] = 0. # should already be zero
             
             # integrate over magnetic field (as B)
-            B_min = np.log10(const_a) - 4
-            B_max = np.log10(const_a) + 4
+            B_min = np.log10(const_a) - 16
+            B_max = np.log10(const_a) + 16
             for i in range(0, nfields):
             
                 # set up numerical integration
@@ -270,8 +270,8 @@ def __spectral_models_tribble(frequency,
                     else:
                         raise Exception('Spectral fit must be either \'TCI\', \'TJP\' or \'TKP\' model.')
                     E_crit = np.log10(1./(const_losses*t_syn))
-                    E_min = E_crit - 4 # can be increased for extra precision away from break
-                    E_max = E_crit + 4
+                    E_min = E_crit - 16 # can be increased for extra precision away from break
+                    E_max = E_crit + 16
                                 
                     for k in range(0, nenergies):
                         
