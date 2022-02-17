@@ -148,7 +148,6 @@ def __compute_sf(fit_type,
     return np.array([normalisation, AIC_double])
 
 
-
 def spectral_units(data, unit):
     """
     (usage) Converts input frequency and flux density into Hz and Jy, respectively. 
@@ -605,13 +604,7 @@ def spectral_fitter(frequency,
     marginal_distributions = [adaptive_break_marginal, adaptive_inject_marginal, adaptive_remnant_marginal]
     discretized_parameters = [adaptive_break_frequency, adaptive_injection_index, adaptive_remnant_ratio]
     return params, discretized_parameters, marginal_distributions, probability_vector, mesh_parameters, normalisation_vector
-        
 
-
-
-
-    """
-    """
 
 def spectral_fitter_(frequency : (list, np.ndarray), luminosity : (list, np.ndarray), dluminosity : (list, np.ndarray), \
     fit_type : str, n_breaks=31, break_range=[8,11], n_injects=31, inject_range=[2.01,2.99], n_remnants=31, \
@@ -934,27 +927,32 @@ def spectral_fitter_(frequency : (list, np.ndarray), luminosity : (list, np.ndar
     debug_output = adaptive_probability, adaptive_break_frequency, adaptive_injection_index, adaptive_remnant_ratio, adaptive_max_break, adaptive_max_inject, adaptive_max_remnant
     
     if debug == True:
-        return(params, debug_output)
+        return params, debug_output
     else:
-        return(params)
+        return params 
 
-def spectral_model(fit_type, mesh_parameters, normalisation_vector, frequency, b_field=None, redshift=None):
 
+def spectral_model(fit_type, mesh_parameters, normalisation_vector, frequency, probability_vector, b_field=None, redshift=None, pcrit=1):
+
+    break_frequencies = mesh_parameters[:,0][np.where(probability_vector>=pcrit)]
+    injection_indices = mesh_parameters[:,1][np.where(probability_vector>=pcrit)]
+    remnant_ratios = mesh_parameters[:,2][np.where(probability_vector>=pcrit)]
+    normalisation_vector = normalisation_vector[np.where(probability_vector>=pcrit)]
     args = []
     for i in range(len(normalisation_vector)):
-        break_frequency = mesh_parameters[:,0][i]
-        injection_index = mesh_parameters[:,1][i]
-        remnant_ratio = mesh_parameters[:,2][i]
+        break_frequency = break_frequencies[i]
+        injection_index = injection_indices[i]
+        remnant_ratio = remnant_ratios[i]
         normalisation = normalisation_vector[i]
 
         args.append([fit_type, frequency, 10**break_frequency, injection_index, remnant_ratio, normalisation, b_field, redshift])
-
-    ncpus = 8
+    ncpus = 6
     with multiprocessing.Pool(processes=ncpus, maxtasksperchild=None) as pool:
         sf_stats_matrix = pool.starmap(__simulate_sf, args)
         luminosityArray = np.asarray(sf_stats_matrix)
 
     return luminosityArray
+
 
 def spectral_model_(params : tuple, frequency : (list, np.ndarray), mc_length=500, err_width=2, \
     b_field=None, redshift=None, work_dir=None, write_model=False, save_prefix=None):
@@ -1116,6 +1114,7 @@ def spectral_model_(params : tuple, frequency : (list, np.ndarray), mc_length=50
     # logger.info(color_text('Exitting function.',Colors.MediumSpringGreen))
     return(model_data, err_model_data, model_data_min, model_data_max)
 
+
 def spectral_plotter(observed_data : tuple, model_data=None, plotting_data=None, work_dir=None, fit_type=None, err_model_width=2, save_prefix=None):
     """
     (usage) Plots the data and optimised model fit to figure, and writes figure to file. 
@@ -1257,8 +1256,7 @@ def spectral_plotter(observed_data : tuple, model_data=None, plotting_data=None,
     logger.info(colorstring)
     plt.legend(loc='upper right', fontsize=20)
     plt.savefig(savename,dpi=200)
-    
-    # logger.info(color_text('Exitting function.',Colors.MediumSpringGreen))
+
 
 def spectral_ages(params : tuple, b_field : float, redshift : float):
     """
