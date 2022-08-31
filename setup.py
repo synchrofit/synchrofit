@@ -12,7 +12,8 @@ def read(fname):
     """Read a file"""
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-reqs = ['pandas>=1.2.2',
+reqs = ['numpy<1.23,>=1.18', # to avoid numpy conflict due to numba
+        'pandas>=1.2.2',
         'numba>=0.52.0',
         'scipy>=1.6.1',
         'matplotlib>=3.3.4',
