@@ -13,7 +13,7 @@ import numpy as np
 import math
 
 # synchrofit
-from sf.synchrofit import spectral_fitter, spectral_model, spectral_plotter, spectral_ages, spectral_units
+from sf.synchrofit import spectral_fitter, spectral_model, spectral_plotter, spectral_ages, spectral_units, spectral_model_
 from sf.helpers import logger, color_text, Colors
 
 # command line version of synchrofit runs from here.
@@ -109,14 +109,14 @@ if __name__ == "__main__":
 
     colorstring = color_text("Evaluating model over the observed frequencies", Colors.Orange)
     print("INFO __main__ {}".format(colorstring))
-    model_data, err_model_data, model_data_min, model_data_max = spectral_model(params[:-1], frequency, options.mc_length, options.err_width, \
+    model_data, err_model_data, model_data_min, model_data_max = spectral_model_(params[0], frequency, options.mc_length, options.err_width, \
                                                                 options.b_field, options.redshift, \
                                                                 options.work_dir, options.write_model, '{}-observed'.format(options.save_prefix))
     if options.plot:
         colorstring = color_text("Evaluating model over {} simulated frequencies".format(options.n_model_freqs), Colors.Orange)
         print("INFO __main__ {}".format(colorstring))
         plotting_frequency = np.geomspace(10**(math.floor(np.min(np.log10(frequency)))),10**(math.ceil(np.max(np.log10(frequency)))), options.n_model_freqs)
-        plotting_data, err_plotting_data, plotting_data_min, plotting_data_max = spectral_model(params[:-1], plotting_frequency, options.mc_length, options.err_width, \
+        plotting_data, err_plotting_data, plotting_data_min, plotting_data_max = spectral_model_(params[0], plotting_frequency, options.mc_length, options.err_width, \
                                                                 options.b_field, options.redshift, \
                                                                 options.work_dir, options.write_model, '{}-simulated'.format(options.save_prefix))
         colorstring = color_text("Writing model fit to figure", Colors.Orange)
