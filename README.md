@@ -6,7 +6,7 @@ The ```synchrofit``` (**synchro**tron **fit**ter) package implements a reduced d
 <!--<sup>[**1**]</sup>Accounting for dynamical changes within the radio source, e.g. an evolving magnetic field, is beyond the scope of this code. -->
 
 ## Credits
-Please credit Ross J. Turner and Benjamin Quici if you use this code, or incorporate it into your own workflow. Please acknowledge the use of this code by providing a link to this repository (a citation will be available shortly). 
+Please credit Ross J. Turner and Benjamin Quici if you use this code, or incorporate it into your own workflow. Please acknowledge the use of this code by providing a link to this repository and citing [Quici et al. 2022](https://academic.oup.com/mnras/article/514/3/3466/6588050). 
 
 ## Installation
 ```synchrofit``` is built and tested on python 3.8.5.<br /> 
